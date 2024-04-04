@@ -1686,7 +1686,7 @@ progress {
 
   .col-lg-5 {
     flex: 0 0 auto;
-    width: 41.666667%;
+    width: 33.3333%;
   }
 
   .col-lg-6 {
@@ -1696,7 +1696,7 @@ progress {
 
   .col-lg-7 {
     flex: 0 0 auto;
-    width: 58.333333%;
+    width: 33.333333%;
   }
 
   .col-lg-8 {
@@ -1722,6 +1722,16 @@ progress {
   .col-lg-12 {
     flex: 0 0 auto;
     width: 100%;
+  }
+
+  .col-lg-13 {
+    flex: 0 0 auto;
+    width: 50%;
+  }
+
+  .col-lg-14 {
+    flex: 0 0 auto;
+    width: 50%;
   }
 
   .offset-lg-0 {
