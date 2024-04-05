@@ -63,13 +63,13 @@
       </nav>
     <!-- End Navbar -->
     <div class="container-fluid">
-      <div class="page-header min-height-75 border-radius-xl mt-4">
+      <div class="page-header min-height-50 border-radius-xl mt-4">
       </div>
       <div class="card card-body blur shadow-blur mx-4 mt-n6 overflow-hidden">
         <div class="row gx-4">
           <div class="col-auto">
             <div class="avatar avatar-xl position-relative">
-              <img src="../assets/img/bruce-mars.jpg" alt="profile_image" class="w-100 border-radius-lg shadow-sm">
+              <img src="../assets/img/default-avatar.png" alt="profile_image">
             </div>
           </div>
           <div class="col-auto my-auto">
