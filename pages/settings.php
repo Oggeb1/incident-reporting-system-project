@@ -39,7 +39,7 @@
 </head>
 
 <body class="g-sidenav-show bg-gray-100">
-<?php require 'sidebar.php';?>
+<?php $pageName = 'settings'; require 'sidebar.php';?>
   <div class="main-content position-relative bg-gray-100 max-height-vh-100 h-100">
       <!-- Navbar -->
       <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl" id="navbarBlur" navbar-scroll="true">
