@@ -42,7 +42,7 @@
 <?php $pageName = 'settings'; require 'sidebar.php';?>
   <div class="main-content position-relative bg-gray-100 max-height-vh-100 h-100">
     <div class="container-fluid">
-      <div class="page-header min-height-50 border-radius-xl mt-4">
+      <div class="page-header min-height-75 border-radius-xl mt-4">
       </div>
       <div class="card card-body blur shadow-blur mx-4 mt-n6 overflow-hidden">
         <div class="row gx-4">
