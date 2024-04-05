@@ -194,7 +194,7 @@
                         <h6 class="ms-2 mt-4 mb-0"> Active Users </h6>
                         <p class="text-sm ms-2"> (<span class="font-weight-bolder">+23%</span>) than last week </p>
 
-                        </div>
+
                     </div>
                 </div>
             </div>
