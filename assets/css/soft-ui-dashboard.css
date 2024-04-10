@@ -5937,6 +5937,7 @@ fieldset:disabled .btn {
   --bs-list-group-active-color: #fff;
   --bs-list-group-active-bg: #cb0c9f;
   --bs-list-group-active-border-color: #cb0c9f;
+  list-style: none;
   display: flex;
   flex-direction: column;
   padding-left: 0;
