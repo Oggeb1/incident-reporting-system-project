@@ -22634,7 +22634,8 @@ html {
 
 .navbar-vertical.navbar-expand-xs .navbar-collapse {
   display: block;
-  overflow: auto;
+  overflow: hidden;
+  overflow-y: hidden;
 }
 
 .navbar-vertical.navbar-expand-xs>[class*="container"] {

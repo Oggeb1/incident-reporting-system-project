@@ -89,10 +89,9 @@ require 'sidebar.php'; ?>
                                         class="text-dark">Location:</strong> &nbsp; SE
                             </li>
                             <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">
-                                    <a class="nav-link icon-move-right" href="">Edit User Information<i
-                                                class="fas fa-arrow-right text-sm ms-1" aria-hidden="true">
+                                    <button  type="button" class="btn btn-primary icon-move-right" data-bs-toggle="modal" data-bs-target="#editUserModal">Edit User Information<i>
                                         </i>
-                                    </a>
+                                    </button>
                                 </strong>
                             </li>
                         </ul>
@@ -147,6 +146,23 @@ require 'sidebar.php'; ?>
                             </li>
                         </ul>
                         </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal -->
+        <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModal" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">Edit User Information</h5>
+                    </div>
+                    <div class="modal-body">
+                        ...
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
                     </div>
                 </div>
             </div>
