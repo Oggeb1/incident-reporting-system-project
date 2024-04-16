@@ -15,6 +15,9 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<?php
+session_start();
+?>
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -44,11 +47,10 @@
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <!-- Navbar -->
     <?php
-    $userrole = 'admin';
-    $userrole = 'responder';
-    $userrole = 'reporter';
-    if ($userrole === 'admin' && ($userrole === 'responder')) {
+
+    if ($_SESSION["role"] === 'admin' && ($_SESSION["role"] === 'responder')) {
         ?>
+            $element1 = <<<END
         <div class="container-fluid py-4">
             <div class="row">
                 <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
@@ -129,13 +131,14 @@
                 </div>
             </div>
         </div>
-        <?php
     }
-    ?>
+
+    END;
 
     <?php
-    if ($userrole)
+    if ($_SESSION["role"] === 'admin' || ($_SESSION["role"] === 'responder' || ($_SESSION["role"] === 'reporter'))) {
     ?>
+    $element2 = <<<END
     <div class="row mt-4">
             <div class="col-lg-5">
                 <div class="card h-100 p-3">
@@ -320,7 +323,11 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div
+ <?php
+      }
+    END;
+    ?>
         <div class="row my-4">
             <div class="col-lg-8 col-md-6 mb-md-0 mb-4">
                 <div class="card">
