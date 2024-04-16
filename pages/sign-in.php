@@ -26,14 +26,16 @@ if (isset($_POST['login'])) {
 
     // Get the password for the $username from DB
     $dbUserPassword = $db->execute_query("SELECT password FROM user WHERE userName = ?", [$username])->fetch_assoc();
+    $dbUserType = $db->execute_query("SELECT userType FROM user WHERE userName = ?", [$username])->fetch_assoc();
 
     // Check if query exists, if not show error
-    if ($dbUserPassword != null) {
+    if ($dbUserPassword != null && $dbUserType != null) {
         // Check if DB passwd and user input password matches
         if ($dbUserPassword['password'] == $password) {
             // Set session variables
             $_SESSION['username'] = $username;
             $_SESSION['Logged-in'] = true;
+            $_SESSION['userType'] = $dbUserType['userType'];
             header("Location: dashboard.php");
             exit;
         } else {
