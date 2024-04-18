@@ -12,12 +12,15 @@
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
+<?php
+session_start();
+
+require "db-connection.php";
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
-<?php
-session_start();
-?>
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -134,7 +137,7 @@ session_start();
     }
     ?>
     <?php
-    if ($_SESSION["role"] === 'admin' && ($_SESSION["role"] === 'responder' || ($_SESSION["role"] === 'reporter')))
+    if ($_SESSION["role"] === 'admin' && ($_SESSION["role"] === 'responder' || ($_SESSION["role"] === 'reporter'))) {
     ?>
     <div class="row mt-4">
             <div class="col-lg-5">
@@ -182,8 +185,14 @@ session_start();
                     </div>
                 </div>
             </div>
+        <?php
+        }
+        ?>
         </div>
+        <?php
 
+    if ($_SESSION["role"] === 'admin' || ($_SESSION["role"] === 'responder')) {
+    ?>
         <div class="row mt-4">
             <div class="col-lg-13 mb-lg-0 mb-4">
                 <div class="card h-100 z-index-2">
@@ -320,7 +329,14 @@ session_start();
                     </div>
                 </div>
             </div>
+            <?php
+            }
+            ?>
         </div>
+    <?php
+
+    if ($_SESSION["role"] === 'admin' || ($_SESSION["role"] === 'responder')) {
+        ?>
         <div class="row my-4">
             <div class="col-lg-8 col-md-6 mb-md-0 mb-4">
                 <div class="card">
@@ -595,6 +611,9 @@ session_start();
                         </div>
                     </div>
                 </div>
+                <?php
+    }
+                ?>
             </div>
             <?php require 'footer.php' ?>
         </div>
