@@ -48,10 +48,9 @@ session_start();
     <!-- Navbar -->
     <?php
 
-    if ($_SESSION["role"] === 'admin' && ($_SESSION["role"] === 'responder')) {
+    if ($_SESSION["role"] === 'admin' || ($_SESSION["role"] === 'responder')) {
         ?>
-            $element1 = <<<END
-        <div class="container-fluid py-4">
+         <div class="container-fluid py-4">
             <div class="row">
                 <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
                     <div class="card">
@@ -131,14 +130,12 @@ session_start();
                 </div>
             </div>
         </div>
-    }
-
-    END;
-
     <?php
-    if ($_SESSION["role"] === 'admin' || ($_SESSION["role"] === 'responder' || ($_SESSION["role"] === 'reporter'))) {
+    }
     ?>
-    $element2 = <<<END
+    <?php
+    if ($_SESSION["role"] === 'admin' && ($_SESSION["role"] === 'responder' || ($_SESSION["role"] === 'reporter')))
+    ?>
     <div class="row mt-4">
             <div class="col-lg-5">
                 <div class="card h-100 p-3">
@@ -323,11 +320,7 @@ session_start();
                     </div>
                 </div>
             </div>
-        </div
- <?php
-      }
-    END;
-    ?>
+        </div>
         <div class="row my-4">
             <div class="col-lg-8 col-md-6 mb-md-0 mb-4">
                 <div class="card">
