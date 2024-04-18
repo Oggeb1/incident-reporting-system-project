@@ -51,7 +51,7 @@ require "db-connection.php";
     <!-- Navbar -->
     <?php
 
-    if ($_SESSION["role"] === 'admin' || ($_SESSION["role"] === 'responder')) {
+    if ($_SESSION["userType"] === 'admin' || ($_SESSION["userType"] === 'responder')) {
         ?>
          <div class="container-fluid py-4">
             <div class="row">
@@ -137,7 +137,7 @@ require "db-connection.php";
     }
     ?>
     <?php
-    if ($_SESSION["role"] === 'admin' && ($_SESSION["role"] === 'responder' || ($_SESSION["role"] === 'reporter'))) {
+    if ($_SESSION["userType"] === 'admin' && ($_SESSION["userType"] === 'responder' || ($_SESSION["userType"] === 'reporter'))) {
     ?>
     <div class="row mt-4">
             <div class="col-lg-5">
@@ -191,7 +191,7 @@ require "db-connection.php";
         </div>
         <?php
 
-    if ($_SESSION["role"] === 'admin' || ($_SESSION["role"] === 'responder')) {
+    if ($_SESSION["userType"] === 'admin' || ($_SESSION["userType"] === 'responder')) {
     ?>
         <div class="row mt-4">
             <div class="col-lg-13 mb-lg-0 mb-4">
@@ -335,7 +335,7 @@ require "db-connection.php";
         </div>
     <?php
 
-    if ($_SESSION["role"] === 'admin' || ($_SESSION["role"] === 'responder')) {
+    if ($_SESSION["userType"] === 'admin' || ($_SESSION["userType"] === 'responder')) {
         ?>
         <div class="row my-4">
             <div class="col-lg-8 col-md-6 mb-md-0 mb-4">
