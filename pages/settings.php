@@ -88,8 +88,14 @@ require 'sidebar.php'; ?>
                             <li class="list-group-item border-0 ps-0 text-sm"><strong
                                         class="text-dark">Location:</strong> &nbsp; SE
                             </li>
+                            <li class="list-group-item mb-0 border-0 ps-0 text-sm"><strong class="text-dark">
+                                    <button  type="button" class="btn mb-0 btn-primary icon-move-right" data-bs-toggle="modal" data-bs-target="#editUserModal">Change Email<i>
+                                        </i>
+                                    </button>
+                                </strong>
+                            </li>
                             <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">
-                                    <button  type="button" class="btn btn-primary icon-move-right" data-bs-toggle="modal" data-bs-target="#editUserModal">Edit User Information<i>
+                                    <button  type="button" class="btn mb-0 btn-primary icon-move-right" data-bs-toggle="modal" data-bs-target="#editUserModal">Change Password<i>
                                         </i>
                                     </button>
                                 </strong>
@@ -141,8 +147,8 @@ require 'sidebar.php'; ?>
                                 <label for="exampleFormControlTextarea1" class="form-label">Example textarea</label>
                                 <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
                             </li>
-                            <li class="mb-3">
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                            <li>
+                                <button type="submit" class="btn mb-0 btn-primary">Submit</button>
                             </li>
                         </ul>
                         </form>
