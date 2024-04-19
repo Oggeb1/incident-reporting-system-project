@@ -14,7 +14,7 @@
 -->
 <?php
 require 'db-connection.php';
-$users = $db->query("SELECT userName,email,firstName,lastName,userType FROM incident")->fetch_all();
+$users = $db->query("SELECT userName,email,firstName,lastName,userType FROM user")->fetch_all();
 ?>
 
 <!DOCTYPE html>
