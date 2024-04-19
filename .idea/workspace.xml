@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="d409cb6a-e0e6-4e86-8654-3dbda2907520" name="Changes" comment="made changes to dashboard.php">
+      <change beforePath="$PROJECT_DIR$/pages/dashboard.php" beforeDir="false" afterPath="$PROJECT_DIR$/pages/dashboard.php" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <execution />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="PhpDebugGeneral" listening_started="true" />
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="PHP" />
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="2edWVhQss8IjlBihgLi96lkJt6i" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/Users/Liams/PhpstormProjects/incident-reporting-system-project/assets/img",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "Errors",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mariadb"
+    ]
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Liams\PhpstormProjects\incident-reporting-system-project\assets\img" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-php-predefined-ba97393d7c68-6f8e3395a2b4-com.jetbrains.php.sharedIndexes-PS-233.15026.12" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d409cb6a-e0e6-4e86-8654-3dbda2907520" name="Changes" comment="" />
+      <created>1712234960940</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1712234960940</updated>
+      <workItem from="1712234962027" duration="171000" />
+      <workItem from="1712235150135" duration="14209000" />
+      <workItem from="1712751111822" duration="12391000" />
+      <workItem from="1713271168869" duration="7527000" />
+      <workItem from="1713443566916" duration="322000" />
+      <workItem from="1713444140492" duration="658000" />
+      <workItem from="1713445835083" duration="534000" />
+      <workItem from="1713447078493" duration="6727000" />
+      <workItem from="1713530748268" duration="6192000" />
+    </task>
+    <task id="LOCAL−00001" summary="added dashboard.php with code">
+      <option name="closed" value="true" />
+      <created>1712235298996</created>
+      <option name="number" value="LOCAL−00001" />
+      <option name="presentableId" value="LOCAL−00001" />
+      <updated>1712235298996</updated>
+    </task>
+    <task id="LOCAL−00002" summary="Changed the CSS">
+      <option name="closed" value="true" />
+      <created>1712235826628</created>
+      <option name="number" value="LOCAL−00002" />
+      <option name="presentableId" value="LOCAL−00002" />
+      <updated>1712235826628</updated>
+    </task>
+    <task id="LOCAL−00003" summary="Changed the CSS and some information">
+      <option name="closed" value="true" />
+      <created>1712317200734</created>
+      <option name="number" value="LOCAL−00003" />
+      <option name="presentableId" value="LOCAL−00003" />
+      <updated>1712317200734</updated>
+    </task>
+    <task id="LOCAL−00004" summary="Changed the CSS and removed the navbar from dashboard">
+      <option name="closed" value="true" />
+      <created>1712318447357</created>
+      <option name="number" value="LOCAL−00004" />
+      <option name="presentableId" value="LOCAL−00004" />
+      <updated>1712318447357</updated>
+    </task>
+    <task id="LOCAL−00005" summary="Added a SVG picture aswell as changed the dashboard.php code">
+      <option name="closed" value="true" />
+      <created>1712320992478</created>
+      <option name="number" value="LOCAL−00005" />
+      <option name="presentableId" value="LOCAL−00005" />
+      <updated>1712320992478</updated>
+    </task>
+    <task id="LOCAL−00006" summary="Added a SVG picture aswell as changed the dashboard.php code">
+      <option name="closed" value="true" />
+      <created>1712321863241</created>
+      <option name="number" value="LOCAL−00006" />
+      <option name="presentableId" value="LOCAL−00006" />
+      <updated>1712321863241</updated>
+    </task>
+    <task id="LOCAL−00007" summary="made changes to dashboard.php">
+      <option name="closed" value="true" />
+      <created>1712580818826</created>
+      <option name="number" value="LOCAL−00007" />
+      <option name="presentableId" value="LOCAL−00007" />
+      <updated>1712580818826</updated>
+    </task>
+    <task id="LOCAL−00008" summary="made changes to dashboard.php">
+      <option name="closed" value="true" />
+      <created>1713267899994</created>
+      <option name="number" value="LOCAL−00008" />
+      <option name="presentableId" value="LOCAL−00008" />
+      <updated>1713267899994</updated>
+    </task>
+    <task id="LOCAL−00009" summary="made changes to dashboard.php">
+      <option name="closed" value="true" />
+      <created>1713272360426</created>
+      <option name="number" value="LOCAL−00009" />
+      <option name="presentableId" value="LOCAL−00009" />
+      <updated>1713272360426</updated>
+    </task>
+    <task id="LOCAL−00010" summary="made changes to dashboard.php">
+      <option name="closed" value="true" />
+      <created>1713439535627</created>
+      <option name="number" value="LOCAL−00010" />
+      <option name="presentableId" value="LOCAL−00010" />
+      <updated>1713439535627</updated>
+    </task>
+    <task id="LOCAL−00011" summary="made changes to dashboard.php">
+      <option name="closed" value="true" />
+      <created>1713444438118</created>
+      <option name="number" value="LOCAL−00011" />
+      <option name="presentableId" value="LOCAL−00011" />
+      <updated>1713444438118</updated>
+    </task>
+    <task id="LOCAL−00012" summary="made changes to dashboard.php">
+      <option name="closed" value="true" />
+      <created>1713447607136</created>
+      <option name="number" value="LOCAL−00012" />
+      <option name="presentableId" value="LOCAL−00012" />
+      <updated>1713447607136</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="added dashboard.php with code" />
+    <MESSAGE value="Changed the CSS" />
+    <MESSAGE value="Changed the CSS and some information" />
+    <MESSAGE value="Changed the CSS and removed the navbar from dashboard" />
+    <MESSAGE value="Added a SVG picture aswell as changed the dashboard.php code" />
+    <MESSAGE value="made changes to dashboard.php" />
+    <option name="LAST_COMMIT_MESSAGE" value="made changes to dashboard.php" />
+  </component>
+</project>
