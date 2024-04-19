@@ -12,6 +12,11 @@
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
+<?php
+require 'db-connection.php';
+$users = $db->query("SELECT userName,email,firstName,lastName,userType FROM incident")->fetch_all();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -130,7 +135,7 @@ require 'sidebar.php'; ?>
                             </li>
                     </div>
             <div class="tab-content">
-                <div id="pendingTab" class="card-body px-0 pt-0 pb-2 tab-pane fade in pendingTab active">
+                <div id="pendingTab" class="card-body px-0 pt-0 pb-2 tab-pane fade in pendingTab active show">
                     <div class="table-responsive p-0">
                         <table class="table align-items-center mb-0">
                             <thead>

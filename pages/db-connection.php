@@ -1,9 +1,9 @@
 <?php
-$host     = 'localhost';
+$host     = '92.33.164.11';
 $db       = 'project';
-$user     = 'root';
-$password = '123';
-$port     = 3306;
+$user     = 'DI4020';
+$password = 'F3gTdVKnBjYm72wcyF7X';
+$port     = 8459;
 $charset  = 'utf8mb4';
 
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
