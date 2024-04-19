@@ -12,16 +12,27 @@
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
-<?php
-session_start();
 
-require "db-connection.php";
-
-?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
+    <?php
+
+
+    require "db-connection.php";
+
+    $pendingTickets = 'pending';
+    $ongoingTickets = 'ongoing';
+    $curTickets = $db->execute_query("SELECT COUNT(ticketStatus) FROM ticket WHERE ticketStatus LIKE 'Pending' = ?", [$pendingTickets])->fetch_assoc();
+    $currTickets = $curTickets['COUNT(ticketStatus)'];
+    $progressTickets = $db->execute_query("SELECT COUNT(ticketStatus) FROM ticket WHERE ticketStatus LIKE 'In progrss' = ?", [$ongoingTickets])->fetch_assoc();
+    $inProgTickets = $progressTickets['COUNT(ticketStatus)'];
+    $closedTickets = $db->execute_query("SELECT COUNT(ticketStatus) FROM ticket WHERE ticketStatus LIKE 'Resolved' = ?", [$pendingTickets])->fetch_assoc();
+    $allClosedTickets = $closedTickets['COUNT(ticketStatus)'];
+
+    ?>
+
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
@@ -45,15 +56,16 @@ require "db-connection.php";
 </head>
 
 <body class="g-sidenav-show  bg-gray-100">
+
 <?php $pageName = 'dashboard'; require 'sidebar.php';?>
 
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <!-- Navbar -->
     <?php
 
-    if ($_SESSION["userType"] === 'admin' || ($_SESSION["userType"] === 'responder')) {
+    if ($_SESSION["userType"] === 'Administrator' || ($_SESSION["userType"] === 'Responder')) {
         ?>
-         <div class="container-fluid py-4">
+          <div class="container-fluid py-4">
             <div class="row">
                 <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
                     <div class="card">
@@ -61,8 +73,8 @@ require "db-connection.php";
                             <div class="row">
                                 <div class="col-8">
                                     <div class="numbers">
-                                        <p class="text-sm mb-0 text-capitalize font-weight-bold">Pending tickets</p>
-                                        <h5 class="font-weight-bolder mb-0">$53,000<span class="text-success text-sm font-weight-bolder">+55%</span></h5>
+                                        <p class="text-sm mb-0 text-capitalize font-weight-bold">Current pending tickets</p>
+                                        <h5 class="font-weight-bolder mb-0"> <?= $currTickets ?></h5>
                                     </div>
                                 </div>
                                 <div class="col-4 text-end">
@@ -80,8 +92,8 @@ require "db-connection.php";
                             <div class="row">
                                 <div class="col-8">
                                     <div class="numbers">
-                                        <p class="text-sm mb-0 text-capitalize font-weight-bold">Current tickets</p>
-                                        <h5 class="font-weight-bolder mb-0">2,300<span class="text-success text-sm font-weight-bolder">+3%</span></h5>
+                                        <p class="text-sm mb-0 text-capitalize font-weight-bold">Current ongoing tickets</p>
+                                        <h5 class="font-weight-bolder mb-0"><?php echo $inProgTickets?></h5>
                                     </div>
                                 </div>
                                 <div class="col-4 text-end">
@@ -99,8 +111,8 @@ require "db-connection.php";
                             <div class="row">
                                 <div class="col-8">
                                     <div class="numbers">
-                                        <p class="text-sm mb-0 text-capitalize font-weight-bold">Closed tickets</p>
-                                        <h5 class="font-weight-bolder mb-0">+3,462<span class="text-danger text-sm font-weight-bolder">-2%</span></h5>
+                                        <p class="text-sm mb-0 text-capitalize font-weight-bold">Resolved tickets</p>
+                                        <h5 class="font-weight-bolder mb-0"><?= $allClosedTickets?></h5>
                                     </div>
                                 </div>
                                 <div class="col-4 text-end">
@@ -133,11 +145,11 @@ require "db-connection.php";
                 </div>
             </div>
         </div>
-    <?php
+   <?php
     }
     ?>
     <?php
-    if ($_SESSION["userType"] === 'admin' && ($_SESSION["userType"] === 'responder' || ($_SESSION["userType"] === 'reporter'))) {
+    if ($_SESSION["userType"] === 'Administrator' || ($_SESSION["userType"] === 'Responder' || ($_SESSION["userType"] === 'Reporter'))) {
     ?>
     <div class="row mt-4">
             <div class="col-lg-5">
@@ -191,7 +203,7 @@ require "db-connection.php";
         </div>
         <?php
 
-    if ($_SESSION["userType"] === 'admin' || ($_SESSION["userType"] === 'responder')) {
+    if ($_SESSION["userType"] === 'Admin' || ($_SESSION["userType"] === 'Responder')) {
     ?>
         <div class="row mt-4">
             <div class="col-lg-13 mb-lg-0 mb-4">
@@ -335,7 +347,7 @@ require "db-connection.php";
         </div>
     <?php
 
-    if ($_SESSION["userType"] === 'admin' || ($_SESSION["userType"] === 'responder')) {
+    if ($_SESSION['userType'] === 'Administrator' || ($_SESSION["userType"] === 'Responder')) {
         ?>
         <div class="row my-4">
             <div class="col-lg-8 col-md-6 mb-md-0 mb-4">
