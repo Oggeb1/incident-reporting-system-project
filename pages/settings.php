@@ -40,7 +40,10 @@
 
 <body class="g-sidenav-show bg-gray-100">
 <?php $pageName = 'settings';
-require 'sidebar.php'; ?>
+require 'sidebar.php';
+require 'db-connection.php';
+$dbUserInfo = $db->execute_query("SELECT email, firstname, lastname FROM user WHERE userName = ?", [$_SESSION["username"]])->fetch_assoc();
+?>
 <div class="main-content position-relative max-height-vh-100 h-100 border-radius-lg py-4">
     <div class="container-fluid">
         <div class="card card-body blur shadow-blur me-auto overflow-hidden">
@@ -53,10 +56,10 @@ require 'sidebar.php'; ?>
                 <div class="col-auto my-auto">
                     <div class="h-100">
                         <h5 class="mb-1">
-                            Admin
+                            <?=$_SESSION['username']?>
                         </h5>
                         <p class="mb-0 font-weight-bold text-sm">
-                            Admin
+                            <?=$_SESSION['userType']?>
                         </p>
                     </div>
                 </div>
@@ -77,16 +80,16 @@ require 'sidebar.php'; ?>
                     <div class="card-body p-3">
                         <ul class="list-group">
                             <li class="list-group-item border-0 ps-0 pt-0 text-sm"><strong
-                                        class="text-dark">Full Name:</strong> &nbsp; sample name
+                                        class="text-dark">First Name:</strong> &nbsp; <?php {echo $dbUserInfo["firstname"];}?>
                             </li>
                             <li class="list-group-item border-0 ps-0 text-sm"><strong
-                                        class="text-dark">Username:</strong> &nbsp; sample name
-                            </li>
-                            <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Email:</strong>
-                                &nbsp; sample.mail@mail.temp
+                                        class="text-dark">Last Name:</strong> &nbsp; <?php {echo $dbUserInfo["lastname"];}?>
                             </li>
                             <li class="list-group-item border-0 ps-0 text-sm"><strong
-                                        class="text-dark">Location:</strong> &nbsp; SE
+                                        class="text-dark">Username:</strong> &nbsp; <?=$_SESSION['username']?>
+                            </li>
+                            <li class="list-group-item border-0 ps-0 text-sm"><strong
+                                        class="text-dark">Email:</strong> <?php {echo $dbUserInfo["email"];}?>
                             </li>
                             <li class="list-group-item mb-0 border-0 ps-0 text-sm"><strong class="text-dark">
                                     <button  type="button" class="btn mb-0 btn-primary icon-move-right" data-bs-toggle="modal" data-bs-target="#editUserModal">Change Email<i>
