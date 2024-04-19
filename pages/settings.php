@@ -16,6 +16,11 @@
 <html lang="en">
 
 <head>
+    <?php $pageName = 'settings';
+    require 'sidebar.php';
+    require 'db-connection.php';
+    $dbUserInfo = $db->execute_query("SELECT email, firstname, lastname FROM user WHERE userName = ?", [$_SESSION["username"]])->fetch_assoc();
+    ?>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
@@ -39,11 +44,6 @@
 </head>
 
 <body class="g-sidenav-show bg-gray-100">
-<?php $pageName = 'settings';
-require 'sidebar.php';
-require 'db-connection.php';
-$dbUserInfo = $db->execute_query("SELECT email, firstname, lastname FROM user WHERE userName = ?", [$_SESSION["username"]])->fetch_assoc();
-?>
 <div class="main-content position-relative max-height-vh-100 h-100 border-radius-lg py-4">
     <div class="container-fluid">
         <div class="card card-body blur shadow-blur me-auto overflow-hidden">
