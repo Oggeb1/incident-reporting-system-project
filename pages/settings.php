@@ -12,6 +12,12 @@
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
+
+<?php
+require 'db-connection.php';
+$users = $db->query("SELECT userName,email,firstName,lastName,userType,password FROM user")->fetch_all();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -53,10 +59,10 @@ require 'sidebar.php'; ?>
                 <div class="col-auto my-auto">
                     <div class="h-100">
                         <h5 class="mb-1">
-                            Admin
+                            <?=$_SESSION['username']?>
                         </h5>
                         <p class="mb-0 font-weight-bold text-sm">
-                            Admin
+                            <?=$_SESSION['userType']?>
                         </p>
                     </div>
                 </div>
@@ -77,16 +83,16 @@ require 'sidebar.php'; ?>
                     <div class="card-body p-3">
                         <ul class="list-group">
                             <li class="list-group-item border-0 ps-0 pt-0 text-sm"><strong
-                                        class="text-dark">Full Name:</strong> &nbsp; sample name
+                                        class="text-dark">First Name:</strong> &nbsp; sample name
+                            </li>
+                            <li class="list-group-item border-0 ps-0 text-sm"><strong
+                                        class="text-dark">Last Name:</strong> &nbsp; sample name
                             </li>
                             <li class="list-group-item border-0 ps-0 text-sm"><strong
                                         class="text-dark">Username:</strong> &nbsp; sample name
                             </li>
-                            <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Email:</strong>
-                                &nbsp; sample.mail@mail.temp
-                            </li>
                             <li class="list-group-item border-0 ps-0 text-sm"><strong
-                                        class="text-dark">Location:</strong> &nbsp; SE
+                                        class="text-dark">Email:</strong>
                             </li>
                             <li class="list-group-item mb-0 border-0 ps-0 text-sm"><strong class="text-dark">
                                     <button  type="button" class="btn mb-0 btn-primary icon-move-right" data-bs-toggle="modal" data-bs-target="#editUserModal">Change Email<i>
