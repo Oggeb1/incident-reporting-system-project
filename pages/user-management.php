@@ -12,10 +12,6 @@
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
-<?php
-    require 'db-connection.php';
-    $users = $db->query("SELECT userName,email,firstName,lastName,userType FROM user")->fetch_all();
-?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -44,7 +40,26 @@
 </head>
 
 <body class="g-sidenav-show  bg-gray-100">
-<?php $pageName = 'user-management'; require 'sidebar.php';?>
+<?php
+$pageName = 'user-management'; require 'sidebar.php';
+
+// Import DB connection
+require 'db-connection.php';
+$users = $db->query("SELECT userName,email,firstName,lastName,userType FROM user")->fetch_all();
+
+if (isset($_POST['submit'])) {
+    $oldUsername = $_POST['oldUsername'];
+
+    $newUsername = $_POST['username'];
+    $firstName = $_POST['firstName'];
+    $lastName = $_POST['lastName'];
+    $email = $_POST['email'];
+    $role = $_POST['role'];
+
+    $db->execute_query("UPDATE user SET userName = (?), firstName = (?), lastName = (?), email = (?), userType = (?) WHERE userName = (?)", [$newUsername, $firstName, $lastName, $email, $role, $oldUsername]);
+}
+
+?>
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <div class="container-fluid py-4">
       <div class="row">
@@ -103,36 +118,38 @@
           </div>
         </div>
       </div>
-        <?php require 'footer.php' ?>
+        <?php require 'footer.php';
+        ?>
     </div>
     <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModal" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Edit User Information</h5>
+                    <h5 class="modal-title" id="exampleModalLongTitle">Edit User Information for </h5>
                 </div>
+                <form method="POST">
                 <div class="modal-body">
-                    <form>
+                        <input type="hidden" id="oldUsername" name="oldUsername" value="">
                         <label for="userName">Username:</label>
-                        <input type="text" id="userName"><br>
+                        <input type="text" name="username" id="userName"><br>
                         <label for="firstName">First name:</label>
-                        <input type="text" id="firstName"><br>
+                        <input type="text" id="firstName" name="firstName"><br>
                         <label for="lastName">Last name:</label>
-                        <input type="text" id="lastName"><br>
+                        <input type="text" id="lastName" name="lastName"><br>
                         <label for="email">Email:</label>
-                        <input type="text" id="email"><br>
+                        <input type="text" id="email" name="email"><br>
                         <label for="roleReporter">Reporter:</label>
-                        <input type="radio" id="roleReporter" name="role">
+                        <input type="radio" id="roleReporter" value="Reporter" name="role">
                         <label for="roleResponder">Responder:</label>
-                        <input type="radio" id="roleResponder" name="role">
+                        <input type="radio" id="roleResponder" value="Responder" name="role">
                         <label for="roleAdministrator">Administrator:</label>
-                        <input type="radio" id="roleAdministrator" name="role">
-                    </form>
+                        <input type="radio" id="roleAdministrator" value="Administrator" name="role">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-toggle="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button type="submit" class="btn btn-primary" name="submit">Save changes</button>
                 </div>
+                </form>
             </div>
         </div>
     </div>
@@ -141,6 +158,7 @@
       $('#editUserModal').on('show.bs.modal', function (event) {
           var button = $(event.relatedTarget) // Button that triggered the modal
           var editIndex = button.data('index') // Extract info from data-* attributes
+          $('#oldUsername').attr('value', editIndex[0])
           $('#userName').val(editIndex[0])
           $('#firstName').val(editIndex[2])
           $('#lastName').val(editIndex[3])
