@@ -45,6 +45,10 @@ if (empty($_SESSION)) {
     session_start();
 }
 
+if ($_SESSION['userType'] !== 'Administrator') {
+    header("Location: dashboard.php");
+}
+
 $pageName = 'user-management';
 
 
@@ -121,7 +125,7 @@ require 'sidebar.php';
         <div class="col-12">
           <div class="card mb-4">
             <div class="card-header pb-0">
-              <h6 class="d-inline-block">Authors table</h6>
+              <h6 class="d-inline-block">Users</h6>
                 <button type="button" class="btn mb-0 btn-primary icon-move-right d-inline-block float-end" data-bs-toggle="modal" data-bs-target="#newUserModal">New User</button>
             </div>
             <div class="card-body px-0 pt-0 pb-2">
@@ -129,10 +133,10 @@ require 'sidebar.php';
                 <table class="table align-items-center mb-0">
                   <thead>
                     <tr>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Author</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Function</th>
+                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">User</th>
+                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Real Name</th>
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Employed</th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Last Seen</th>
                       <th class="text-secondary opacity-7"></th>
                     </tr>
                   </thead>
@@ -181,7 +185,7 @@ require 'sidebar.php';
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Edit user</h5>
+                    <h5 class="modal-title" id="exampleModalLongTitle">Create new user</h5>
                 </div>
                 <form method="POST">
                     <div class="modal-body">
@@ -202,7 +206,7 @@ require 'sidebar.php';
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-toggle="modal">Close</button>
-                        <button type="submit" class="btn btn-primary" name="newSubmit">Save changes</button>
+                        <button type="submit" class="btn btn-primary" name="newSubmit">Create user</button>
                     </div>
                 </form>
             </div>
