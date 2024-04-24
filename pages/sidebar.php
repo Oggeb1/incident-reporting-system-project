@@ -1,6 +1,8 @@
 <?php
 // Code to check if logged-in
-session_start();
+if (empty($_SESSION)) {
+    session_start();
+}
 
 // If session does not exist, logout
 if (empty($_SESSION['Logged-in'])) {

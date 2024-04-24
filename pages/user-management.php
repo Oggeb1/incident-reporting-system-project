@@ -41,60 +41,79 @@
 
 <body class="g-sidenav-show  bg-gray-100">
 <?php
-$pageName = 'user-management'; require 'sidebar.php';
+if (empty($_SESSION)) {
+    session_start();
+}
+
+$pageName = 'user-management';
+
 
 // Import DB connection
 require 'db-connection.php';
 $users = $db->query("SELECT userName,email,firstName,lastName,userType FROM user")->fetch_all();
 
-if (isset($_POST['newSubmit'])) {
-    $username = $_POST['newUsername'];
-    $firstName = $_POST['newFirstName'];
-    $lastName = $_POST['newLastName'];
-    $email = $_POST['newEmail'];
-    $role = $_POST['role'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['newSubmit'])) {
+        $username = $_POST['newUsername'];
+        $firstName = $_POST['newFirstName'];
+        $lastName = $_POST['newLastName'];
+        $email = $_POST['newEmail'];
+        $role = $_POST['role'];
 
-    if (isset($password)) {
-        unset($password);
+        if (isset($password)) {
+            unset($password);
+        }
+
+        $password = bin2hex(openssl_random_pseudo_bytes(16));
+
+        $db->execute_query("INSERT INTO user (userName, firstName, lastName, email, userType, password) VALUES ((?), (?), (?), (?), (?), (?))", [$username, $firstName, $lastName, $email, $role, $password]);
+        header('Location: user-management.php', true, 303);
+        exit();
     }
 
-    $password = bin2hex(openssl_random_pseudo_bytes(16));
+    if (isset($_POST['editSubmit'])) {
 
-    $db->execute_query("INSERT INTO user (userName, firstName, lastName, email, userType, password) VALUES ((?), (?), (?), (?), (?), (?))", [$username, $firstName, $lastName, $email, $role, $password]);
-}
+        $oldUsername = $_POST['oldUsername'];
+        $username = $_POST['username'];
+        $firstName = $_POST['firstName'];
+        $lastName = $_POST['lastName'];
+        $email = $_POST['email'];
+        $role = $_POST['role'];
 
-if (isset($_POST['editSubmit'])) {
+        if (isset($password)) {
+            unset($password);
+        }
 
-    $oldUsername = $_POST['oldUsername'];
-    $username = $_POST['username'];
-    $firstName = $_POST['firstName'];
-    $lastName = $_POST['lastName'];
-    $email = $_POST['email'];
-    $role = $_POST['role'];
+        if (isset($_POST['resetPassword'])) {
+            if ($_POST['resetPassword'] === 'on') {
+                $password = bin2hex(openssl_random_pseudo_bytes(16));
+            }
+        }
 
-    if (isset($password)) {
-        unset($password);
+        if (isset($password)) {
+            $db->execute_query("UPDATE user SET userName = (?), firstName = (?), lastName = (?), email = (?), userType = (?), password = (?) WHERE userName = (?)", [$username, $firstName, $lastName, $email, $role, $password, $oldUsername]);
+        } else {
+            $db->execute_query("UPDATE user SET userName = (?), firstName = (?), lastName = (?), email = (?), userType = (?) WHERE userName = (?)", [$username, $firstName, $lastName, $email, $role, $oldUsername]);
+        }
+
+        header('Location: user-management.php', true, 303);
+        exit();
     }
 
-    if (isset($_POST['resetPassword'])){
-        if ($_POST['resetPassword'] === 'on') {
-            $password = bin2hex(openssl_random_pseudo_bytes(16));
+    if (isset($_POST['deleteSubmit'])) {
+        $username = $_POST['oldUsername'];
+
+        if ($username !== $_SESSION['username']) {
+            $db->execute_query("DELETE FROM user WHERE userName = (?)", [$username]);
+            header('Location: user-management.php', true, 303);
+            exit();
+        } else {
+            echo "<script type='text/javascript'>alert('Can not delete current user');</script>";
         }
     }
-
-    if (isset($password)){
-        $db->execute_query("UPDATE user SET userName = (?), firstName = (?), lastName = (?), email = (?), userType = (?), password = (?) WHERE userName = (?)", [$username, $firstName, $lastName, $email, $role, $password, $oldUsername]);
-    } else {
-        $db->execute_query("UPDATE user SET userName = (?), firstName = (?), lastName = (?), email = (?), userType = (?) WHERE userName = (?)", [$username, $firstName, $lastName, $email, $role, $oldUsername]);
-    }
 }
 
-if (isset($_POST['deleteSubmit'])) {
-    $username = $_POST['oldUsername'];
-
-    $db->execute_query("DELETE FROM user WHERE userName = (?)", [$username]);
-}
-
+require 'sidebar.php';
 ?>
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <div class="container-fluid py-4">
@@ -214,7 +233,7 @@ if (isset($_POST['deleteSubmit'])) {
                         <input type="radio" id="roleAdministrator" value="Administrator" name="role"><br>
                         <label for="resetPassword">Reset Password:</label>
                         <input type="checkbox" id="resetPassword" name="resetPassword"><br>
-                        <button type="submit" class="btn btn-secondary" name="deleteSubmit">Delete User<button>
+                        <button type="submit" class="btn btn-primary" name="deleteSubmit">Delete User<a>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-toggle="modal">Close</button>
