@@ -14,7 +14,21 @@
 -->
 <?php
 require 'db-connection.php';
-$tickets = $db->query("SELECT * FROM ticket")->fetch_all();
+$ticketsPending = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription, 
+       ticket.timestamp, incident.reporterID, user.userName FROM ticket
+         JOIN incident ON ticket.incidentID = incident.incidentID
+         JOIN user ON incident.reporterID = user.userID
+WHERE ticket.ticketStatus LIKE 'Pending' ORDER BY ticket.incidentID")->fetch_all();
+$ticketsProgress = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription, 
+       ticket.timestamp, incident.reporterID, user.userName FROM ticket
+         JOIN incident ON ticket.incidentID = incident.incidentID
+         JOIN user ON incident.reporterID = user.userID
+WHERE ticket.ticketStatus LIKE 'In progress' ORDER BY ticket.incidentID")->fetch_all();
+$ticketsResolved = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription, 
+       ticket.timestamp, incident.reporterID, user.userName FROM ticket
+         JOIN incident ON ticket.incidentID = incident.incidentID
+         JOIN user ON incident.reporterID = user.userID
+WHERE ticket.ticketStatus LIKE 'Resolved' ORDER BY ticket.incidentID")->fetch_all();
 ?>
 
 <!DOCTYPE html>
@@ -157,26 +171,30 @@ require 'sidebar.php'; ?>
                             </thead>
                             <tbody>
                             <tr>
-                                <?php foreach ($tickets as $row):
+                                <?php foreach ($ticketsPending as $row):
                                 if ($row[3] === 'Pending')?>
                                 <td>
                                     <div class="d-flex px-2 py-1">
                                         <div class="d-flex flex-column justify-content-center">
-                                            <h6 class="mb-0 text-sm"><?=$row[0] ?></h6>
+                                            <h6 class="mb-0 text-sm"><?=$row[1] ?></h6>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <p class="text-xs font-weight-bold mb-0"><?=$row[2]?></p>
+                                    <p class="text-xs font-weight-bold mb-0"><?=$row[6]?></p>
                                 </td>
                                 <td class="align-middle text-center text-sm">
-                                    <p class="text-xs font-weight-bold mb-0"><?=$row[4]?></p>
+                                    <p class="text-xs font-weight-bold mb-0"><?=$row[3]?></p>
                                 </td>
                                 <td class="align-middle text-center">
-                                    <span class="text-secondary text-xs font-weight-bold"><?=$row[5]?></span>
+                                    <span class="text-secondary text-xs font-weight-bold"><?=$row[4]?></span>
                                 </td>
                                 <td class="align-middle">
                                     <a href="javascript:" class="text-secondary font-weight-bold text-xs"
+                                       data-toggle="tooltip" data-original-title="Assign user">
+                                        Assign
+                                    </a>
+                                    <a href="javascript:" class="text-secondary font-weight-bold text-xs ps-4"
                                        data-toggle="tooltip" data-original-title="Edit user">
                                         Edit
                                     </a>
@@ -189,11 +207,110 @@ require 'sidebar.php'; ?>
                 </div>
                 <div id="progress" class="card-body px-0 pt-0 pb-2 tab-pane fade in progressTab">
                     <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                    Incident Number
+                                </th>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                    Reported By
+                                </th>
+                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                    Description
+                                </th>
+                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                    Sent In On
+                                </th>
+                                <th class="text-secondary opacity-7"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <?php foreach ($ticketsProgress as $row):
+                                if ($row[3] === 'In progress')?>
+                                <td>
+                                    <div class="d-flex px-2 py-1">
+                                        <div class="d-flex flex-column justify-content-center">
+                                            <h6 class="mb-0 text-sm"><?=$row[1] ?></h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <p class="text-xs font-weight-bold mb-0"><?=$row[6]?></p>
+                                </td>
+                                <td class="align-middle text-center text-sm">
+                                    <p class="text-xs font-weight-bold mb-0"><?=$row[3]?></p>
+                                </td>
+                                <td class="align-middle text-center">
+                                    <span class="text-secondary text-xs font-weight-bold"><?=$row[4]?></span>
+                                </td>
+                                <td class="align-middle">
+                                    <a href="javascript:" class="text-secondary font-weight-bold text-xs"
+                                       data-toggle="tooltip" data-original-title="Assign user">
+                                        Assign
+                                    </a>
+                                    <a href="javascript:" class="text-secondary font-weight-bold text-xs ps-4"
+                                       data-toggle="tooltip" data-original-title="Edit user">
+                                        Edit
+                                    </a>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 <div id="resolvedTab" class="card-body px-0 pt-0 pb-2 tab-pane fade in resolvedTab">
                     <div class="table-responsive p-0">
-                        <p>test</p>
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                    Incident Number
+                                </th>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                    Reported By
+                                </th>
+                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                    Description
+                                </th>
+                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                    Sent In On
+                                </th>
+                                <th class="text-secondary opacity-7"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <?php foreach ($ticketsResolved as $row):
+                                if ($row[3] === 'Resolved')?>
+                                <td>
+                                    <div class="d-flex px-2 py-1">
+                                        <div class="d-flex flex-column justify-content-center">
+                                            <h6 class="mb-0 text-sm"><?=$row[1] ?></h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <p class="text-xs font-weight-bold mb-0"><?=$row[6]?></p>
+                                </td>
+                                <td class="align-middle text-center text-sm">
+                                    <p class="text-xs font-weight-bold mb-0"><?=$row[3]?></p>
+                                </td>
+                                <td class="align-middle text-center">
+                                    <span class="text-secondary text-xs font-weight-bold"><?=$row[4]?></span>
+                                </td>
+                                <td class="align-middle">
+                                    <a href="javascript:" class="text-secondary font-weight-bold text-xs ps-4"
+                                       data-toggle="tooltip" data-original-title="Edit user">
+                                        Edit
+                                    </a>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
