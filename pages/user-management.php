@@ -47,16 +47,52 @@ $pageName = 'user-management'; require 'sidebar.php';
 require 'db-connection.php';
 $users = $db->query("SELECT userName,email,firstName,lastName,userType FROM user")->fetch_all();
 
-if (isset($_POST['submit'])) {
-    $oldUsername = $_POST['oldUsername'];
+if (isset($_POST['newSubmit'])) {
+    $username = $_POST['newUsername'];
+    $firstName = $_POST['newFirstName'];
+    $lastName = $_POST['newLastName'];
+    $email = $_POST['newEmail'];
+    $role = $_POST['role'];
 
-    $newUsername = $_POST['username'];
+    if (isset($password)) {
+        unset($password);
+    }
+
+    $password = bin2hex(openssl_random_pseudo_bytes(16));
+
+    $db->execute_query("INSERT INTO user (userName, firstName, lastName, email, userType, password) VALUES ((?), (?), (?), (?), (?), (?))", [$username, $firstName, $lastName, $email, $role, $password]);
+}
+
+if (isset($_POST['editSubmit'])) {
+
+    $oldUsername = $_POST['oldUsername'];
+    $username = $_POST['username'];
     $firstName = $_POST['firstName'];
     $lastName = $_POST['lastName'];
     $email = $_POST['email'];
     $role = $_POST['role'];
 
-    $db->execute_query("UPDATE user SET userName = (?), firstName = (?), lastName = (?), email = (?), userType = (?) WHERE userName = (?)", [$newUsername, $firstName, $lastName, $email, $role, $oldUsername]);
+    if (isset($password)) {
+        unset($password);
+    }
+
+    if (isset($_POST['resetPassword'])){
+        if ($_POST['resetPassword'] === 'on') {
+            $password = bin2hex(openssl_random_pseudo_bytes(16));
+        }
+    }
+
+    if (isset($password)){
+        $db->execute_query("UPDATE user SET userName = (?), firstName = (?), lastName = (?), email = (?), userType = (?), password = (?) WHERE userName = (?)", [$username, $firstName, $lastName, $email, $role, $password, $oldUsername]);
+    } else {
+        $db->execute_query("UPDATE user SET userName = (?), firstName = (?), lastName = (?), email = (?), userType = (?) WHERE userName = (?)", [$username, $firstName, $lastName, $email, $role, $oldUsername]);
+    }
+}
+
+if (isset($_POST['deleteSubmit'])) {
+    $username = $_POST['oldUsername'];
+
+    $db->execute_query("DELETE FROM user WHERE userName = (?)", [$username]);
 }
 
 ?>
@@ -66,7 +102,8 @@ if (isset($_POST['submit'])) {
         <div class="col-12">
           <div class="card mb-4">
             <div class="card-header pb-0">
-              <h6>Authors table</h6>
+              <h6 class="d-inline-block">Authors table</h6>
+                <button type="button" class="btn mb-0 btn-primary icon-move-right d-inline-block float-end" data-bs-toggle="modal" data-bs-target="#newUserModal">New User</button>
             </div>
             <div class="card-body px-0 pt-0 pb-2">
               <div class="table-responsive p-0">
@@ -121,11 +158,42 @@ if (isset($_POST['submit'])) {
         <?php require 'footer.php';
         ?>
     </div>
+    <div class="modal fade" id="newUserModal" tabindex="-1" role="dialog" aria-labelledby="newUserModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Edit user</h5>
+                </div>
+                <form method="POST">
+                    <div class="modal-body">
+                        <label for="newUsername">Username:</label>
+                        <input type="text" name="newUsername" id="newUsername"><br>
+                        <label for="newFirstName">First name:</label>
+                        <input type="text" id="newFirstName" name="newFirstName"><br>
+                        <label for="newLastName">Last name:</label>
+                        <input type="text" id="newLastName" name="newLastName"><br>
+                        <label for="newEmail">Email:</label>
+                        <input type="text" id="newEmail" name="newEmail"><br>
+                        <label for="newRoleReporter">Reporter:</label>
+                        <input type="radio" id="newRoleReporter" value="Reporter" name="role">
+                        <label for="newRoleResponder">Responder:</label>
+                        <input type="radio" id="newRoleResponder" value="Responder" name="role">
+                        <label for="newRoleAdministrator">Administrator:</label>
+                        <input type="radio" id="newRoleAdministrator" value="Administrator" name="role"><br>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" name="newSubmit">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModal" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Edit User Information for </h5>
+                    <h5 class="modal-title" id="exampleModalLongTitle">Edit user</h5>
                 </div>
                 <form method="POST">
                 <div class="modal-body">
@@ -143,11 +211,14 @@ if (isset($_POST['submit'])) {
                         <label for="roleResponder">Responder:</label>
                         <input type="radio" id="roleResponder" value="Responder" name="role">
                         <label for="roleAdministrator">Administrator:</label>
-                        <input type="radio" id="roleAdministrator" value="Administrator" name="role">
+                        <input type="radio" id="roleAdministrator" value="Administrator" name="role"><br>
+                        <label for="resetPassword">Reset Password:</label>
+                        <input type="checkbox" id="resetPassword" name="resetPassword"><br>
+                        <button type="submit" class="btn btn-secondary" name="deleteSubmit">Delete User<button>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-toggle="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" name="submit">Save changes</button>
+                    <button type="submit" class="btn btn-primary" name="editSubmit">Save changes</button>
                 </div>
                 </form>
             </div>
