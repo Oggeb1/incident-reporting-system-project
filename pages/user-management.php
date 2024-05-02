@@ -55,7 +55,6 @@ $pageName = 'user-management';
 // Import DB connection
 require 'db-connection.php';
 $users = $db->query("SELECT userName,email,firstName,lastName,userType FROM user")->fetch_all();
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['newSubmit'])) {
         $username = $_POST['newUsername'];
@@ -68,11 +67,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             unset($password);
         }
 
-        $password = bin2hex(openssl_random_pseudo_bytes(16));
+        $usernameList = [];
+        foreach ($users as $user) {
+            $usernameList[] = $user[0];
+        }
 
-        $db->execute_query("INSERT INTO user (userName, firstName, lastName, email, userType, password) VALUES ((?), (?), (?), (?), (?), (?))", [$username, $firstName, $lastName, $email, $role, $password]);
-        header('Location: user-management.php', true, 303);
-        exit();
+        if (in_array($username, $usernameList)) {
+            echo "<script type='text/javascript'>alert('User already exists');</script>";
+        } else {
+            $password = bin2hex(openssl_random_pseudo_bytes(16));
+
+            $db->execute_query("INSERT INTO user (userName, firstName, lastName, email, userType, password) VALUES ((?), (?), (?), (?), (?), (?))", [$username, $firstName, $lastName, $email, $role, $password]);
+            header('Location: user-management.php', true, 303);
+            exit();
+        }
     }
 
     if (isset($_POST['editSubmit'])) {
