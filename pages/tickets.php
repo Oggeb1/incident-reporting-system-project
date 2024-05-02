@@ -65,6 +65,10 @@ require 'sidebar.php'; ?>
         <div class="row">
             <div class="col-12">
                 <div class="card mb-4">
+                    <div class="card-header pb-0">
+                        <h6 class="d-inline-block mb-2">Tickets</h6>
+                        <a class="btn mb-0 btn-primary icon-move-right d-inline-block float-end mb-2" href="create-ticket.php">New Ticket</a>
+                    </div>
                     <div class="nav-wrapper position-relative end-0">
                         <ul class="nav nav-pills nav-fill p-1 bg-transparent" role="tablist">
                             <li class="nav-item" role="presentation">
