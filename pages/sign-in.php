@@ -31,7 +31,7 @@ if (isset($_POST['login'])) {
     // Check if query exists, if not show error
     if ($dbUserPassword != null && $dbUserType != null) {
         // Check if DB passwd and user input password matches
-        if ($dbUserPassword['password'] == $password) {
+        if (password_verify($password, $dbUserPassword['password'])) {
             // Set session variables
             $_SESSION['username'] = $username;
             $_SESSION['Logged-in'] = true;
