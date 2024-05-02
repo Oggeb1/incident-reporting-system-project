@@ -198,19 +198,19 @@ require 'sidebar.php';
                 <form method="POST">
                     <div class="modal-body">
                         <label for="newUsername">Username:</label>
-                        <input type="text" name="newUsername" id="newUsername"><br>
+                        <input type="text" name="newUsername" id="newUsername" required><br>
                         <label for="newFirstName">First name:</label>
-                        <input type="text" id="newFirstName" name="newFirstName"><br>
+                        <input type="text" id="newFirstName" name="newFirstName" required><br>
                         <label for="newLastName">Last name:</label>
-                        <input type="text" id="newLastName" name="newLastName"><br>
+                        <input type="text" id="newLastName" name="newLastName" required><br>
                         <label for="newEmail">Email:</label>
-                        <input type="text" id="newEmail" name="newEmail"><br>
+                        <input type="email" id="newEmail" name="newEmail" required><br>
                         <label for="newRoleReporter">Reporter:</label>
-                        <input type="radio" id="newRoleReporter" value="Reporter" name="role">
+                        <input type="radio" id="newRoleReporter" value="Reporter" name="role" required>
                         <label for="newRoleResponder">Responder:</label>
-                        <input type="radio" id="newRoleResponder" value="Responder" name="role">
+                        <input type="radio" id="newRoleResponder" value="Responder" name="role" required>
                         <label for="newRoleAdministrator">Administrator:</label>
-                        <input type="radio" id="newRoleAdministrator" value="Administrator" name="role"><br>
+                        <input type="radio" id="newRoleAdministrator" value="Administrator" name="role" required><br>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-toggle="modal">Close</button>
@@ -230,21 +230,21 @@ require 'sidebar.php';
                 <div class="modal-body">
                         <input type="hidden" id="oldUsername" name="oldUsername" value="">
                         <label for="userName">Username:</label>
-                        <input type="text" name="username" id="userName"><br>
+                        <input type="text" name="username" id="userName" required><br>
                         <label for="firstName">First name:</label>
-                        <input type="text" id="firstName" name="firstName"><br>
+                        <input type="text" id="firstName" name="firstName" required><br>
                         <label for="lastName">Last name:</label>
-                        <input type="text" id="lastName" name="lastName"><br>
+                        <input type="text" id="lastName" name="lastName" required><br>
                         <label for="email">Email:</label>
-                        <input type="text" id="email" name="email"><br>
+                        <input type="email" id="email" name="email" required><br>
                         <label for="roleReporter">Reporter:</label>
-                        <input type="radio" id="roleReporter" value="Reporter" name="role">
+                        <input type="radio" id="roleReporter" value="Reporter" name="role" required>
                         <label for="roleResponder">Responder:</label>
-                        <input type="radio" id="roleResponder" value="Responder" name="role">
+                        <input type="radio" id="roleResponder" value="Responder" name="role" required>
                         <label for="roleAdministrator">Administrator:</label>
-                        <input type="radio" id="roleAdministrator" value="Administrator" name="role"><br>
+                        <input type="radio" id="roleAdministrator" value="Administrator" name="role" required><br>
                         <label for="resetPassword">Reset Password:</label>
-                        <input type="checkbox" id="resetPassword" name="resetPassword"><br>
+                        <input type="checkbox" id="resetPassword" name="resetPassword" required><br>
                         <button type="submit" class="btn btn-primary" name="deleteSubmit">Delete User<a>
                 </div>
                 <div class="modal-footer">
