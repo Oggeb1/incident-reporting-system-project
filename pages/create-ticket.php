@@ -30,6 +30,8 @@
     </title>
     <!--     Fonts and icons     -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
     <!-- Nucleo Icons -->
     <link href="../assets/css/nucleo-icons.css" rel="stylesheet"/>
     <link href="../assets/css/nucleo-svg.css" rel="stylesheet"/>
@@ -38,8 +40,6 @@
     <link href="../assets/css/nucleo-svg.css" rel="stylesheet"/>
     <!-- CSS Files -->
     <link id="pagestyle" href="../assets/css/soft-ui-dashboard.css?v=1.0.7" rel="stylesheet"/>
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/css/bootstrap-datetimepicker.min.css">
     <!-- Nepcha Analytics (nepcha.com) -->
     <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
     <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
@@ -48,54 +48,77 @@
 <body class="g-sidenav-show bg-gray-100">
 <div class="main-content position-relative max-height-vh-100 h-100 border-radius-lg py-4">
     <div class="container-fluid py-2">
-        <div class="d-flex align-items-center">
-            <h6 class="mb-0 text-primary">Create New Ticket:</h6>
+        <div class="d-flex justify-content-center">
+            <h6 class="mb-0">Create New Ticket:</h6>
         </div>
     </div>
-    <div class="card-body p-3">
-        <form method="post">
+    <div class="p-3 d-flex justify-content-center">
+        <form method="POST" class="w-sm-60">
             <ul class="list-group">
-                <li class="mb-3">
-                    <label for="exampleFormControlInput1" class="form-label">Subject</label>
-                    <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="Subject">
+                <li class="mb-1">
+                    <label>Select incident type</label>
+                    <div class="form-group">
+                        <select class="custom-select" required>
+                            <option value="">Open this select menu</option>
+                            <option value="1">One</option>
+                            <option value="2">Two</option>
+                            <option value="3">Three</option>
+                        </select>
+                        <div class="invalid-feedback">Example invalid custom select feedback</div>
+                    </div>
                 </li>
                 <li>
+                    <label>Incident Severity</label>
                     <div class="col-auto">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="radioFilter" id="filter-none" checked>
-                            <label class="form-check-label" for="inlineRadio1">none</label>
+                            <input class="form-check-input" type="radio" name="radioFilterSeverity" id="filter-low">
+                            <label class="form-check-label" for="inlineRadioLow">Low</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="radioFilter" id="filter-1">
-                            <label class="form-check-label" for="inlineRadio2">filter 1</label>
+                            <input class="form-check-input" type="radio" name="radioFilterSeverity" id="filter-medium">
+                            <label class="form-check-label" for="inlineRadioMedium">Medium</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="radioFilter" id="filter-2">
-                            <label class="form-check-label" for="inlineRadio2">filter 2</label>
+                            <input class="form-check-input" type="radio" name="radioFilterSeverity" id="filter-critical">
+                            <label class="form-check-label" for="inlineRadioCritical">Critical</label>
                         </div>
                     </div>
                 </li>
                 <li class="mb-3">
-                    <label for="exampleFormControlTextarea1" class="form-label">Example textarea</label>
-                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                    <label for="incidentDescription" class="form-label">Describe the incident</label>
+                    <textarea class="form-control" id="incidentDescriptionText" rows="3"></textarea>
                 </li>
                 <li>
-                    <button type="submit" class="btn mb-0 btn-primary">Submit</button>
-                </li>
-                <li>
-                    <div class="container">
-                        <h2>Basic Date Time Picker</h2>
-                        <div class='input-group date' id='picker'>
-                            <input type='text' class="form-control"/>
-                            <span class="input-group-addon">
-          <span class="glyphicon glyphicon-calendar"></span>	                 </span>
-                        </div>
+                    <label>Select affected asset type (If applicable)</label>
+                <div class="form-group">
+
+                    <select class="custom-select" required>
+                        <option value="">Open this select menu</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
+                    <div class="invalid-feedback">Example invalid custom select feedback</div>
+                </div>
+                    <label>Select affected asset (If applicable)</label>
+                    <div class="form-group">
+                        <select class="custom-select" required>
+                            <option value="">Open this select menu</option>
+                            <option value="1">One</option>
+                            <option value="2">Two</option>
+                            <option value="3">Three</option>
+                        </select>
+                        <div class="invalid-feedback">Example invalid custom select feedback</div>
                     </div>
-                    <script type="text/javascript">
-                        $(function () {
-                            $('#picker').datetimepicker();
-                        });
-                    </script>
+                </li>
+                <li>
+                    <label for="exampleFormControlFile1">Upload Picture</label>
+                <div class="py-2 card form-check max-width-300">
+                    <input type="file" class="form-control-file" id="exampleFormControlFile1" accept="image/jpeg, image/png, image/jpg">
+                </div>
+                </li>
+                <li class="mt-3">
+                    <button type="submit" class="btn mb-0 btn-primary">Submit</button>
                 </li>
         </div>
     </ul>
@@ -107,9 +130,6 @@
 <script src="../assets/js/core/bootstrap.min.js"></script>
 <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
 <script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/js/bootstrap-datetimepicker.min.js"></script>
 <script>
     var win = navigator.platform.indexOf('Win') > -1;
     if (win && document.querySelector('#sidenav-scrollbar')) {
