@@ -51,7 +51,6 @@ if ($_SESSION['userType'] !== 'Administrator') {
 
 $pageName = 'user-management';
 
-
 // Import DB connection
 require 'db-connection.php';
 $users = $db->query("SELECT userName,email,firstName,lastName,userType FROM user")->fetch_all();
@@ -75,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (in_array($username, $usernameList)) {
             echo "<script type='text/javascript'>alert('User already exists');</script>";
         } else {
-            $password = bin2hex(openssl_random_pseudo_bytes(16));
+            $password = password_hash(bin2hex(openssl_random_pseudo_bytes(16)), PASSWORD_DEFAULT);
 
             $db->execute_query("INSERT INTO user (userName, firstName, lastName, email, userType, password) VALUES ((?), (?), (?), (?), (?), (?))", [$username, $firstName, $lastName, $email, $role, $password]);
             header('Location: user-management.php', true, 303);
