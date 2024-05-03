@@ -16,10 +16,15 @@
 <html lang="en">
 
 <head>
-    <?php $pageName = 'settings';
+    <?php $pageName = '';
     require 'sidebar.php';
     require 'db-connection.php';
-    $dbUserInfo = $db->execute_query("SELECT email, firstname, lastname FROM user WHERE userName = ?", [$_SESSION["username"]])->fetch_assoc();
+
+    $incidentTypes = $db->query("Select incidentType.incidentTypeDescription from incidentType")->fetch_all();
+    $assettypes = $db->query("Select assetType.assetTypeDescription, assetTypeID from assetType")->fetch_all();
+    $assets = $db->query("Select asset.assetDescription, assetType.assetTypeID
+                                FROM assetType
+                                JOIN asset on assetType.assetTypeID = asset.assetTypeID")->fetch_all();
     ?>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -43,6 +48,25 @@
     <!-- Nepcha Analytics (nepcha.com) -->
     <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
     <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+    <script>
+        function toggleHidden() {
+            var selectBox = document.getElementById("options");
+            var inputField = document.getElementById("hiddenInput");
+
+            if (selectBox.value === "show") {
+                inputField.style.display = "block";
+                document.getElementById("hiddenField").setAttribute("required", "required");
+            } else {
+                inputField.style.display = "none";
+                document.getElementById("hiddenField").removeAttribute("required");
+            }
+        }
+        function resetForm() {
+            document.getElementById("incidentForm").reset();
+            document.getElementById("hiddenInput").style.display = "none"; // Hide the conditional select field
+            document.getElementById("hiddenField").removeAttribute("required"); // Remove the required attribute
+        }
+    </script>
 </head>
 
 <body class="g-sidenav-show bg-gray-100">
@@ -53,16 +77,16 @@
         </div>
     </div>
     <div class="p-3 d-flex justify-content-center">
-        <form method="POST" class="w-sm-60">
+        <form id="incidentForm" method="POST" class="w-sm-60">
             <ul class="list-group">
                 <li class="mb-1">
-                    <label>Select incident type</label>
                     <div class="form-group">
-                        <select class="custom-select" required>
-                            <option value="">Open this select menu</option>
-                            <option value="1">One</option>
-                            <option value="2">Two</option>
-                            <option value="3">Three</option>
+                        <label>Select incident type</label>
+                        <select class="incident-select" required>
+                            <option value="">Select incident type</option>
+                            <?php foreach ($incidentTypes as $typeRow): ?>
+                            <option value="<?php $typeRow[0]?>"><?=$typeRow[0]?></option>
+                            <?php endforeach; ?>
                         </select>
                         <div class="invalid-feedback">Example invalid custom select feedback</div>
                     </div>
@@ -71,7 +95,7 @@
                     <label>Incident Severity</label>
                     <div class="col-auto">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="radioFilterSeverity" id="filter-low">
+                            <input class="form-check-input" type="radio" name="radioFilterSeverity" id="filter-low" checked>
                             <label class="form-check-label" for="inlineRadioLow">Low</label>
                         </div>
                         <div class="form-check form-check-inline">
@@ -86,39 +110,40 @@
                 </li>
                 <li class="mb-3">
                     <label for="incidentDescription" class="form-label">Describe the incident</label>
-                    <textarea class="form-control" id="incidentDescriptionText" rows="3"></textarea>
+                    <textarea class="form-control" id="incidentDescriptionText" rows="3" required></textarea>
                 </li>
                 <li>
-                    <label>Select affected asset type (If applicable)</label>
                 <div class="form-group">
-
-                    <select class="custom-select" required>
-                        <option value="">Open this select menu</option>
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="3">Three</option>
+                    <label for="options">Select affected asset type (If applicable)</label>
+                    <select id="options" class="assetType-select" onchange="toggleHidden()">
+                        <option id="options" value="hide"">None</option>
+                        <?php foreach ($assettypes as $assettypeRow): ?>
+                            <option value="show"><?=$assettypeRow[0]?></option>
+                        <?php endforeach; ?>
                     </select>
                     <div class="invalid-feedback">Example invalid custom select feedback</div>
                 </div>
-                    <label>Select affected asset (If applicable)</label>
-                    <div class="form-group">
-                        <select class="custom-select" required>
-                            <option value="">Open this select menu</option>
-                            <option value="1">One</option>
-                            <option value="2">Two</option>
-                            <option value="3">Three</option>
+                    <div id="hiddenInput" class="form-group" style="display:none">
+                        <label>Select affected asset (If applicable)</label>
+                        <select id="hiddenField" class="asset-select">
+                            <option value="">None</option>
+                            <?php foreach ($assets as $assetsRow): ?>
+                                <option><?=$assetsRow[1]?></option>
+                            <?php endforeach; ?>
                         </select>
                         <div class="invalid-feedback">Example invalid custom select feedback</div>
                     </div>
                 </li>
                 <li>
-                    <label for="exampleFormControlFile1">Upload Picture</label>
+                    <label for="exampleFormControlFile1">Upload evidence (if applicable)</label>
                 <div class="py-2 card form-check max-width-300">
-                    <input type="file" class="form-control-file" id="exampleFormControlFile1" accept="image/jpeg, image/png, image/jpg">
+                    <input type="file" class="form-control-file" id="exampleFormControlFile1" accept="image/*, .pdf, .txt, .docx, .rtf, .odf, .doc, .pages">
                 </div>
                 </li>
                 <li class="mt-3">
                     <button type="submit" class="btn mb-0 btn-primary">Submit</button>
+                    <button type="reset" class="btn mb-0 btn-primary" onclick="resetForm()">Reset</button>
+                    <a href="tickets.php" class="btn mb-0 btn-primary">Cancel</a>
                 </li>
         </div>
     </ul>
