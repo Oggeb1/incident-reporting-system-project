@@ -16,15 +16,39 @@
 <html lang="en">
 
 <head>
-    <?php $pageName = '';
+    <?php $pageName = 'create-ticket.php';
     require 'sidebar.php';
     require 'db-connection.php';
 
-    $incidentTypes = $db->query("Select incidentType.incidentTypeDescription from incidentType")->fetch_all();
+    $incidentTypes = $db->query("Select incidentType.incidentTypeDescription, incidentType.incidentTypeID from incidentType")->fetch_all();
     $assettypes = $db->query("Select assetType.assetTypeDescription, assetTypeID from assetType")->fetch_all();
     $assets = $db->query("Select asset.assetDescription, assetType.assetTypeID
                                 FROM assetType
                                 JOIN asset on assetType.assetTypeID = asset.assetTypeID")->fetch_all();
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+        if (isset($_POST['newTicketSubmit'])) {
+            $type = $_POST['incidentType'];
+            $severity = $_POST['severity'];
+            $description = $_POST['incidentDescription'];
+           $reporter = $db->execute_query("Select userID FROM user WHERE userName = ?", [$_SESSION['username']])->fetch_assoc();
+
+           $db->execute_query("INSERT INTO incident 
+                (reporterID, incidentTypeID, incidentSeverity, incidentDescription, timestamp) 
+                values ((?), (?), (?), (?), current_timestamp)",
+                [$reporter['userID'], $type, $severity, $description]);
+
+           $ticketSubmitID = $db->insert_id;
+           $db->execute_query("INSERT INTO ticket 
+    (incidentID, ticketStatus, responseDescription, timestamp) 
+            values ((?), 'Pending', (?), current_timestamp)",
+                   [$ticketSubmitID, $description]);
+        }
+
+    }
+
+
     ?>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -81,13 +105,13 @@
             <ul class="list-group">
                 <li class="mb-1">
                     <div class="form-group">
-                        <label>Select incident type</label>
-                        <select class="incident-select" required>
-                            <option value="">Select incident type</option>
-                            <?php foreach ($incidentTypes as $typeRow): ?>
-                            <option value="<?php $typeRow[0]?>"><?=$typeRow[0]?></option>
-                            <?php endforeach; ?>
-                        </select>
+                        <label for="incidentType">Select incident type</label>
+                            <select class="incident-select" name="incidentType" required>
+                                <option value="">Select incident type</option>
+                                <?php foreach ($incidentTypes as $typeRow): ?>
+                                <option value="<?=$typeRow[1]?>"><?=$typeRow[0]?></option>
+                                <?php endforeach; ?>
+                            </select>
                         <div class="invalid-feedback">Example invalid custom select feedback</div>
                     </div>
                 </li>
@@ -95,25 +119,29 @@
                     <label>Incident Severity</label>
                     <div class="col-auto">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="radioFilterSeverity" id="filter-low" checked>
-                            <label class="form-check-label" for="inlineRadioLow">Low</label>
+                            <input class="form-check-input" type="radio" name="severity" id="filter-low" value="Low" checked>
+                            <label class="form-check-label" for="severity">Low</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="radioFilterSeverity" id="filter-medium">
-                            <label class="form-check-label" for="inlineRadioMedium">Medium</label>
+                            <input class="form-check-input" type="radio" name="severity" id="filter-medium" value="Medium">
+                            <label class="form-check-label" for="severity">Medium</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="radioFilterSeverity" id="filter-critical">
-                            <label class="form-check-label" for="inlineRadioCritical">Critical</label>
+                            <input class="form-check-input" type="radio" name="severity" id="filter-high" value="High">
+                            <label class="form-check-label" for="severity">High</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="severity" id="filter-critical" value="Critical">
+                            <label class="form-check-label" for="severity">Critical</label>
                         </div>
                     </div>
                 </li>
                 <li class="mb-3">
                     <label for="incidentDescription" class="form-label">Describe the incident</label>
-                    <textarea class="form-control" id="incidentDescriptionText" rows="3" required></textarea>
+                    <textarea class="form-control" name="incidentDescription" id="incidentDescriptionText" rows="3" required></textarea>
                 </li>
                 <li>
-                <div class="form-group">
+                <!--<div class="form-group">
                     <label for="options">Select affected asset type (If applicable)</label>
                     <select id="options" class="assetType-select" onchange="toggleHidden()">
                         <option id="options" value="hide"">None</option>
@@ -122,26 +150,26 @@
                         <?php endforeach; ?>
                     </select>
                     <div class="invalid-feedback">Example invalid custom select feedback</div>
-                </div>
-                    <div id="hiddenInput" class="form-group" style="display:none">
-                        <label>Select affected asset (If applicable)</label>
-                        <select id="hiddenField" class="asset-select">
+                </div> -->
+                    <div class="form-group" style=""> <!-- id="hiddenInput" -->
+                        <label for="asset-select">Select affected asset (If applicable)</label>
+                        <select class="asset-select" name="asset-select">  <!-- id="hiddenField" -->
                             <option value="">None</option>
                             <?php foreach ($assets as $assetsRow): ?>
-                                <option><?=$assetsRow[1]?></option>
+                                <option><?=$assetsRow[0]?></option>
                             <?php endforeach; ?>
                         </select>
                         <div class="invalid-feedback">Example invalid custom select feedback</div>
                     </div>
                 </li>
                 <li>
-                    <label for="exampleFormControlFile1">Upload evidence (if applicable)</label>
+                    <label for="incidentFile">Upload evidence (if applicable)</label>
                 <div class="py-2 card form-check max-width-300">
-                    <input type="file" class="form-control-file" id="exampleFormControlFile1" accept="image/*, .pdf, .txt, .docx, .rtf, .odf, .doc, .pages">
+                    <input type="file" class="form-control-file" id="incidentFile" accept="image/*, .pdf, .txt, .docx, .rtf, .odf, .doc, .pages">
                 </div>
                 </li>
                 <li class="mt-3">
-                    <button type="submit" class="btn mb-0 btn-primary">Submit</button>
+                    <button type="submit" class="btn mb-0 btn-primary" name="newTicketSubmit">Submit</button>
                     <button type="reset" class="btn mb-0 btn-primary" onclick="resetForm()">Reset</button>
                     <a href="tickets.php" class="btn mb-0 btn-primary">Cancel</a>
                 </li>
