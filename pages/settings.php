@@ -16,7 +16,7 @@
 <html lang="en">
 
 <head>
-    <?php $pageName = 'settings';
+    <?php $pageName = 'Settings';
     require 'sidebar.php';
     require 'db-connection.php';
     $dbUserInfo = $db->execute_query("SELECT email, firstname, lastname FROM user WHERE userName = ?", [$_SESSION["username"]])->fetch_assoc();

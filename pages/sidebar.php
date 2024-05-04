@@ -8,6 +8,9 @@ if (empty($_SESSION)) {
 if (empty($_SESSION['Logged-in'])) {
     header("Location: sign-out.php");
 }
+
+include 'tracking.php';
+
 ?>
 
 <!DOCTYPE html>
@@ -29,7 +32,7 @@ if (empty($_SESSION['Logged-in'])) {
     <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link <?= $pageName == 'dashboard' ? 'active': ''?>" href="dashboard.php">
+                <a class="nav-link <?= $pageName == 'Dashboard' ? 'active': ''?>" href="dashboard.php">
                     <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                         <svg width="12px" height="12px" viewBox="0 0 45 40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                             <title>shop</title>
@@ -49,7 +52,7 @@ if (empty($_SESSION['Logged-in'])) {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?= $pageName == 'tickets' ? 'active': ''?>" href="tickets.php">
+                <a class="nav-link <?= $pageName == 'Tickets' ? 'active': ''?>" href="tickets.php">
                     <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                         <svg width="800px" height="800px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
                             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -67,7 +70,7 @@ if (empty($_SESSION['Logged-in'])) {
                 </a>
             </li>
             <?php
-            $isActive = $pageName == 'user-management' ? 'active': '';
+            $isActive = $pageName == 'User-management' ? 'active': '';
             if ($_SESSION['userType'] == 'Administrator') {
                 echo <<<END
             <li class="nav-item">
@@ -84,7 +87,7 @@ if (empty($_SESSION['Logged-in'])) {
             }
              ?>
             <li class="nav-item">
-                <a class="nav-link <?= $pageName == 'settings' ? 'active': ''?>" href="settings.php">
+                <a class="nav-link <?= $pageName == 'Settings' ? 'active': ''?>" href="settings.php">
                     <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                         <svg width="12px" height="12px" viewBox="0 0 46 42" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                             <title>customer-support</title>

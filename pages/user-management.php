@@ -41,6 +41,8 @@
 
 <body class="g-sidenav-show  bg-gray-100">
 <?php
+$pageName = "User-management";
+
 if (empty($_SESSION)) {
     session_start();
 }

@@ -16,10 +16,12 @@
 // Start a session
 session_start();
 
+// Import DB connection and tracking
+require "db-connection.php";
+include 'tracking.php';
+
 // Runs if sign in form is submitted, see JS at the end to not send at refresh
 if (isset($_POST['login'])) {
-    // Import DB connection
-    require "db-connection.php";
 
     // Get data from form, set into variable
     $username = $_POST['username']; $password = $_POST['password'];

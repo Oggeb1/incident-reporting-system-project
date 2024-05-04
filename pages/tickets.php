@@ -13,6 +13,8 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
 <?php
+$pageName = 'Tickets';
+
 require 'db-connection.php';
 $ticketsPending = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription, 
        ticket.timestamp, incident.reporterID, user.userName FROM ticket
