@@ -119,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: user-management.php', true, 303);
             exit();
         } else {
-            echo "<script type='text/javascript'>alert('Can not delete current user');</script>";
+            echo "<script type='text/javascript'>alert('Cannot delete current user');</script>";
         }
     }
 }
@@ -243,7 +243,7 @@ require 'sidebar.php';
                         <label for="roleAdministrator">Administrator:</label>
                         <input type="radio" id="roleAdministrator" value="Administrator" name="role" required><br>
                         <label for="resetPassword">Reset Password:</label>
-                        <input type="checkbox" id="resetPassword" name="resetPassword" required><br>
+                        <input type="checkbox" id="resetPassword" name="resetPassword"><br>
                         <button type="submit" class="btn btn-primary" name="deleteSubmit">Delete User<a>
                 </div>
                 <div class="modal-footer">

@@ -16,10 +16,35 @@
 <html lang="en">
 
 <head>
-    <?php $pageName = 'Settings';
-    require 'sidebar.php';
+    <?php
+    $pageName = 'Settings';
     require 'db-connection.php';
+
+    if (empty($_SESSION["username"])) {
+        session_start();
+    }
     $dbUserInfo = $db->execute_query("SELECT email, firstname, lastname FROM user WHERE userName = ?", [$_SESSION["username"]])->fetch_assoc();
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (isset($_POST['infoSubmit'])) {
+            $email = $_POST['email'];
+
+            if (isset($_POST['resetPassword'])) {
+                if ($_POST['resetPassword'] === 'on') {
+                    $password = bin2hex(openssl_random_pseudo_bytes(16));
+                }
+            }
+
+            if (isset($password)) {
+                $db->execute_query("UPDATE user SET email = (?), password = (?) WHERE userName = (?)", [$email, $password, $_SESSION["username"]]);
+            }else{
+                $db->execute_query("UPDATE user SET email = (?) WHERE userName = (?)", [$email, $_SESSION["username"]]);
+            }
+
+            header('Location: settings.php', true, 303);
+            exit();
+        }
+    }
     ?>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -43,6 +68,8 @@
     <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
 </head>
 
+<?php require 'sidebar.php';?>
+
 <body class="g-sidenav-show bg-gray-100">
 <div class="main-content position-relative max-height-vh-100 h-100 border-radius-lg py-4">
     <div class="container-fluid">
@@ -50,7 +77,7 @@
             <div class="row gx-4">
                 <div class="col-auto">
                     <div class="avatar avatar-xl position-relative">
-                        <img src="../assets/img/default-avatar.png" alt="profile_image">
+                        <img src="../assets/img/profile.svg">
                     </div>
                 </div>
                 <div class="col-auto my-auto">
@@ -89,16 +116,10 @@
                                         class="text-dark">Username:</strong> &nbsp; <?=$_SESSION['username']?>
                             </li>
                             <li class="list-group-item border-0 ps-0 text-sm"><strong
-                                        class="text-dark">Email:</strong> <?php {echo $dbUserInfo["email"];}?>
+                                        class="text-dark">Email:</strong> &nbsp; <?php {echo $dbUserInfo["email"];}?>
                             </li>
                             <li class="list-group-item mb-0 border-0 ps-0 text-sm"><strong class="text-dark">
-                                    <button  type="button" class="btn mb-0 btn-primary icon-move-right" data-bs-toggle="modal" data-bs-target="#editUserModal">Change Email<i>
-                                        </i>
-                                    </button>
-                                </strong>
-                            </li>
-                            <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">
-                                    <button  type="button" class="btn mb-0 btn-primary icon-move-right" data-bs-toggle="modal" data-bs-target="#editUserModal">Change Password<i>
+                                    <button  type="button" class="btn mb-0 btn-primary icon-move-right" data-bs-toggle="modal" data-bs-target="#infoModal">Change account information<i>
                                         </i>
                                     </button>
                                 </strong>
@@ -160,19 +181,24 @@
             </div>
         </div>
         <!-- Modal -->
-        <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModal" aria-hidden="true">
+        <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModal" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLongTitle">Edit User Information</h5>
+                        <h5 class="modal-title" id="exampleModalLongTitle">Change Account Information</h5>
                     </div>
-                    <div class="modal-body">
-                        ...
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
-                    </div>
+                    <form method="POST">
+                        <div class="modal-body">
+                            <label for="email">Email:</label>
+                            <input type="email" id="email" name="email" value="<?=$dbUserInfo["email"]?>" required><br>
+                            <label for="resetPassword">Reset Password:</label>
+                            <input type="checkbox" id="resetPassword" name="resetPassword"><br>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-toggle="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" name="infoSubmit">Save changes</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
