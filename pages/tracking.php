@@ -11,7 +11,7 @@ $browserName = $browser['browser'];
 //As the $pageName is in the sidebar, the variable is not set at sign-in
 if (empty($pageName)) {
     $pageName = 'Sign-in';
-    $userID = null;
+    $userID = [[null]];
 } else { // If the sidebar is showing ($pageName is defined), get the ID for logged-in user
     $userID = $db->execute_query("SELECT userID FROM user WHERE userName LIKE ?", [$_SESSION['username']])->fetch_all();
 }
