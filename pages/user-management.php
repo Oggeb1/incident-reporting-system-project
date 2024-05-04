@@ -51,8 +51,6 @@ if ($_SESSION['userType'] !== 'Administrator') {
     header("Location: dashboard.php");
 }
 
-$pageName = 'user-management';
-
 // Import DB connection
 require 'db-connection.php';
 $users = $db->query("SELECT userName,email,firstName,lastName,userType FROM user")->fetch_all();
