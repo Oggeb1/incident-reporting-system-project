@@ -143,7 +143,7 @@ require 'sidebar.php';
                       <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">User</th>
                       <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Real Name</th>
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Last Seen</th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Last Seen (UTC)</th>
                       <th class="text-secondary opacity-7"></th>
                     </tr>
                   </thead>
@@ -166,11 +166,29 @@ require 'sidebar.php';
                         <p class="text-xs text-secondary mb-0"><?= $row[4] ?></p>
                       </td>
                       <td class="align-middle text-center text-sm">
-                        <span class="badge badge-sm bg-gradient-success">Online</span>
-                      </td>
+                          <?php
+                          //Get the timestamp for the most recent log for each user on every row
+                          $latestLog = $db->execute_query("SELECT MAX(log.timestamp) FROM log JOIN user ON log.userID=user.userID WHERE userName LIKE (?)", [$row[0]])->fetch_all();
+
+                          if ($latestLog[0][0] == null) { //If no log is found, Last seen should be "never"
+                              $isUserOnline = false;
+                              $latestLog = [['Never']]  ;
+                          } elseif ((strtotime($latestLog[0][0]) + 600) < time()) { //Converts the fetched time to epoch, check log time + 10 min vs current time
+                              $isUserOnline = false; //If the most recent log is older than 10 minutes
+                          } else {
+                              $isUserOnline = true; //Log must be newer than 10 minutes
+                          }
+
+                          if ($isUserOnline) { //If online show the green online box else the gray offline one
+                              echo '<span class="badge badge-sm bg-gradient-success">Online</span>';
+                          } else {
+                              echo '<span class="badge badge-sm bg-gradient-secondary">Offline</span>';
+                          }
+
+                          echo '</td>
                       <td class="align-middle text-center">
-                        <span class="text-secondary text-xs font-weight-bold">23/04/18</span>
-                      </td>
+                        <span class="text-secondary text-xs font-weight-bold">' . $latestLog[0][0] . '</span>
+                      </td>' ?>
                       <td class="align-middle">
                         <a type="button" class="text-secondary font-weight-bold text-xs" data-bs-toggle="modal" data-bs-target="#editUserModal" data-index='<?= json_encode($row) ?>'>
                           Edit
