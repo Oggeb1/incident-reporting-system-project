@@ -16,7 +16,7 @@
 <html lang="en">
 
 <head>
-    <?php $pageName = 'create-ticket.php';
+    <?php $pageName = 'Create-ticket';
     require 'sidebar.php';
     require 'db-connection.php';
 
