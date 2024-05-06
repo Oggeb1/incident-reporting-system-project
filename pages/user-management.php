@@ -47,6 +47,12 @@ if (empty($_SESSION)) {
     session_start();
 }
 
+if (isset($_SESSION['newPasswd'])) {
+    $tmpPass = $_SESSION['newPasswd'];
+    echo "<script type='text/javascript'>alert('Please send this password to the new user, REMIND THEM TO CHANGE IT IN THE SETTINGS: $tmpPass');</script>";
+    unset($_SESSION['newPasswd']);
+}
+
 if ($_SESSION['userType'] !== 'Administrator') {
     header("Location: dashboard.php");
 }
@@ -74,7 +80,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (in_array($username, $usernameList)) {
             echo "<script type='text/javascript'>alert('User already exists');</script>";
         } else {
-            $password = password_hash(bin2hex(openssl_random_pseudo_bytes(16)), PASSWORD_DEFAULT);
+            $password = bin2hex(openssl_random_pseudo_bytes(16));
+            $_SESSION['newPasswd'] = $password;
+            $password = password_hash($password, PASSWORD_DEFAULT);
 
             $db->execute_query("INSERT INTO user (userName, firstName, lastName, email, userType, password) VALUES ((?), (?), (?), (?), (?), (?))", [$username, $firstName, $lastName, $email, $role, $password]);
             header('Location: user-management.php', true, 303);
@@ -98,6 +106,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_POST['resetPassword'])) {
             if ($_POST['resetPassword'] === 'on') {
                 $password = bin2hex(openssl_random_pseudo_bytes(16));
+                $_SESSION['newPasswd'] = $password;
+                $password = password_hash($password, PASSWORD_DEFAULT);
             }
         }
 
