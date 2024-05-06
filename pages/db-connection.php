@@ -1,5 +1,5 @@
 <?php
-$host     = '92.33.164.11';
+$host     = 'sanborre.se';
 $db       = 'project';
 $user     = 'DI4020';
 $password = 'F3gTdVKnBjYm72wcyF7X';
