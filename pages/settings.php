@@ -30,9 +30,7 @@
             $email = $_POST['email'];
 
             if (isset($_POST['resetPassword'])) {
-                if ($_POST['resetPassword'] === 'on') {
-                    $password = bin2hex(openssl_random_pseudo_bytes(16));
-                }
+                $password = password_hash($_POST['resetPassword'], PASSWORD_DEFAULT);
             }
 
             if (isset($password)) {
@@ -191,8 +189,8 @@
                         <div class="modal-body">
                             <label for="email">Email:</label>
                             <input type="email" id="email" name="email" value="<?=$dbUserInfo["email"]?>" required><br>
-                            <label for="resetPassword">Reset Password:</label>
-                            <input type="checkbox" id="resetPassword" name="resetPassword"><br>
+                            <label for="resetPassword">New Password:</label>
+                            <input type="password" id="resetPassword" name="resetPassword"><br>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-toggle="modal">Close</button>
