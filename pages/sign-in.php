@@ -34,10 +34,18 @@ if (isset($_POST['login'])) {
     if ($dbUserPassword != null && $dbUserType != null) {
         // Check if DB passwd and user input password matches
         if (password_verify($password, $dbUserPassword['password'])) {
+            // Prevent session fixation attack
+            session_regenerate_id();
+
             // Set session variables
             $_SESSION['username'] = $username;
             $_SESSION['Logged-in'] = true;
             $_SESSION['userType'] = $dbUserType['userType'];
+
+            if ($_POST['rememberMe'] === 'on') {
+
+            }
+
             header("Location: dashboard.php");
             exit;
         } else {
@@ -97,7 +105,7 @@ if (isset($_POST['login'])) {
                     <input name="password" type="password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="password-addon" required>
                   </div>
                   <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="rememberMe" checked="">
+                    <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe" checked="">
                     <label class="form-check-label" for="rememberMe">Remember me</label>
                   </div>
                   <div class="text-center">

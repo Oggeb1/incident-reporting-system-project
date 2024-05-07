@@ -188,9 +188,9 @@
                     <form method="POST">
                         <div class="modal-body">
                             <label for="email">Email:</label>
-                            <input type="email" id="email" name="email" value="<?=$dbUserInfo["email"]?>" required><br>
+                            <input type="email" id="email" class="form-control" name="email" value="<?=$dbUserInfo["email"]?>" required><br>
                             <label for="resetPassword">New Password:</label>
-                            <input type="password" id="resetPassword" name="resetPassword"><br>
+                            <input type="password" id="resetPassword" class="form-control" name="resetPassword"><br>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-toggle="modal">Close</button>
