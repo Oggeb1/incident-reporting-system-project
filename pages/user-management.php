@@ -225,13 +225,13 @@ require 'sidebar.php';
                 <form method="POST">
                     <div class="modal-body">
                         <label for="newUsername">Username:</label>
-                        <input type="text" name="newUsername" id="newUsername" required><br>
+                        <input type="text" name="newUsername"  id="newUsername" class="form-control" required><br>
                         <label for="newFirstName">First name:</label>
-                        <input type="text" id="newFirstName" name="newFirstName" required><br>
+                        <input type="text" id="newFirstName" name="newFirstName" class="form-control" required><br>
                         <label for="newLastName">Last name:</label>
-                        <input type="text" id="newLastName" name="newLastName" required><br>
+                        <input type="text" id="newLastName" name="newLastName" class="form-control" required><br>
                         <label for="newEmail">Email:</label>
-                        <input type="email" id="newEmail" name="newEmail" required><br>
+                        <input type="email" id="newEmail" name="newEmail" class="form-control" required><br>
                         <label for="newRoleReporter">Reporter:</label>
                         <input type="radio" id="newRoleReporter" value="Reporter" name="role" required>
                         <label for="newRoleResponder">Responder:</label>
@@ -255,26 +255,28 @@ require 'sidebar.php';
                 </div>
                 <form method="POST">
                 <div class="modal-body">
-                        <input type="hidden" id="oldUsername" name="oldUsername" value="">
-                        <label for="userName">Username:</label>
-                        <input type="text" name="username" id="userName" required><br>
-                        <label for="firstName">First name:</label>
-                        <input type="text" id="firstName" name="firstName" required><br>
-                        <label for="lastName">Last name:</label>
-                        <input type="text" id="lastName" name="lastName" required><br>
-                        <label for="email">Email:</label>
-                        <input type="email" id="email" name="email" required><br>
-                        <label for="roleReporter">Reporter:</label>
-                        <input type="radio" id="roleReporter" value="Reporter" name="role" required>
-                        <label for="roleResponder">Responder:</label>
-                        <input type="radio" id="roleResponder" value="Responder" name="role" required>
-                        <label for="roleAdministrator">Administrator:</label>
-                        <input type="radio" id="roleAdministrator" value="Administrator" name="role" required><br>
-                        <label for="resetPassword">Reset Password:</label>
-                        <input type="checkbox" id="resetPassword" name="resetPassword"><br>
-                        <button type="submit" class="btn btn-primary" name="deleteSubmit">Delete User<a>
+                    <input type="hidden" id="oldUsername" name="oldUsername" value="">
+                    <label for="userName">Username:</label>
+                    <input type="text" class="form-control" name="username" id="userName" required><br>
+                    <label for="firstName">First name:</label>
+                    <input type="text" id="firstName" class="form-control" name="firstName" required><br>
+                    <label for="lastName">Last name:</label>
+                    <input type="text" id="lastName" class="form-control" name="lastName" required><br>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" class="form-control" name="email" required><br>
+                    <label for="roleReporter">Reporter:</label>
+                    <input type="radio" id="roleReporter" value="Reporter" name="role" required>
+                    <label for="roleResponder">Responder:</label>
+                    <input type="radio" id="roleResponder" value="Responder" name="role" required>
+                    <label for="roleAdministrator">Administrator:</label>
+                    <input type="radio" id="roleAdministrator" value="Administrator" name="role" required><br>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="resetPassword" name="resetPassword">
+                        <label class="form-check-label" for="resetPassword">Reset Password</label>
+                    </div>
                 </div>
                 <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary align-content-start" style="margin-right: auto" name="deleteSubmit">Delete User</button>
                     <button type="button" class="btn btn-secondary" data-bs-toggle="modal">Close</button>
                     <button type="submit" class="btn btn-primary" name="editSubmit">Save changes</button>
                 </div>
