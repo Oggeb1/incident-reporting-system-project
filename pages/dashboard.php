@@ -26,10 +26,18 @@
     $ongoingTickets = 'ongoing';
     $curTickets = $db->execute_query("SELECT COUNT(ticketStatus) FROM ticket WHERE ticketStatus LIKE 'Pending' = ?", [$pendingTickets])->fetch_assoc();
     $currTickets = $curTickets['COUNT(ticketStatus)'];
-    $progressTickets = $db->execute_query("SELECT COUNT(ticketStatus) FROM ticket WHERE ticketStatus LIKE 'In progrss' = ?", [$ongoingTickets])->fetch_assoc();
+    $progressTickets = $db->execute_query("SELECT COUNT(ticketStatus) FROM ticket WHERE ticketStatus LIKE 'In progress' = ?", [$ongoingTickets])->fetch_assoc();
     $inProgTickets = $progressTickets['COUNT(ticketStatus)'];
     $closedTickets = $db->execute_query("SELECT COUNT(ticketStatus) FROM ticket WHERE ticketStatus LIKE 'Resolved' = ?", [$pendingTickets])->fetch_assoc();
     $allClosedTickets = $closedTickets['COUNT(ticketStatus)'];
+    $userinfo = $db->execute_query("SELECT userName, userID FROM user ORDER BY RAND()");
+
+    $users = $db->query("SELECT userID,userName,email,firstName,lastName,userType FROM user")->fetch_all();
+    $dailyCompletedTickets = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription,
+       ticket.timestamp, incident.reporterID, user.userName, user.userID FROM ticket
+                                                                                  JOIN incident ON ticket.incidentID = incident.incidentID
+                                                                                  JOIN user ON incident.reporterID = user.userID
+      WHERE ticket.ticketStatus LIKE 'Resolved' AND DATE(ticket.timestamp) LIKE UTC_DATE")->fetch_all();
 
     ?>
 
@@ -64,7 +72,7 @@
     <?php
 
     if ($_SESSION["userType"] === 'Administrator' || ($_SESSION["userType"] === 'Responder')) {
-        ?>
+        ?>,
           <div class="container-fluid py-4">
             <div class="row">
                 <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
@@ -151,6 +159,7 @@
     <?php
     if ($_SESSION["userType"] === 'Administrator' || ($_SESSION["userType"] === 'Responder' || ($_SESSION["userType"] === 'Reporter'))) {
     ?>
+
     <div class="row mt-4">
             <div class="col-lg-5">
                 <div class="card h-100 p-3">
@@ -160,7 +169,7 @@
                             <h5 class="text-white font-weight-bolder mb-4 pt-2">My Tickets</h5>
                             <p class="text-white">Look at my tickets.</p>
                             <a class="text-white text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:">
-                                Click here
+                                <a class="text-white" href="tickets.php">Click here</a>
                                 <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
                             </a>
                         </div>
@@ -175,7 +184,7 @@
                             <h5 class="text-white font-weight-bolder mb-4 pt-2">Open Tickets</h5>
                             <p class="text-white">Look at open tickets.</p>
                             <a class="text-white text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:">
-                                Click here
+                                <a class="text-white" href="tickets.php">Click here</a>
                                 <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
                             </a>
                         </div>
@@ -188,9 +197,9 @@
                         <span class="mask bg-gradient-dark"></span>
                         <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
                             <h5 class="text-white font-weight-bolder mb-4 pt-2">Closed Tickets</h5>
-                            <p class="text-white">Look at closed tickers.</p>
+                            <p class="text-white">Look at closed tickets.</p>
                             <a class="text-white text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:">
-                                Click here
+                                <a class="text-white" href="tickets.php">Click here</a>
                                 <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
                             </a>
                         </div>
@@ -203,8 +212,9 @@
         </div>
         <?php
 
-    if ($_SESSION["userType"] === 'Admin' || ($_SESSION["userType"] === 'Responder')) {
+    if ($_SESSION["userType"] === 'Administrator' || ($_SESSION["userType"] === 'Responder')) {
     ?>
+
         <div class="row mt-4">
             <div class="col-lg-13 mb-lg-0 mb-4">
                 <div class="card h-100 z-index-2">
@@ -346,8 +356,7 @@
             ?>
         </div>
     <?php
-
-    if ($_SESSION['userType'] === 'Administrator' || ($_SESSION["userType"] === 'Responder')) {
+    if ($_SESSION['userType'] === 'Administrator' || $_SESSION["userType"] === 'Responder'):
         ?>
         <div class="row my-4">
             <div class="col-lg-8 col-md-6 mb-md-0 mb-4">
@@ -375,6 +384,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="card-body px-0 pb-2">
                         <div class="table-responsive">
                             <table class="table align-items-center mb-0">
@@ -387,249 +397,61 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex px-2 py-1">
-                                            <div>
-                                                <img src="../assets/img/profile-picture.svg" class="avatar avatar-sm me-3" alt="xd">
-                                            </div>
-                                            <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="mb-0 text-sm">User 1</h6>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="avatar-group mt-2">
-                                            <a href="javascript:" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ryan Tompson">
-                                                <img src="../assets/img/team-1.jpg" alt="team1">
-                                            </a>
-                                            <a href="javascript:" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Romina Hadid">
-                                                <img src="../assets/img/team-2.jpg" alt="team2">
-                                            </a>
-                                            <a href="javascript:" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Alexander Smith">
-                                                <img src="../assets/img/team-3.jpg" alt="team3">
-                                            </a>
-                                            <a href="javascript:" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Jessica Doe">
-                                                <img src="../assets/img/team-4.jpg" alt="team4">
-                                            </a>
-                                        </div>
-                                    </td>
-                                    <td class="align-middle text-center text-sm">
-                                        <span class="text-xs font-weight-bold"> 14/20 </span>
-                                    </td>
-                                    <td class="align-middle">
-                                        <div class="progress-wrapper w-75 mx-auto">
-                                            <div class="progress-info">
-                                                <div class="progress-percentage">
-                                                    <span class="text-xs font-weight-bold">60%</span>
+                                <?php foreach ($users as $row):
+                                    $userID = [1];?>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                <div>
+                                                    <img src="../assets/img/profile-picture.svg" class="avatar avatar-sm me-3" alt="xd">
+                                                </div>
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm"><?= $row[1]?></h6>
                                                 </div>
                                             </div>
-                                            <div class="progress">
-                                                <div class="progress-bar bg-gradient-info w-60" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex px-2 py-1">
-                                            <div>
-                                                <img src="../assets/img/profile-picture.svg" class="avatar avatar-sm me-3" alt="atlassian">
-                                            </div>
-                                            <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="mb-0 text-sm">User 2</h6>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="avatar-group mt-2">
-                                            <a href="javascript:" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Romina Hadid">
-                                                <img src="../assets/img/team-2.jpg" alt="team5">
-                                            </a>
-                                            <a href="javascript:" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Jessica Doe">
-                                                <img src="../assets/img/team-4.jpg" alt="team6">
-                                            </a>
-                                        </div>
-                                    </td>
-                                    <td class="align-middle text-center text-sm">
-                                        <span class="text-xs font-weight-bold"> 14/20 </span>
-                                    </td>
-                                    <td class="align-middle">
-                                        <div class="progress-wrapper w-75 mx-auto">
-                                            <div class="progress-info">
-                                                <div class="progress-percentage">
-                                                    <span class="text-xs font-weight-bold">10%</span>
-                                                </div>
-                                            </div>
-                                            <div class="progress">
-                                                <div class="progress-bar bg-gradient-info w-10" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex px-2 py-1">
-                                            <div>
-                                                <img src="../assets/img/profile-picture.svg" class="avatar avatar-sm me-3" alt="team7">
-                                            </div>
-                                            <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="mb-0 text-sm">User 3 </h6>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="avatar-group mt-2">
-                                            <a href="javascript:" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Romina Hadid">
-                                                <img src="../assets/img/team-3.jpg" alt="team8">
-                                            </a>
-                                            <a href="javascript:" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Jessica Doe">
-                                                <img src="../assets/img/team-1.jpg" alt="team9">
-                                            </a>
-                                        </div>
-                                    </td>
-                                    <td class="align-middle text-center text-sm">
-                                        <span class="text-xs font-weight-bold"> 10/20 </span>
-                                    </td>
-                                    <td class="align-middle">
-                                        <div class="progress-wrapper w-75 mx-auto">
-                                            <div class="progress-info">
-                                                <div class="progress-percentage">
-                                                    <span class="text-xs font-weight-bold">100%</span>
-                                                </div>
-                                            </div>
-                                            <div class="progress">
-                                                <div class="progress-bar bg-gradient-success w-100" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex px-2 py-1">
-                                            <div>
-                                                <img src="../assets/img/profile-picture.svg" class="avatar avatar-sm me-3" alt="spotify">
-                                            </div>
-                                            <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="mb-0 text-sm">User 4</h6>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="avatar-group mt-2">
-                                            <a href="javascript:" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ryan Tompson">
-                                                <img src="../assets/img/team-4.jpg" alt="user1">
-                                            </a>
-                                            <a href="javascript:" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Romina Hadid">
-                                                <img src="../assets/img/team-3.jpg" alt="user2">
-                                            </a>
-                                            <a href="javascript:" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Alexander Smith">
-                                                <img src="../assets/img/team-4.jpg" alt="user3">
-                                            </a>
-                                            <a href="javascript:" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Jessica Doe">
-                                                <img src="../assets/img/team-1.jpg" alt="user4">
-                                            </a>
-                                        </div>
-                                    </td>
-                                    <td class="align-middle text-center text-sm">
-                                        <span class="text-xs font-weight-bold"> 6/20 </span>
-                                    </td>
-                                    <td class="align-middle">
-                                        <div class="progress-wrapper w-75 mx-auto">
-                                            <div class="progress-info">
-                                                <div class="progress-percentage">
-                                                    <span class="text-xs font-weight-bold">100%</span>
-                                                </div>
-                                            </div>
-                                            <div class="progress">
-                                                <div class="progress-bar bg-gradient-success w-100" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex px-2 py-1">
-                                            <div>
-                                                <img src="../assets/img/profile-picture.svg" class="avatar avatar-sm me-3" alt="jira">
-                                            </div>
-                                            <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="mb-0 text-sm">User 5</h6>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="avatar-group mt-2">
-                                            <a href="javascript:" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ryan Tompson">
-                                                <img src="../assets/img/team-4.jpg" alt="user5">
-                                            </a>
-                                        </div>
-                                    </td>
-                                    <td class="align-middle text-center text-sm">
-                                        <span class="text-xs font-weight-bold"> 19/20 </span>
-                                    </td>
-                                    <td class="align-middle">
-                                        <div class="progress-wrapper w-75 mx-auto">
-                                            <div class="progress-info">
-                                                <div class="progress-percentage">
-                                                    <span class="text-xs font-weight-bold">25%</span>
-                                                </div>
-                                            </div>
-                                            <div class="progress">
-                                                <div class="progress-bar bg-gradient-info w-25" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="25"></div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex px-2 py-1">
-                                            <div>
-                                                <img src="../assets/img/profile-picture.svg" class="avatar avatar-sm me-3" alt="invision">
-                                            </div>
-                                            <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="mb-0 text-sm">User 6</h6>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="avatar-group mt-2">
-                                            <a href="javascript:" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ryan Tompson">
-                                                <img src="../assets/img/team-1.jpg" alt="user6">
-                                            </a>
-                                            <a href="javascript:" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Jessica Doe">
-                                                <img src="../assets/img/team-4.jpg" alt="user7">
-                                            </a>
-                                        </div>
-                                    </td>
-                                    <td class="align-middle text-center text-sm">
-                                        <span class="text-xs font-weight-bold"> 11/20 </span>
-                                    </td>
-                                    <td class="align-middle">
-                                        <div class="progress-wrapper w-75 mx-auto">
-                                            <div class="progress-info">
-                                                <div class="progress-percentage">
-                                                    <span class="text-xs font-weight-bold">40%</span>
-                                                </div>
-                                            </div>
-                                            <div class="progress">
-                                                <div class="progress-bar bg-gradient-info w-40" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="40"></div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
+                                        </td>
+                                        <td>
+                                            <?php
+                                            if (isset($dailyCompletedTickets)) {
+                                                echo count($dailyCompletedTickets);
+                                            } else {
+                                                // Handle the case when there are no completed tickets for the current user
+                                                echo 'No completed tickets';
+                                            }
+                                            ?>
+
+                                        </td>
+                                        <td class="align-middle text-center text-sm">
+                                            <?php
+                                            if (isset($dailyCompletedTickets)) {
+                                                echo count($dailyCompletedTickets),"/20";
+                                            } else {
+                                                // Handle the case when there are no completed tickets for the current user
+                                                echo 'No completed tickets';
+                                            }
+                                            ?>
+                                        </td>
+                                        <td class="align-middle">
+                                            <?php
+                                            if (isset($dailyCompletedTickets)) {
+                                                echo count($dailyCompletedTickets),"/20";
+                                            } else {
+                                                // Handle the case when there are no completed tickets for the current user
+                                                echo 'No completed tickets';
+                                            }
+                                            ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
-                <?php
-    }
-                ?>
             </div>
-            <?php require 'footer.php' ?>
         </div>
-    </div>
+    <?php endif; ?>
+    <?php require 'footer.php'; ?>
 </main>
 <!--   Core JS Files   -->
 <script src="../assets/js/core/popper.min.js"></script>
