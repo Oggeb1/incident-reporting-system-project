@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $asset = $db->execute_query("Select assetID FROM asset WHERE assetDescription = ?", [$_POST['asset-select']])->fetch_assoc();
         $file = $_POST['file-submit'];
 
-        //Queries to insert new ticket into tickets
+        //Queries to insert new ticket into incident
         $db->execute_query("INSERT INTO incident 
                 (reporterID, incidentTypeID, incidentSeverity, incidentDescription, timestamp) 
                 values ((?), (?), (?), (?), UTC_TIMESTAMP)",
