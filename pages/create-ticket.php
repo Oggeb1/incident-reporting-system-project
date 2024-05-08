@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             [$reporter['userID'], $type, $severity, $description]);
 
         //gets last inserted Primary Key from Database, this command is client sided and can't be interfered by other users
-        $ticketSubmitID = $db->insert_id;
+        $ticketSubmitID = $db->execute_query("SELECT incidentID FROM incident WHERE reporterID = ? AND incident.timestamp = (SELECT MAX(incident.timestamp) FROM incident WHERE reporterID = ?)", [$reporter['userID'], $reporter['userID']] )->fetch_row()[0];
         //Inserts the new ticket into incident with appropriate values
         $db->execute_query("INSERT INTO ticket 
     (incidentID, ticketStatus, responseDescription, timestamp) 
@@ -103,7 +103,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             [$ticketSubmitID, $description]);
 
         //Query to insert affected assets into incidentAsset
+        if (isset($asset)) {
         $db->execute_query("INSERT INTO incidentAsset (assetID, incidentID) VALUES ((?), (?))",[$asset['assetID'], $ticketSubmitID] );
+        }
 
         header('Location: tickets.php', true, 303);
         exit();
