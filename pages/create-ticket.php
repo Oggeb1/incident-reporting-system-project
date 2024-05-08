@@ -16,40 +16,6 @@
 <html lang="en">
 
 <head>
-    <?php $pageName = 'Create-ticket';
-    require 'sidebar.php';
-    require 'db-connection.php';
-
-    $incidentTypes = $db->query("Select incidentType.incidentTypeDescription, incidentType.incidentTypeID from incidentType")->fetch_all();
-    $assettypes = $db->query("Select assetType.assetTypeDescription, assetTypeID from assetType")->fetch_all();
-    $assets = $db->query("Select asset.assetDescription, assetType.assetTypeID
-                                FROM assetType
-                                JOIN asset on assetType.assetTypeID = asset.assetTypeID")->fetch_all();
-
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-        if (isset($_POST['newTicketSubmit'])) {
-            $type = $_POST['incidentType'];
-            $severity = $_POST['severity'];
-            $description = $_POST['incidentDescription'];
-           $reporter = $db->execute_query("Select userID FROM user WHERE userName = ?", [$_SESSION['username']])->fetch_assoc();
-
-           $db->execute_query("INSERT INTO incident 
-                (reporterID, incidentTypeID, incidentSeverity, incidentDescription, timestamp) 
-                values ((?), (?), (?), (?), current_timestamp)",
-                [$reporter['userID'], $type, $severity, $description]);
-
-           $ticketSubmitID = $db->insert_id;
-           $db->execute_query("INSERT INTO ticket 
-    (incidentID, ticketStatus, responseDescription, timestamp) 
-            values ((?), 'Pending', (?), current_timestamp)",
-                   [$ticketSubmitID, $description]);
-        }
-
-    }
-
-
-    ?>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
@@ -72,6 +38,8 @@
     <!-- Nepcha Analytics (nepcha.com) -->
     <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
     <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+
+    <!-- Scripts for hiding HTML based on its attribute and resetting a forms input values -->
     <script>
         function toggleHidden() {
             var selectBox = document.getElementById("options");
@@ -85,6 +53,7 @@
                 document.getElementById("hiddenField").removeAttribute("required");
             }
         }
+
         function resetForm() {
             document.getElementById("incidentForm").reset();
             document.getElementById("hiddenInput").style.display = "none"; // Hide the conditional select field
@@ -92,9 +61,60 @@
         }
     </script>
 </head>
+<?php
+if (empty($_SESSION)) {
+    session_start();
+}
 
+$pageName = 'Create-ticket';
+require 'db-connection.php';
+
+//Database queries to allow users to select from the different incident types, asset types and assets in teh database
+$incidentTypes = $db->query("Select incidentType.incidentTypeDescription, incidentType.incidentTypeID from incidentType")->fetch_all();
+$assettypes = $db->query("Select assetType.assetTypeDescription, assetTypeID from assetType")->fetch_all();
+$assets = $db->query("Select asset.assetDescription, assetType.assetTypeID
+                                FROM assetType
+                                JOIN asset on assetType.assetTypeID = asset.assetTypeID")->fetch_all();
+
+//Form submission values are sent here
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    //Checks if all values are available to send to the server
+    if (isset($_POST['newTicketSubmit'])) {
+        $type = $_POST['incidentType'];
+        $severity = $_POST['severity'];
+        $description = $_POST['incidentDescription'];
+        $reporter = $db->execute_query("Select userID FROM user WHERE userName = ?", [$_SESSION['username']])->fetch_assoc();
+        $asset = $db->execute_query("Select assetID FROM asset WHERE assetDescription = ?", [$_POST['asset-select']])->fetch_assoc();
+        $file = $_POST['file-submit'];
+
+        //Queries to insert new ticket into tickets
+        $db->execute_query("INSERT INTO incident 
+                (reporterID, incidentTypeID, incidentSeverity, incidentDescription, timestamp) 
+                values ((?), (?), (?), (?), UTC_TIMESTAMP)",
+            [$reporter['userID'], $type, $severity, $description]);
+
+        //gets last inserted Primary Key from Database, this command is client sided and can't be interfered by other users
+        $ticketSubmitID = $db->insert_id;
+        //Inserts the new ticket into incident with appropriate values
+        $db->execute_query("INSERT INTO ticket 
+    (incidentID, ticketStatus, responseDescription, timestamp) 
+            values ((?), 'Pending', (?), UTC_TIMESTAMP)",
+            [$ticketSubmitID, $description]);
+
+        //Query to insert affected assets into incidentAsset
+        $db->execute_query("INSERT INTO incidentAsset (assetID, incidentID) VALUES ((?), (?))",[$asset['assetID'], $ticketSubmitID] );
+
+        header('Location: tickets.php', true, 303);
+        exit();
+    }
+
+}
+require 'sidebar.php';
+
+?>
 <body class="g-sidenav-show bg-gray-100">
-<div class="main-content position-relative max-height-vh-100 h-100 border-radius-lg py-4">
+<main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg py-4">
     <div class="container-fluid py-2">
         <div class="d-flex justify-content-center">
             <h6 class="mb-0">Create New Ticket:</h6>
@@ -145,9 +165,9 @@
                     <label for="options">Select affected asset type (If applicable)</label>
                     <select id="options" class="assetType-select" onchange="toggleHidden()">
                         <option id="options" value="hide"">None</option>
-                        <?php foreach ($assettypes as $assettypeRow): ?>
-                            <option value="show"><?=$assettypeRow[0]?></option>
-                        <?php endforeach; ?>
+                       <?php //foreach ($assettypes as $assettypeRow): ?>
+                            <option value="show"><?= $assettypeRow[0]?></option>
+                        <?php //endforeach; ?>
                     </select>
                     <div class="invalid-feedback">Example invalid custom select feedback</div>
                 </div> -->
@@ -165,7 +185,7 @@
                 <li>
                     <label for="incidentFile">Upload evidence (if applicable)</label>
                 <div class="py-2 card form-check max-width-300">
-                    <input type="file" class="form-control-file" id="incidentFile" accept="image/*, .pdf, .txt, .docx, .rtf, .odf, .doc, .pages">
+                    <input type="file" class="form-control-file" name="file-submit" id="incidentFile" accept="image/*, .pdf, .txt, .docx, .rtf, .odf, .doc, .pages">
                 </div>
                 </li>
                 <li class="mt-3">
@@ -176,7 +196,7 @@
         </div>
     </ul>
     </form>
-</div>
+</main>
 </div>
 <!--   Core JS Files   -->
 <script src="../assets/js/core/popper.min.js"></script>

@@ -32,7 +32,7 @@
     $allClosedTickets = $closedTickets['COUNT(ticketStatus)'];
     $userinfo = $db->execute_query("SELECT userName, userID FROM user ORDER BY RAND()");
 
-    $users = $db->query("SELECT userID,userName,email,firstName,lastName,userType FROM user")->fetch_all();
+    $users = $db->query("SELECT userID,userName,email,firstName,lastName,userType FROM user where userType = 'Responder'")->fetch_all();
     $dailyCompletedTickets = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription,
        ticket.timestamp, incident.reporterID, user.userName, user.userID FROM ticket
                                                                                   JOIN incident ON ticket.incidentID = incident.incidentID

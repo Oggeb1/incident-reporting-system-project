@@ -16,21 +16,21 @@
 $pageName = 'Tickets';
 
 require 'db-connection.php';
-$ticketsPending = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription, 
-       ticket.timestamp, incident.reporterID, user.userName FROM ticket
-         JOIN incident ON ticket.incidentID = incident.incidentID
-         JOIN user ON incident.reporterID = user.userID
-WHERE ticket.ticketStatus LIKE 'Pending' ORDER BY ticket.incidentID")->fetch_all();
-$ticketsProgress = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription, 
-       ticket.timestamp, incident.reporterID, user.userName FROM ticket
-         JOIN incident ON ticket.incidentID = incident.incidentID
-         JOIN user ON incident.reporterID = user.userID
-WHERE ticket.ticketStatus LIKE 'In progress' ORDER BY ticket.incidentID")->fetch_all();
+$ticketsPending = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription,
+       ticket.timestamp, user.userName FROM ticket
+        JOIN incident ON ticket.incidentID = incident.incidentID
+        JOIN user ON incident.reporterID = user.userID
+WHERE ticket.incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus NOT LIKE 'Pending') ORDER BY ticket.timestamp DESC ")->fetch_all();
+$ticketsProgress = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription,
+       ticket.timestamp, user.userName FROM ticket
+        JOIN incident ON ticket.incidentID = incident.incidentID
+        JOIN user ON incident.reporterID = user.userID
+WHERE ticket.incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus LIKE 'Resolved') AND ticketStatus LIKE 'In progress' ORDER BY ticket.timestamp DESC")->fetch_all();
 $ticketsResolved = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription, 
        ticket.timestamp, incident.reporterID, user.userName FROM ticket
          JOIN incident ON ticket.incidentID = incident.incidentID
          JOIN user ON incident.reporterID = user.userID
-WHERE ticket.ticketStatus LIKE 'Resolved' ORDER BY ticket.incidentID")->fetch_all();
+WHERE ticket.ticketStatus LIKE 'Resolved' ORDER BY ticket.timestamp DESC")->fetch_all();
 ?>
 
 <!DOCTYPE html>
@@ -186,10 +186,10 @@ WHERE ticket.ticketStatus LIKE 'Resolved' ORDER BY ticket.incidentID")->fetch_al
                                     </div>
                                 </td>
                                 <td>
-                                    <p class="text-xs font-weight-bold mb-0"><?=$row[6]?></p>
+                                    <p class="text-xs font-weight-bold mb-0"><?=$row[5]?></p>
                                 </td>
                                 <td class="align-middle text-center text-sm">
-                                    <p class="text-xs font-weight-bold mb-0"><?=$row[3]?></p>
+                                    <p class="text-xs ml-50 max-width-300 overflow-hidden font-weight-bold mb-0"><?=$row[3]?></p>
                                 </td>
                                 <td class="align-middle text-center">
                                     <span class="text-secondary text-xs font-weight-bold"><?=$row[4]?></span>
@@ -242,7 +242,7 @@ WHERE ticket.ticketStatus LIKE 'Resolved' ORDER BY ticket.incidentID")->fetch_al
                                     </div>
                                 </td>
                                 <td>
-                                    <p class="text-xs font-weight-bold mb-0"><?=$row[6]?></p>
+                                    <p class="text-xs font-weight-bold mb-0"><?=$row[5]?></p>
                                 </td>
                                 <td class="align-middle text-center text-sm">
                                     <p class="text-xs font-weight-bold mb-0"><?=$row[3]?></p>
