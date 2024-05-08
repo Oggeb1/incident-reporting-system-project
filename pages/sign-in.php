@@ -24,7 +24,7 @@ include 'tracking.php';
 if(isset($_COOKIE['token'])) {
     // Selector is in the first 12 characters in the cookie, rest is a hashed validator
     $selector = substr($_COOKIE['token'], 0, 12);
-    $validator = substr($_COOKIE['token'], 12); // Because stored in cookie, another value than id should be used
+    $validator = substr($_COOKIE['token'], 12); // Because stored in cookie, another value than id should be used to not leak number of users
 
     // Get user info and validator based on selector
     $dbToken = $db->execute_query("SELECT userName, userType, validator, expiry FROM userTokens JOIN user ON userTokens.userID LIKE user.userID WHERE selector = ?", [$selector])->fetch_assoc();
@@ -46,7 +46,7 @@ if(isset($_COOKIE['token'])) {
     }
 }
 
-// Runs if sign in form is submitted, see JS at the end to not send at refresh
+// Runs if sign in form is submitted
 if (isset($_POST['login'])) {
 
     // Get data from form, set into variable
@@ -162,7 +162,7 @@ if (isset($_POST['login'])) {
     <div class="container">
       <div class="row">
         <div class="col-lg-8 mx-auto text-center mb-4 mt-2">
-          <a href="javascript:" target="_blank" class="text-secondary">
+          <a href="https://github.com/Oggeb1/incident-reporting-system-project" target="_blank" class="text-secondary">
             <span class="text-lg fab fa-github"></span>
           </a>
         </div>

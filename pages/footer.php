@@ -13,9 +13,13 @@
             </div>
             <div class="col-lg-6">
                 <ul class="nav nav-footer justify-content-center justify-content-lg-end">
-                    <li class="nav-item">
-                        <a href="https://www.creative-tim.com/presentation" class="nav-link text-muted" target="_blank">About Us</a>
-                    </li>
+                    <div class="row">
+                        <div class="col-lg-8 mx-auto text-center mb-4 mt-2">
+                            <a href="https://github.com/Oggeb1/incident-reporting-system-project" target="_blank" class="text-secondary">
+                                <span class="text-lg fab fa-github"></span>
+                            </a>
+                        </div>
+                    </div>
                 </ul>
             </div>
         </div>
