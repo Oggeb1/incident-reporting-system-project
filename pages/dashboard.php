@@ -30,6 +30,8 @@
     $inProgTickets = $progressTickets['COUNT(ticketStatus)'];
     $closedTickets = $db->execute_query("SELECT COUNT(ticketStatus) FROM ticket WHERE ticketStatus LIKE 'Resolved' = ?", [$pendingTickets])->fetch_assoc();
     $allClosedTickets = $closedTickets['COUNT(ticketStatus)'];
+    $ticketTimestamp = $db->execute_query("SELECT TIMEDIFF(NOW(), MAX(timestamp )) AS time_difference FROM ticket WHERE ticketStatus = 'Pending';")->fetch_assoc();
+    $tickTimestamp = implode($ticketTimestamp);
     $userinfo = $db->execute_query("SELECT userName, userID FROM user ORDER BY RAND()");
 
     $users = $db->query("SELECT userID,userName,email,firstName,lastName,userType FROM user where userType = 'Responder'")->fetch_all();
@@ -38,6 +40,58 @@
                                                                                   JOIN incident ON ticket.incidentID = incident.incidentID
                                                                                   JOIN user ON incident.reporterID = user.userID
       WHERE ticket.ticketStatus LIKE 'Resolved' AND DATE(ticket.timestamp) LIKE UTC_DATE")->fetch_all();
+
+    $countUsers = $db->query("SELECT COUNT(userType) FROM user WHERE userType LIKE 'Reporter'")->fetch_all();
+
+    $countTickets = $db->query("SELECT incident.incidentID, incident.timestamp
+FROM incident
+WHERE incident.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 6 DAY)
+  AND incident.timestamp <= DATE_SUB(UTC_DATE(), INTERVAL 0 DAY);
+")->fetch_all();
+
+$countTickets2 = $db->query ("SELECT incident.incidentID, incident.timestamp
+FROM incident
+WHERE incident.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 14 DAY)
+  AND incident.timestamp <= DATE_SUB(UTC_DATE(), INTERVAL 7 DAY);
+")->fetch_all();
+
+$countTickets3 = $db->query("SELECT incident.incidentID, incident.timestamp
+FROM incident
+WHERE incident.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 22 DAY)
+  AND incident.timestamp <= DATE_SUB(UTC_DATE(), INTERVAL 15 DAY);
+")->fetch_all();
+
+$countTickets4 = $db->query("SELECT incident.incidentID, incident.timestamp
+FROM incident
+WHERE incident.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 30 DAY)
+  AND incident.timestamp <= DATE_SUB(UTC_DATE(), INTERVAL 23 DAY);
+")->fetch_all();
+
+
+
+    $resolvedTickets = $db->query("SELECT ticket.ticketID, ticket.timestamp, ticket.ticketStatus
+    FROM ticket
+    WHERE ticket.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 6 DAY)
+    AND ticket.timestamp <= DATE_SUB(UTC_DATE(), INTERVAL 0 DAY) AND ticket.ticketStatus = 'Resolved';
+    ")->fetch_all();
+
+    $resolvedTickets2 = $db->query("SELECT ticket.ticketID, ticket.timestamp, ticket.ticketStatus
+    FROM ticket
+    WHERE ticket.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 14 DAY)
+    AND ticket.timestamp <= DATE_SUB(UTC_DATE(), INTERVAL 7 DAY) AND ticket.ticketStatus = 'Resolved';
+    ")->fetch_all();
+
+    $resolvedTickets3 = $db->query("SELECT ticket.ticketID, ticket.timestamp, ticket.ticketStatus
+    FROM ticket
+    WHERE ticket.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 22 DAY)
+    AND ticket.timestamp <= DATE_SUB(UTC_DATE(), INTERVAL 15 DAY) AND ticket.ticketStatus = 'Resolved';
+    ")->fetch_all();
+
+    $resolvedTickets4 = $db->query("SELECT ticket.ticketID, ticket.timestamp, ticket.ticketStatus
+    FROM ticket
+    WHERE ticket.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 30 DAY)
+    AND ticket.timestamp <= DATE_SUB(UTC_DATE(), INTERVAL 23 DAY) AND ticket.ticketStatus = 'Resolved';
+    ")->fetch_all();
 
     ?>
 
@@ -86,9 +140,11 @@
                                     </div>
                                 </div>
                                 <div class="col-4 text-end">
+                                    <a href="tickets.php">
                                     <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md">
                                         <i class="ni ni-money-coins text-lg opacity-10" aria-hidden="true"></i>
                                     </div>
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -138,8 +194,8 @@
                             <div class="row">
                                 <div class="col-8">
                                     <div class="numbers">
-                                        <p class="text-sm mb-0 text-capitalize font-weight-bold">% of completed tickets</p>
-                                        <h5 class="font-weight-bolder mb-0">$103,430<span class="text-success text-sm font-weight-bolder">+5%</span></h5>
+                                        <p class="text-sm mb-0 text-capitalize font-weight-bold">Timer of last pending ticket</p>
+                                        <h5 class="font-weight-bolder mb-0"><?= $tickTimestamp ?></h5>
                                     </div>
                                 </div>
                                 <div class="col-4 text-end">
@@ -245,9 +301,9 @@
                                                 </g>
                                             </svg>
                                         </div>
-                                        <a href="tickets.php"  <p class="text-xs mt-1 mb-0 font-weight-bold">Users</p> </a>
+                                        <a href="user-management.php.php"  <p class="text-xs mt-1 mb-0 font-weight-bold">Users</p> </a>
                                     </div>
-                                    <h4 class="font-weight-bolder">36K</h4>
+                                    <h4 class="font-weight-bolder"><?= COUNT ($countUsers) ?> </h4>
                                     <div class="progress w-75">
                                         <div class="progress-bar bg-dark w-60" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
@@ -297,7 +353,7 @@
                                                 </g>
                                             </svg>
                                         </div>
-                                        <a href="tickets.php"  <p class="text-xs mt-1 mb-0 font-weight-bold">Page visits</p> </a>
+                                        <a href="user-management.php"  <p class="text-xs mt-1 mb-0 font-weight-bold">Page visits</p> </a>
 
                                     </div>
                                     <h4 class="font-weight-bolder">2m</h4>
@@ -340,7 +396,6 @@
                     <div class="card-header pb-0">
                         <h6>Statistics</h6>
                         <p class="text-sm">
-                            <i class="fa fa-arrow-up text-success"></i>
                             Statistics of incoming and closed tickets during the last 30 days
                         </p>
                     </div>
@@ -412,6 +467,7 @@
                                         </td>
                                         <td>
                                             <?php
+                                            // Checks how many tickets each user has completed.
                                             if (isset($dailyCompletedTickets)) {
                                                 echo count($dailyCompletedTickets);
                                             } else {
@@ -424,14 +480,15 @@
                                         <td class="align-middle text-center text-sm">
                                             <?php
                                             if (isset($dailyCompletedTickets)) {
-                                                echo count($dailyCompletedTickets),"/20";
-                                            } else {
-                                                // Handle the case when there are no completed tickets for the current user
-                                                echo 'No completed tickets';
+                                                if (count($dailyCompletedTickets) < 20) {
+                                                    echo 20;
+                                                } else {
+                                                    echo "Daily goal reached!";
+                                                }
                                             }
                                             ?>
                                         </td>
-                                        <td class="align-middle">
+                                        <td class="align-middle text-center text-sm">
                                             <?php
                                             if (isset($dailyCompletedTickets)) {
                                                 echo count($dailyCompletedTickets),"/20";
@@ -544,7 +601,7 @@
     new Chart(ctx2, {
         type: "line",
         data: {
-            labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+            labels: ["Week 1", "Week 2", "Week 3", "Week 4",],
             datasets: [{
                 label: "Received tickets",
                 tension: 0.4,
@@ -554,7 +611,7 @@
                 borderWidth: 3,
                 backgroundColor: gradientStroke1,
                 fill: true,
-                data: [50, 40, 300, 220, 500, 250, 400, 230, 500],
+                data: [<?php echo count($countTickets)?>,<?php echo count($countTickets2)?>, <?php echo count($countTickets3)?>, <?php echo count($countTickets4)?>],
                 maxBarThickness: 6
 
             },
@@ -567,7 +624,7 @@
                     borderWidth: 3,
                     backgroundColor: gradientStroke2,
                     fill: true,
-                    data: [30, 90, 40, 140, 290, 290, 340, 230, 400],
+                    data: [<?= COUNT($resolvedTickets)?>, <?= COUNT($resolvedTickets2)?>, <?= COUNT($resolvedTickets3)?>, <?= COUNT($resolvedTickets4)?>, ],
                     maxBarThickness: 6
                 },
             ],
