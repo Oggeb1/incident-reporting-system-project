@@ -20,6 +20,32 @@ session_start();
 require "db-connection.php";
 include 'tracking.php';
 
+// Skip login if remember me has been used before
+if(isset($_COOKIE['token'])) {
+    // Selector is in the first 12 characters in the cookie, rest is a hashed validator
+    $selector = substr($_COOKIE['token'], 0, 12);
+    $validator = substr($_COOKIE['token'], 12); // Because stored in cookie, another value than id should be used
+
+    // Get user info and validator based on selector
+    $dbToken = $db->execute_query("SELECT userName, userType, validator, expiry FROM userTokens JOIN user ON userTokens.userID LIKE user.userID WHERE selector = ?", [$selector])->fetch_assoc();
+
+    // Check if validator expired and same as in DB
+    if (time() < strtotime($dbToken['expiry']) and password_verify($validator, $dbToken['validator'])) {
+        // Set user variable
+        $_SESSION['username'] = $dbToken['userName'];
+        $_SESSION['Logged-in'] = true;
+        $_SESSION['userType'] = $dbToken['userType'];
+
+        header("Location: dashboard.php");
+        exit;
+    } else {
+        // Something is wrong with the cookie, delete it
+        setcookie('token', "", 1);
+        unset($validator);
+        unset($selector);
+    }
+}
+
 // Runs if sign in form is submitted, see JS at the end to not send at refresh
 if (isset($_POST['login'])) {
 
@@ -27,23 +53,35 @@ if (isset($_POST['login'])) {
     $username = $_POST['username']; $password = $_POST['password'];
 
     // Get the password for the $username from DB
-    $dbUserPassword = $db->execute_query("SELECT password FROM user WHERE userName = ?", [$username])->fetch_assoc();
-    $dbUserType = $db->execute_query("SELECT userType FROM user WHERE userName = ?", [$username])->fetch_assoc();
+    $dbUser = $db->execute_query("SELECT password, userType, userID FROM user WHERE userName = ?", [$username])->fetch_assoc();
+    $dbUserPassword = $dbUser['password'];
+    $dbUserType = $dbUser['userType'];
+    $dbUserID = $dbUser['userID'];
 
     // Check if query exists, if not show error
     if ($dbUserPassword != null && $dbUserType != null) {
         // Check if DB passwd and user input password matches
-        if (password_verify($password, $dbUserPassword['password'])) {
+        if (password_verify($password, $dbUserPassword)) {
             // Prevent session fixation attack
             session_regenerate_id();
 
             // Set session variables
             $_SESSION['username'] = $username;
             $_SESSION['Logged-in'] = true;
-            $_SESSION['userType'] = $dbUserType['userType'];
+            $_SESSION['userType'] = $dbUserType;
 
             if ($_POST['rememberMe'] === 'on') {
+                $selector = substr(bin2hex(openssl_random_pseudo_bytes(50)), 0, 12);
 
+                $validator = bin2hex(openssl_random_pseudo_bytes(30));
+                $hashedValidator = password_hash($validator, PASSWORD_DEFAULT);
+
+                $expiryEpoch = time() + 60 * 60 * 24 * 30;
+                $expiry = date('Y-m-d H:i:s', $expiryEpoch);
+
+                $db->execute_query("INSERT INTO userTokens(userID, selector, validator, expiry) VALUES ((?), (?), (?), (?))", [$dbUserID, $selector, $hashedValidator, $expiry]);
+                $token = $selector . $validator;
+                setcookie("token", $token, $expiryEpoch, secure: true);
             }
 
             header("Location: dashboard.php");
