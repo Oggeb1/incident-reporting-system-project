@@ -22,6 +22,9 @@ include 'tracking.php';
 
 // Skip login if remember me has been used before
 if(isset($_COOKIE['token'])) {
+    // Delete expired tokens in DB
+    $db->query("DELETE FROM userTokens WHERE expiry > UTC_TIMESTAMP")->fetch_all();
+
     // Selector is in the first 12 characters in the cookie, rest is a hashed validator
     $selector = substr($_COOKIE['token'], 0, 12);
     $validator = substr($_COOKIE['token'], 12); // Because stored in cookie, another value than id should be used to not leak number of users
