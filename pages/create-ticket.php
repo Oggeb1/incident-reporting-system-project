@@ -86,7 +86,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $description = $_POST['incidentDescription'];
         $reporter = $db->execute_query("Select userID FROM user WHERE userName = ?", [$_SESSION['username']])->fetch_assoc();
         $asset = $db->execute_query("Select assetID FROM asset WHERE assetDescription = ?", [$_POST['asset-select']])->fetch_assoc();
-        $file = $_POST['file-submit'];
 
         //Queries to insert new ticket into incident
         $db->execute_query("INSERT INTO incident 
@@ -101,6 +100,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     (incidentID, ticketStatus, responseDescription, timestamp) 
             values ((?), 'Pending', (?), UTC_TIMESTAMP)",
             [$ticketSubmitID, $description]);
+
+        // File upload
+        for ($i=0; $i < count($_FILES['incidentFile']['name']); $i++) { // Loop for each uploaded file
+            // Information about the file and allowed file-types
+            $fileExtension = pathinfo($_FILES["incidentFile"]['name'][$i],PATHINFO_EXTENSION);
+            //Rename file to random string but keep extension
+            $targetFile = '../../uploads/' . bin2hex(openssl_random_pseudo_bytes(40)) . '.' . $fileExtension;
+            $allowedFileTypes = ['video/mp4', 'video/mpeg', 'application/pdf', 'audio/mpeg', 'application/msword', 'audio/aac', 'text/plain', 'application/rtf', 'application/vnd.oasis.opendocument.text'];
+
+            // Check if file is of the right size and type
+            if ($_FILES["incidentFile"]["size"][$i] < 50000000 and (is_array(getimagesize($_FILES["incidentFile"]['tmp_name'][$i])) or in_array(mime_content_type($_FILES["incidentFile"]['tmp_name'][$i]), $allowedFileTypes))) {
+                if (move_uploaded_file($_FILES['incidentFile']["tmp_name"][$i], $targetFile)) {
+                    // if upload successful upload path to DB
+                    $db->execute_query("INSERT INTO file (project.file.incidentID, project.file.path) VALUES ((?), (?))",[$ticketSubmitID, $targetFile] );
+                }
+            }
+        }
+
 
         //Query to insert affected assets into incidentAsset
         if (isset($asset)) {
@@ -123,7 +140,7 @@ require 'sidebar.php';
         </div>
     </div>
     <div class="p-3 d-flex justify-content-center">
-        <form id="incidentForm" method="POST" class="w-sm-60">
+        <form id="incidentForm" method="POST" class="w-sm-60" enctype="multipart/form-data">
             <ul class="list-group">
                 <li class="mb-1">
                     <div class="form-group">
@@ -187,7 +204,7 @@ require 'sidebar.php';
                 <li>
                     <label for="incidentFile">Upload evidence (if applicable)</label>
                 <div class="py-2 card form-check max-width-300">
-                    <input type="file" class="form-control-file" name="file-submit" id="incidentFile" accept="image/*, .pdf, .txt, .docx, .rtf, .odf, .doc, .pages">
+                    <input type="file" class="form-control-file" name="incidentFile[]" id="incidentFile" multiple accept="image/*, audio/*, video/*, .pdf, .txt, .docx, .rtf, .odt, .doc">
                 </div>
                 </li>
                 <li class="mt-3">
