@@ -21,9 +21,6 @@ if (empty($_SESSION)) {
 }
 require 'db-connection.php';
 
-echo $_SESSION['username'];
-echo $_SESSION['userType'];
-
 //Queries to get Pending Tickets
 $ticketsPending = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription,
        ticket.timestamp, user.userName FROM ticket
@@ -262,11 +259,7 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                                 <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>
                                             </td>
                                             <td class="align-middle">
-                                                <a href="javascript:" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip"
-                                                   data-original-title="Assign user">
-                                                    Assign
-                                                </a>
-                                                <a href="javascript:" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
+                                                <a href="ticket-managment.php?id=<?=$row[0]?>" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
                                                    data-original-title="Edit user">
                                                     Edit
                                                 </a>
