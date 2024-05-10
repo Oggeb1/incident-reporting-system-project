@@ -22,77 +22,92 @@
 
     require "db-connection.php";
 
-    $pendingTickets = 'pending';
-    $ongoingTickets = 'ongoing';
-    $curTickets = $db->execute_query("SELECT COUNT(ticketStatus) FROM ticket WHERE ticketStatus LIKE 'Pending' = ?", [$pendingTickets])->fetch_assoc();
-    $currTickets = $curTickets['COUNT(ticketStatus)'];
-    $progressTickets = $db->execute_query("SELECT COUNT(ticketStatus) FROM ticket WHERE ticketStatus LIKE 'In progress' = ?", [$ongoingTickets])->fetch_assoc();
-    $inProgTickets = $progressTickets['COUNT(ticketStatus)'];
-    $closedTickets = $db->execute_query("SELECT COUNT(ticketStatus) FROM ticket WHERE ticketStatus LIKE 'Resolved' = ?", [$pendingTickets])->fetch_assoc();
-    $allClosedTickets = $closedTickets['COUNT(ticketStatus)'];
+
+    $curTickets = $db->execute_query("SELECT COUNT(ticketstatus) FROM ticket WHERE ticketStatus = 'Pending'")->fetch_assoc();
+
+    $progressTickets = $db->execute_query("SELECT COUNT(ticketStatus) FROM ticket WHERE ticketStatus LIKE 'In progress'")->fetch_assoc();
+    $closedTickets = $db->execute_query("SELECT COUNT(ticketStatus) FROM ticket WHERE ticketStatus LIKE 'Resolved'")->fetch_assoc();
     $ticketTimestamp = $db->execute_query("SELECT TIMEDIFF(NOW(), MAX(timestamp )) AS time_difference FROM ticket WHERE ticketStatus = 'Pending';")->fetch_assoc();
     $tickTimestamp = implode($ticketTimestamp);
     $userinfo = $db->execute_query("SELECT userName, userID FROM user ORDER BY RAND()");
 
     $users = $db->query("SELECT userID,userName,email,firstName,lastName,userType FROM user where userType = 'Responder'")->fetch_all();
-    $dailyCompletedTickets = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription,
-       ticket.timestamp, incident.reporterID, user.userName, user.userID FROM ticket
-                                                                                  JOIN incident ON ticket.incidentID = incident.incidentID
-                                                                                  JOIN user ON incident.reporterID = user.userID
-      WHERE ticket.ticketStatus LIKE 'Resolved' AND DATE(ticket.timestamp) LIKE UTC_DATE")->fetch_all();
-
-    $countUsers = $db->query("SELECT COUNT(userType) FROM user WHERE userType LIKE 'Reporter'")->fetch_all();
-
-    $countTickets = $db->query("SELECT incident.incidentID, incident.timestamp
-FROM incident
-WHERE incident.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 6 DAY)
-  AND incident.timestamp <= DATE_SUB(UTC_DATE(), INTERVAL 0 DAY);
-")->fetch_all();
-
-$countTickets2 = $db->query ("SELECT incident.incidentID, incident.timestamp
-FROM incident
-WHERE incident.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 14 DAY)
-  AND incident.timestamp <= DATE_SUB(UTC_DATE(), INTERVAL 7 DAY);
-")->fetch_all();
-
-$countTickets3 = $db->query("SELECT incident.incidentID, incident.timestamp
-FROM incident
-WHERE incident.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 22 DAY)
-  AND incident.timestamp <= DATE_SUB(UTC_DATE(), INTERVAL 15 DAY);
-")->fetch_all();
-
-$countTickets4 = $db->query("SELECT incident.incidentID, incident.timestamp
-FROM incident
-WHERE incident.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 30 DAY)
-  AND incident.timestamp <= DATE_SUB(UTC_DATE(), INTERVAL 23 DAY);
-")->fetch_all();
-
-
-
-    $resolvedTickets = $db->query("SELECT ticket.ticketID, ticket.timestamp, ticket.ticketStatus
+    $dailyCompletedTickets = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription,ticket.timestamp, incident.reporterID, user.userName, user.userID 
     FROM ticket
-    WHERE ticket.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 6 DAY)
-    AND ticket.timestamp <= DATE_SUB(UTC_DATE(), INTERVAL 0 DAY) AND ticket.ticketStatus = 'Resolved';
+    JOIN incident ON ticket.incidentID = incident.incidentID
+    JOIN user ON incident.reporterID = user.userID
+    WHERE ticket.ticketStatus LIKE 'Resolved' AND DATE(ticket.timestamp) LIKE UTC_DATE")->fetch_all();
+
+    $countUsers = $db->query("SELECT user.userID, user.userName
+    FROM user JOIN incident  ON user.userID = incident.reporterID JOIN ticket ON incident.incidentID = ticket.incidentID
+    WHERE user.userType = 'Responder'
+    AND (
+    (ticket.ticketStatus = 'Resolved' AND ticket.timestamp >= NOW() - INTERVAL 1 DAY)
+        OR (ticket.ticketStatus = 'Pending' AND ticket.timestamp >= NOW() - INTERVAL 1 DAY));")->fetch_all();
+
+    $countTickets = $db->query("SELECT ticketID, timestamp  FROM ticket WHERE timestamp BETWEEN NOW() - INTERVAL 7 DAY AND NOW();
     ")->fetch_all();
 
-    $resolvedTickets2 = $db->query("SELECT ticket.ticketID, ticket.timestamp, ticket.ticketStatus
+
+    $countSeverity = $db->query("SELECT incidentSeverity, timestamp
+    FROM incident
+    WHERE timestamp BETWEEN NOW() - INTERVAL 30 DAY AND NOW() AND incidentSeverity = 'Low';")->fetch_all();
+
+    $countSeverity2 = $db->query("SELECT incidentSeverity, timestamp
+    FROM incident
+    WHERE timestamp BETWEEN NOW() - INTERVAL 30 DAY AND NOW() AND incidentSeverity = 'Medium';")->fetch_all();
+
+    $countSeverity3 = $db->query("SELECT incidentSeverity, timestamp
+    FROM incident
+    WHERE timestamp BETWEEN NOW() - INTERVAL 30 DAY AND NOW() AND incidentSeverity = 'High';")->fetch_all();
+
+    $countSeverity4 = $db->query("SELECT incidentSeverity, timestamp
+    FROM incident
+    WHERE timestamp BETWEEN NOW() - INTERVAL 30 DAY AND NOW() AND incidentSeverity = 'Critical';")->fetch_all();
+
+    $countTickets2 = $db->query ("SELECT ticketID, timestamp
     FROM ticket
-    WHERE ticket.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 14 DAY)
-    AND ticket.timestamp <= DATE_SUB(UTC_DATE(), INTERVAL 7 DAY) AND ticket.ticketStatus = 'Resolved';
+    WHERE timestamp BETWEEN NOW() - INTERVAL 14 DAY AND NOW() - INTERVAL 7 DAY
     ")->fetch_all();
 
-    $resolvedTickets3 = $db->query("SELECT ticket.ticketID, ticket.timestamp, ticket.ticketStatus
+    $countTickets3 = $db->query("SELECT ticketID, timestamp
     FROM ticket
-    WHERE ticket.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 22 DAY)
-    AND ticket.timestamp <= DATE_SUB(UTC_DATE(), INTERVAL 15 DAY) AND ticket.ticketStatus = 'Resolved';
+    WHERE timestamp BETWEEN NOW() - INTERVAL 22 DAY AND NOW() - INTERVAL 15 DAY
     ")->fetch_all();
 
-    $resolvedTickets4 = $db->query("SELECT ticket.ticketID, ticket.timestamp, ticket.ticketStatus
+    $countTickets4 = $db->query("SELECT ticketID, timestamp
     FROM ticket
-    WHERE ticket.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 30 DAY)
-    AND ticket.timestamp <= DATE_SUB(UTC_DATE(), INTERVAL 23 DAY) AND ticket.ticketStatus = 'Resolved';
+    WHERE timestamp BETWEEN NOW() - INTERVAL 30 DAY AND NOW() - INTERVAL 23 DAY;
     ")->fetch_all();
 
+
+    $resolvedTickets = $db->query("SELECT ticketID, timestamp, ticketStatus
+    FROM ticket
+    WHERE timestamp BETWEEN NOW() - INTERVAL 7 DAY AND NOW() AND ticketStatus = 'Resolved';
+    ")->fetch_all();
+
+    $resolvedTickets2 = $db->query("SELECT ticketID, timestamp, ticketStatus
+    FROM ticket
+    WHERE timestamp BETWEEN NOW() - INTERVAL 14 DAY AND NOW() - INTERVAL 8 DAY AND ticketStatus = 'Resolved';
+    ")->fetch_all();
+
+    $resolvedTickets3 = $db->query("SELECT ticketID, timestamp, ticketStatus
+    FROM ticket
+    WHERE timestamp BETWEEN NOW() - INTERVAL 22 DAY AND NOW() - INTERVAL 15 DAY AND ticketStatus = 'Resolved';
+    ")->fetch_all();
+
+    $resolvedTickets4 = $db->query("SELECT ticketID, timestamp, ticketStatus
+    FROM ticket
+    WHERE timestamp BETWEEN NOW() - INTERVAL 30 DAY AND NOW() - INTERVAL 23 DAY AND ticketStatus = 'Resolved';
+    ")->fetch_all();
+
+   $allTickets = $db->query("SELECT COUNT(ticketID) FROM ticket")->fetch_assoc();
+
+   $countTracker = $db->query("SELECT COUNT(logID) FROM log")->fetch_assoc();
+
+   $countUser = $db->query("SELECT COUNT(userID) FROM user")->fetch_assoc();
+
+   $countIP = $db->query("SELECT COUNT(DISTINCT ip) FROM log")->fetch_assoc();
     ?>
 
     <meta charset="utf-8" />
@@ -121,10 +136,9 @@ WHERE incident.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 30 DAY)
 
 <?php $pageName = 'Dashboard'; require 'sidebar.php';?>
 
-<main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+<main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg "
     <!-- Navbar -->
     <?php
-
     if ($_SESSION["userType"] === 'Administrator' || ($_SESSION["userType"] === 'Responder')) {
         ?>,
           <div class="container-fluid py-4">
@@ -136,7 +150,7 @@ WHERE incident.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 30 DAY)
                                 <div class="col-8">
                                     <div class="numbers">
                                         <p class="text-sm mb-0 text-capitalize font-weight-bold">Current pending tickets</p>
-                                        <h5 class="font-weight-bolder mb-0"> <?= $currTickets ?></h5>
+                                        <h5 class="font-weight-bolder mb-0"> <?= $curTickets ["COUNT(ticketstatus)"]?></h5>
                                     </div>
                                 </div>
                                 <div class="col-4 text-end">
@@ -157,13 +171,15 @@ WHERE incident.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 30 DAY)
                                 <div class="col-8">
                                     <div class="numbers">
                                         <p class="text-sm mb-0 text-capitalize font-weight-bold">Current ongoing tickets</p>
-                                        <h5 class="font-weight-bolder mb-0"><?php echo $inProgTickets?></h5>
+                                        <h5 class="font-weight-bolder mb-0"><?= ($progressTickets ["COUNT(ticketStatus)"])?></h5>
                                     </div>
                                 </div>
                                 <div class="col-4 text-end">
+                                    <a href="tickets.php">
                                     <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md">
                                         <i class="ni ni-world text-lg opacity-10" aria-hidden="true"></i>
                                     </div>
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -176,13 +192,15 @@ WHERE incident.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 30 DAY)
                                 <div class="col-8">
                                     <div class="numbers">
                                         <p class="text-sm mb-0 text-capitalize font-weight-bold">Resolved tickets</p>
-                                        <h5 class="font-weight-bolder mb-0"><?= $allClosedTickets?></h5>
+                                        <h5 class="font-weight-bolder mb-0"><?= ($closedTickets ["COUNT(ticketStatus)"])?></h5>
                                     </div>
                                 </div>
                                 <div class="col-4 text-end">
+                                    <a href="tickets.php">
                                     <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md">
                                         <i class="ni ni-paper-diploma text-lg opacity-10" aria-hidden="true"></i>
                                     </div>
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -199,9 +217,11 @@ WHERE incident.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 30 DAY)
                                     </div>
                                 </div>
                                 <div class="col-4 text-end">
+                                    <a href="tickets.php">
                                     <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md">
                                         <i class="ni ni-cart text-lg opacity-10" aria-hidden="true"></i>
                                     </div>
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -275,13 +295,14 @@ WHERE incident.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 30 DAY)
             <div class="col-lg-13 mb-lg-0 mb-4">
                 <div class="card h-100 z-index-2">
                     <div class="card-body p-3">
+                        <h6 class="text-sm">
+                            Status of incidents the last 30 days
+                        </h6>
                         <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
                             <div class="chart">
                                 <canvas id="chart-bars" class="chart-canvas" height="170"></canvas>
                             </div>
                         </div>
-                        <h6 class="ms-2 mt-4 mb-0"> Daily Users </h6>
-
                         <div class="container border-radius-lg">
                             <div class="row">
                                 <div class="col-3 py-3 ps-0">
@@ -301,9 +322,9 @@ WHERE incident.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 30 DAY)
                                                 </g>
                                             </svg>
                                         </div>
-                                        <a href="user-management.php.php"  <p class="text-xs mt-1 mb-0 font-weight-bold">Users</p> </a>
+                                        <a href="user-management.php"  <p class="text-xs mt-1 mb-0 font-weight-bold">Total users</p> </a>
                                     </div>
-                                    <h4 class="font-weight-bolder"><?= COUNT ($countUsers) ?> </h4>
+                                    <h4 class="font-weight-bolder"><?= ($countUser ["COUNT(userID)"]) ?> </h4>
                                     <div class="progress w-75">
                                         <div class="progress-bar bg-dark w-60" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
@@ -327,9 +348,9 @@ WHERE incident.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 30 DAY)
                                                 </g>
                                             </svg>
                                         </div>
-                                        <a href="tickets.php"  <p class="text-xs mt-1 mb-0 font-weight-bold">Tickets</p> </a>
+                                        <a href="tickets.php"  <p class="text-xs mt-1 mb-0 font-weight-bold">  Total Tickets</p> </a>
                                     </div>
-                                    <h4 class="font-weight-bolder">2m</h4>
+                                    <h4 class="font-weight-bolder"><?= ($allTickets["COUNT(ticketID)"])?> </h4>
                                     <div class="progress w-75">
                                         <div class="progress-bar bg-dark w-90" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
@@ -353,10 +374,10 @@ WHERE incident.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 30 DAY)
                                                 </g>
                                             </svg>
                                         </div>
-                                        <a href="user-management.php"  <p class="text-xs mt-1 mb-0 font-weight-bold">Page visits</p> </a>
+                                        <a href="user-management.php"  <p class="text-xs mt-1 mb-0 font-weight-bold">Total page visits</p> </a>
 
                                     </div>
-                                    <h4 class="font-weight-bolder">2m</h4>
+                                    <h4 class="font-weight-bolder"><?= ($countTracker["COUNT(logID)"])?></h4>
                                     <div class="progress w-75">
                                         <div class="progress-bar bg-dark w-90" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
@@ -379,9 +400,9 @@ WHERE incident.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 30 DAY)
                                                 </g>
                                             </svg>
                                         </div>
-                                        <a href="tickets.php"  <p class="text-xs mt-1 mb-0 font-weight-bold">Users</p> </a>
+                                        <a href="tickets.php"  <p class="text-xs mt-1 mb-0 font-weight-bold">Unique Visitors</p> </a>
                                     </div>
-                                    <h4 class="font-weight-bolder">43</h4>
+                                    <h4 class="font-weight-bolder"><?= ($countIP["COUNT(DISTINCT ip)"]) ?></h4>
                                     <div class="progress w-75">
                                         <div class="progress-bar bg-dark w-50" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
@@ -522,16 +543,16 @@ WHERE incident.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 30 DAY)
     new Chart(ctx, {
         type: "bar",
         data: {
-            labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",],
+            labels: ["Low", "Medium", "High", "Critical",],
             datasets: [{
-                label: "Sales",
+                label: "Number of accidents",
                 tension: 0.4,
                 borderWidth: 0,
-                borderRadius: 4,
+                borderRadius: 6,
                 borderSkipped: false,
                 backgroundColor: "#fff",
-                data: [450, 200, 100, 220, 500, 100, 400,],
-                maxBarThickness: 6
+                data: [<?= COUNT($countSeverity)?>, <?= COUNT($countSeverity2)?>, <?= COUNT($countSeverity3)?>, <?= COUNT($countSeverity4)?>, ],
+                maxBarThickness: 10
             }, ],
         },
         options: {
@@ -611,7 +632,7 @@ WHERE incident.timestamp >= DATE_SUB(UTC_DATE(), INTERVAL 30 DAY)
                 borderWidth: 3,
                 backgroundColor: gradientStroke1,
                 fill: true,
-                data: [<?php echo count($countTickets)?>,<?php echo count($countTickets2)?>, <?php echo count($countTickets3)?>, <?php echo count($countTickets4)?>],
+                data: [<?php echo count($countTickets4)?>,<?php echo count($countTickets3)?>, <?php echo count($countTickets2)?>, <?php echo count($countTickets)?>],
                 maxBarThickness: 6
 
             },
