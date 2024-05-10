@@ -40,9 +40,9 @@
     <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
     <script> function resetForm() {
             document.getElementById("incidentForm").reset();
-    document.getElementById("hiddenInput").style.display = "none"; // Hide the conditional select field
-    document.getElementById("hiddenField").removeAttribute("required"); // Remove the required attribute
-    }
+            document.getElementById("hiddenInput").style.display = "none"; // Hide the conditional select field
+            document.getElementById("hiddenField").removeAttribute("required"); // Remove the required attribute
+        }
     </script>
 </head>
 <?php
@@ -75,23 +75,28 @@ $assignedResponder = $db->execute_query("SELECT userName, userID FROM user
         JOIN ticket on user.userID = ticket.responderID
 Where user.userType LIKE 'Responder' OR userType LIKE 'Administrator' AND ticketID like ?", [$_GET['id']])->fetch_assoc();
 
-if(!empty($_GET['file']))
-{
+$ticketLog = $db->execute_query("SELECT ticket.incidentID, ticket.responderID, ticket.ticketStatus, ticket.timestamp, user.username, incident.reporterID, ticket.responseDescription
+FROM ticket
+         JOIN incident ON ticket.incidentID = incident.incidentID
+       JOIN user ON ticket.responderID = user.userID
+Where ticket.incidentID LIKE ? ORDER BY timestamp DESC", [$db->execute_query("SELECT ticket.incidentID from ticket
+where ticket.ticketID LIKE ?", [$_GET['id']])->fetch_row()[0]])->fetch_all();
+
+if (!empty($_GET['file'])) {
     $filename = basename($_GET['file']);
     $filepath = 'C:/Users/axell/PhpstormProjects' . $filename;
-    if(!empty($filename) && file_exists($filepath)){
+    if (!empty($filename) && file_exists($filepath)) {
 
         //Headers Defined here
-    header("Cache-Control: public");
-    header("Content-Description: File Transfer");
-    header("Content-Disposition: attachment; filename=$filename");
-    header("Content-Type: application/zip");
-    header("Content-Transfer-Encoding: binary");
+        header("Cache-Control: public");
+        header("Content-Description: File Transfer");
+        header("Content-Disposition: attachment; filename=$filename");
+        header("Content-Type: application/zip");
+        header("Content-Transfer-Encoding: binary");
 
-    readfile($filepath);
-    exit;
-    }
-    else {
+        readfile($filepath);
+        exit;
+    } else {
         echo "File does not exist";
     }
 }
@@ -99,8 +104,7 @@ if(!empty($_GET['file']))
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     //Checks if Post has been sent and declares variables from form
-    if (isset($_POST['newResponseSubmit']))
-    {
+    if (isset($_POST['newResponseSubmit'])) {
         $ticketResponder = $_POST['assignResponder'];
         $responseText = $_POST['responseText'];
 
@@ -133,18 +137,28 @@ require 'sidebar.php';
                         </div>
                         <div class="card-body p-3">
                             <ul class="list-group">
-                            <li class="list-group-item border-0 ps-0 pt-0 text-sm"><strong class="text-dark" >Sent in by:</strong> <?= $ticketSummary['userName'] ?></li>
-                            <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark" >Sent in on:</strong> <?= $ticketSummary['timestamp'] ?></li>
-                            <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark" >Description:</strong> <?= $ticketSummary['responseDescription'] ?></li>
-                                <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark" >Severity:</strong> <?= $ticketSummary['incidentSeverity'] ?></li>
-                            <?php if (isset($ticketSummary['responderID'])) { ?>
-                                <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Assigned to:</strong> <?= $assignedResponder['userName'] ?></li>
-                            <?php } else { ?>
-                                <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Assigned to: Unassigned</strong></li>
-                            <?php } ?>
+                                <li class="list-group-item border-0 ps-0 pt-0 text-sm"><strong class="text-dark">Sent in
+                                        by:</strong> <?= $ticketSummary['userName'] ?></li>
+                                <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Sent in
+                                        on:</strong> <?= $ticketSummary['timestamp'] ?></li>
+                                <li class="list-group-item border-0 ps-0 text-sm"><strong
+                                            class="text-dark">Description:</strong> <?= $ticketSummary['responseDescription'] ?>
+                                </li>
+                                <li class="list-group-item border-0 ps-0 text-sm"><strong
+                                            class="text-dark">Severity:</strong> <?= $ticketSummary['incidentSeverity'] ?>
+                                </li>
+                                <?php if (isset($ticketSummary['responderID'])) { ?>
+                                    <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Assigned
+                                            to:</strong> <?= $assignedResponder['userName'] ?></li>
+                                <?php } else { ?>
+                                    <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Assigned
+                                            to: Unassigned</strong></li>
+                                <?php } ?>
                                 <strong class="text-dark text-sm">Associated Files:</strong>
-                                <?php foreach ($incidentFiles as $files):?>
-                                <li class="list-group-item border-0 ps-0 text-sm"><a href="ticket-managment.php?file=C:/Users/axell/PhpstormProjects/uploads<?= $files[1]?>" > <?= $files[1]?></a> </li>
+                                <?php foreach ($incidentFiles as $files): ?>
+                                    <li class="list-group-item border-0 ps-0 text-sm"><a
+                                                href="ticket-managment.php?file=C:/Users/axell/PhpstormProjects/uploads<?= $files[1] ?>"> <?= $files[1] ?></a>
+                                    </li>
                                 <?php endforeach; ?>
                             </ul>
                         </div>
@@ -160,55 +174,110 @@ require 'sidebar.php';
                             </div>
                         </div>
                         <div class="card-body p-3">
-                            <?php if ($_SESSION['userType'] == 'Administrator'){?>
+                            <?php if ($_SESSION['userType'] == 'Administrator'){ ?>
                             <form id="editTicket" method="POST" class="w-sm-60">
-                            <ul class="list-group">
-                                <li class="mb-1">
-                                <div class="form-group">
-                                    <label for="assignResponder">Assign Responder to Ticket</label>
-                                    <select class="responder-select" name="assignResponder" required>
-                                        <?php if (is_null($assignedResponder['userName'])){ ?>
-                                        <option value="">Assign Responder</option>
-                                            <?php foreach ($responders as $responderRow): ?>
-                                                <option value="<?=$responderRow[1]?>"><?=$responderRow[0]?></option>
-                                            <?php endforeach; ?>
-                                        <?php } else { ?>
-                                        <option value="<?=$assignedResponder['userID']?>">Current: <?=$assignedResponder['userName']?></option>
-                                            <option value="">Unassign Responder</option>
-                                        <?php foreach ($responders as $responderRow): ?>
-                                            <option value="<?=$responderRow[1]?>"><?=$responderRow[0]?></option>
-                                        <?php endforeach; }?>
-                                    </select>
-                                </div>
-                                </li>
-                                <li class="mb-3">
-                                    <label for="responseText" class="form-label">Update ticket response </label>
-                                    <textarea class="form-control" name="responseText" id="responseTextID" rows="3" required></textarea>
-                                </li>
-                                <li>
-                                    <input type="checkbox" id="resolveTicket" name="resolveTicket" value="resolve">
-                                    <label for="resolveTicket"> Resolve Ticket</label>
-                                </li>
-                                <li>
-                                    <input type="checkbox" id="archiveTicket" name="archiveTicket" value="archive">
-                                    <label for="archiveTicket"> Archive ticket</label>
-                                </li>
+                                <ul class="list-group">
+                                    <li class="mb-1">
+                                        <div class="form-group">
+                                            <label for="assignResponder">Assign Responder to Ticket</label>
+                                            <select class="responder-select" name="assignResponder" required>
+                                                <?php if (is_null($assignedResponder['userName'])) { ?>
+                                                    <option value="">Assign Responder</option>
+                                                    <?php foreach ($responders as $responderRow): ?>
+                                                        <option value="<?= $responderRow[1] ?>"><?= $responderRow[0] ?></option>
+                                                    <?php endforeach; ?>
+                                                <?php } else { ?>
+                                                    <option value="<?= $assignedResponder['userID'] ?>">
+                                                        Current: <?= $assignedResponder['userName'] ?></option>
+                                                    <option value="">Unassign Responder</option>
+                                                    <?php foreach ($responders as $responderRow): ?>
+                                                        <option value="<?= $responderRow[1] ?>"><?= $responderRow[0] ?></option>
+                                                    <?php endforeach;
+                                                } ?>
+                                            </select>
+                                        </div>
+                                    </li>
+                                    <li class="mb-3">
+                                        <label for="responseText" class="form-label">Update ticket response</label>
+                                        <textarea class="form-control" name="responseText" id="responseTextID" rows="3"
+                                                  required></textarea>
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" id="resolveTicket" name="resolveTicket" value="resolve">
+                                        <label for="resolveTicket"> Resolve Ticket</label>
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" id="archiveTicket" name="archiveTicket" value="archive">
+                                        <label for="archiveTicket"> Archive ticket</label>
+                                    </li>
 
-                                <li class="mt-3">
-                                    <button type="submit" class="btn mb-0 btn-primary" name="newResponseSubmit">Submit</button>
-                                    <button type="reset" class="btn mb-0 btn-primary" onclick="resetForm()">Reset</button>
-                                    <a href="tickets.php" class="btn mb-0 btn-primary">Cancel</a>
-                                </li>
+                                    <li class="mt-3">
+                                        <button type="submit" class="btn mb-0 btn-primary" name="newResponseSubmit">
+                                            Submit
+                                        </button>
+                                        <button type="reset" class="btn mb-0 btn-primary" onclick="resetForm()">Reset
+                                        </button>
+                                        <a href="tickets.php" class="btn mb-0 btn-primary">Cancel</a>
+                                    </li>
                                     <?php
-                                }
-                                ?>
-                            </ul>
+                                    }
+                                    ?>
+                                </ul>
                             </form>
                         </div>
                     </div>
                 </div>
+
+                </div>
             </div>
         </div>
+    <div class="card mb-4">
+        <div class="card-header pb-0">
+            <h6 class="d-inline-block mb-2">Ticket Response Log</h6>
+    <div id="responseLog" class="card-body px-0 pt-0 pb-2 tab-pane">
+        <div class="table-responsive p-0">
+            <table class="table align-items-center mb-0">
+                <thead>
+                <tr>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                        Update By
+                    </th>
+                    <th class="text-uppercase text-secondary  text-xxs font-weight-bolder opacity-7 ps-2">
+                        Response
+                    </th>
+                    <th class="text-uppercase text-secondary  text-xxs font-weight-bolder opacity-7 ps-2">
+                        Submitted on
+                    </th>
+                    <th class="text-uppercase text-secondary  text-xxs font-weight-bolder opacity-7 ps-2">
+                        Status
+                    </th>
+                </tr>
+                </thead>
+                <?php foreach ($ticketLog as $row): ?>
+                <tbody>
+                <tr>
+                    <td>
+                        <div class="d-flex px-2 py-1">
+                            <div class="d-flex flex-column justify-content-center">
+                                <h6 class="mb-0 text-sm"><?=$row[4]?></h6>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <p class="text-xs font-weight-bold mb-0"><?=$row[6]?></p>
+                    </td>
+                    <td class="text-sm">
+                        <p class="text-xs max-width-300 overflow-hidden font-weight-bold mb-0"><?=$row[3]?></p>
+                    </td>
+                    <td>
+                        <p class="text-xs font-weight-bold mb-0"><?=$row[2]?></p>
+                    </td>
+                </tr>
+                </tbody>
+                <?php endforeach; ?>
+            </table>
+        </div>
+    </div>
     </div>
 </main>
 <!--   Core JS Files   -->
