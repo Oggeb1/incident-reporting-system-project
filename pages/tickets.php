@@ -13,24 +13,57 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
 <?php
+
 $pageName = 'Tickets';
 
+if (empty($_SESSION)) {
+    session_start();
+}
 require 'db-connection.php';
+
+echo $_SESSION['username'];
+echo $_SESSION['userType'];
+
+//Queries to get Pending Tickets
 $ticketsPending = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription,
        ticket.timestamp, user.userName FROM ticket
         JOIN incident ON ticket.incidentID = incident.incidentID
         JOIN user ON incident.reporterID = user.userID
 WHERE ticket.incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus NOT LIKE 'Pending') ORDER BY ticket.timestamp DESC ")->fetch_all();
+
+$ticketsPendingUser = $db->execute_query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription,
+       ticket.timestamp, user.userName FROM ticket
+                                                JOIN incident ON ticket.incidentID = incident.incidentID
+                                                JOIN user ON incident.reporterID = user.userID
+WHERE ticket.incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus NOT LIKE 'Pending') AND user.userName LIKE ? ORDER BY ticket.timestamp DESC", [$_SESSION['username']]);
+
+//Queries to get In progress tickets
 $ticketsProgress = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription,
        ticket.timestamp, user.userName FROM ticket
         JOIN incident ON ticket.incidentID = incident.incidentID
         JOIN user ON incident.reporterID = user.userID
 WHERE ticket.incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus LIKE 'Resolved') AND ticketStatus LIKE 'In progress' ORDER BY ticket.timestamp DESC")->fetch_all();
+
+$ticketsProgressUser = $db->execute_query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription,
+       ticket.timestamp, user.userName FROM ticket
+        JOIN incident ON ticket.incidentID = incident.incidentID
+        JOIN user ON incident.reporterID = user.userID
+WHERE ticket.incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus LIKE 'Resolved') AND ticketStatus LIKE 'In progress' AND user.userName LIKE ? ORDER BY ticket.timestamp DESC", [$_SESSION['username']]);
+
+//Queries to get resolved Tickets
 $ticketsResolved = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription, 
        ticket.timestamp, incident.reporterID, user.userName FROM ticket
          JOIN incident ON ticket.incidentID = incident.incidentID
          JOIN user ON incident.reporterID = user.userID
 WHERE ticket.ticketStatus LIKE 'Resolved' ORDER BY ticket.timestamp DESC")->fetch_all();
+
+$ticketsResolvedUser = $db->execute_query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription, 
+       ticket.timestamp, incident.reporterID, user.userName FROM ticket
+         JOIN incident ON ticket.incidentID = incident.incidentID
+         JOIN user ON incident.reporterID = user.userID
+WHERE ticket.ticketStatus LIKE 'Resolved' AND user.userName LIKE ? ORDER BY ticket.timestamp DESC", [$_SESSION['username']]);
+
+$responders = $db->query("Select userID, userName From user WHERE userType = 'Responder'")->fetch_all();
 ?>
 
 <!DOCTYPE html>
@@ -176,36 +209,77 @@ WHERE ticket.ticketStatus LIKE 'Resolved' ORDER BY ticket.timestamp DESC")->fetc
                             </thead>
                             <tbody>
                             <tr>
-                                <?php foreach ($ticketsPending as $row):
-                                if ($row[3] === 'Pending')?>
+                                <?php if ($_SESSION['userType'] == 'Reporter') {
+                                foreach ($ticketsPendingUser as $row):
+
+                                ?>
+                            <tr>
                                 <td>
                                     <div class="d-flex px-2 py-1">
                                         <div class="d-flex flex-column justify-content-center">
-                                            <h6 class="mb-0 text-sm"><?=$row[1] ?></h6>
+                                            <h6 class="mb-0 text-sm"><?= $row['incidentID'] ?></h6>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <p class="text-xs font-weight-bold mb-0"><?=$row[5]?></p>
+                                    <p class="text-xs font-weight-bold mb-0"><?= $row['userName']; ?></p>
                                 </td>
                                 <td class="align-middle text-center text-sm">
-                                    <p class="text-xs ml-50 max-width-300 overflow-hidden font-weight-bold mb-0"><?=$row[3]?></p>
+                                    <p class="text-xs ml-50 max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row['incidentDescription']; ?></p>
                                 </td>
                                 <td class="align-middle text-center">
-                                    <span class="text-secondary text-xs font-weight-bold"><?=$row[4]?></span>
+                                    <span class="text-secondary text-xs font-weight-bold"><?= $row['timestamp']; ?></span>
                                 </td>
                                 <td class="align-middle">
-                                    <a href="javascript:" class="text-secondary font-weight-bold text-xs"
-                                       data-toggle="tooltip" data-original-title="Assign user">
+                                    <a href="javascript:" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip"
+                                       data-original-title="Assign user">
                                         Assign
                                     </a>
-                                    <a href="javascript:" class="text-secondary font-weight-bold text-xs ps-4"
-                                       data-toggle="tooltip" data-original-title="Edit user">
+                                    <a href="javascript:" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
+                                       data-original-title="Edit user">
                                         Edit
                                     </a>
                                 </td>
                             </tr>
-                                <?php endforeach; ?>
+                            <?php
+                            endforeach;
+                            }
+                            ?>
+                            <?php if ($_SESSION['userType'] == 'Responder' || $_SESSION['userType'] == 'Administrator') {
+                                foreach ($ticketsPending as $row):
+                                        ?>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex px-2 py-1">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm"><?= $row[1]; ?></h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <p class="text-xs font-weight-bold mb-0"><?= $row[5]; ?></p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <p class="text-xs ml-50 max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[3]; ?></p>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>
+                                            </td>
+                                            <td class="align-middle">
+                                                <a href="javascript:" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip"
+                                                   data-original-title="Assign user">
+                                                    Assign
+                                                </a>
+                                                <a href="javascript:" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
+                                                   data-original-title="Edit user">
+                                                    Edit
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php
+                                endforeach;
+                            }
+                            ?>
                             </tbody>
                         </table>
                     </div>
@@ -322,6 +396,23 @@ WHERE ticket.ticketStatus LIKE 'Resolved' ORDER BY ticket.timestamp DESC")->fetc
         </div>
     </div>
     </div>
+        <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModal" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">Assign Ticket to Responder</h5>
+                    </div>
+                    <form method="POST">
+                        <div class="modal-body">
+                            <label for="email">Email:</label>
+                            <input type="email" id="email" class="form-control" name="email" value=""><br>
+                            <label for="resetPassword">New Password:</label>
+                            <input type="password" id="resetPassword" class="form-control" name="resetPassword"><br>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     <?php require 'footer.php' ?>
     </div>
 </main>
