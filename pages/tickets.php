@@ -52,7 +52,7 @@ WHERE ticket.incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus
 
 //Queries to get resolved Tickets
 $ticketsResolved = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription, 
-       ticket.timestamp, incident.reporterID, user.userName FROM ticket
+       ticket.timestamp, user.userName FROM ticket
          JOIN incident ON ticket.incidentID = incident.incidentID
          JOIN user ON incident.reporterID = user.userID
 WHERE ticket.ticketStatus LIKE 'Resolved' ORDER BY ticket.timestamp DESC")->fetch_all();
@@ -231,13 +231,9 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                     <span class="text-secondary text-xs font-weight-bold"><?= $row['timestamp']; ?></span>
                                 </td>
                                 <td class="align-middle">
-                                    <a href="javascript:" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip"
-                                       data-original-title="Assign user">
-                                        Assign
-                                    </a>
                                     <a href="javascript:" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
                                        data-original-title="Edit user">
-                                        Edit
+                                        View
                                     </a>
                                 </td>
                             </tr>
@@ -306,36 +302,71 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                             </thead>
                             <tbody>
                             <tr>
-                                <?php foreach ($ticketsProgress as $row):
-                                if ($row[3] === 'In progress')?>
+                                <?php if ($_SESSION['userType'] == 'Reporter') {
+                                foreach ($ticketsProgressUser as $row):
+
+                                ?>
+                            <tr>
                                 <td>
                                     <div class="d-flex px-2 py-1">
                                         <div class="d-flex flex-column justify-content-center">
-                                            <h6 class="mb-0 text-sm"><?=$row[1] ?></h6>
+                                            <h6 class="mb-0 text-sm"><?= $row['incidentID'] ?></h6>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <p class="text-xs font-weight-bold mb-0"><?=$row[5]?></p>
+                                    <p class="text-xs font-weight-bold mb-0"><?= $row['userName']; ?></p>
                                 </td>
                                 <td class="align-middle text-center text-sm">
-                                    <p class="text-xs font-weight-bold mb-0"><?=$row[3]?></p>
+                                    <p class="text-xs ml-50 max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row['incidentDescription']; ?></p>
                                 </td>
                                 <td class="align-middle text-center">
-                                    <span class="text-secondary text-xs font-weight-bold"><?=$row[4]?></span>
+                                    <span class="text-secondary text-xs font-weight-bold"><?= $row['timestamp']; ?></span>
                                 </td>
                                 <td class="align-middle">
-                                    <a href="javascript:" class="text-secondary font-weight-bold text-xs"
-                                       data-toggle="tooltip" data-original-title="Assign user">
-                                        Assign
-                                    </a>
-                                    <a href="javascript:" class="text-secondary font-weight-bold text-xs ps-4"
-                                       data-toggle="tooltip" data-original-title="Edit user">
-                                        Edit
+                                    <a href="javascript:" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
+                                       data-original-title="Edit user">
+                                        View
                                     </a>
                                 </td>
                             </tr>
-                            <?php endforeach; ?>
+                            <?php
+                            endforeach;
+                            }
+                            ?>
+                            <?php if ($_SESSION['userType'] == 'Responder' || $_SESSION['userType'] == 'Administrator') {
+
+                                foreach ($ticketsProgress as $row):
+
+                                    ?>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm"><?= $row[1] ?></h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <p class="text-xs font-weight-bold mb-0"><?= $row[5]; ?></p>
+                                        </td>
+                                        <td class="align-middle text-center text-sm">
+                                            <p class="text-xs ml-50 max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[3]; ?></p>
+                                        </td>
+                                        <td class="align-middle text-center">
+                                            <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>
+                                        </td>
+                                        <td class="align-middle">
+                                            <a href="javascript:" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
+                                               data-original-title="Edit user">
+                                                Edit
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php
+                                endforeach;
+                            }
+                            ?>
                             </tbody>
                         </table>
                     </div>
@@ -362,32 +393,76 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                             </thead>
                             <tbody>
                             <tr>
-                                <?php foreach ($ticketsResolved as $row):
-                                if ($row[3] === 'Resolved')?>
+                                <?php if ($_SESSION['userType'] == 'Reporter') {
+                                foreach ($ticketsResolvedUser as $row):
+
+                                ?>
+                            <tr>
                                 <td>
                                     <div class="d-flex px-2 py-1">
                                         <div class="d-flex flex-column justify-content-center">
-                                            <h6 class="mb-0 text-sm"><?=$row[1] ?></h6>
+                                            <h6 class="mb-0 text-sm"><?= $row['incidentID'] ?></h6>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <p class="text-xs font-weight-bold mb-0"><?=$row[6]?></p>
+                                    <p class="text-xs font-weight-bold mb-0"><?= $row['userName']; ?></p>
                                 </td>
                                 <td class="align-middle text-center text-sm">
-                                    <p class="text-xs font-weight-bold mb-0"><?=$row[3]?></p>
+                                    <p class="text-xs ml-50 max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row['incidentDescription']; ?></p>
                                 </td>
                                 <td class="align-middle text-center">
-                                    <span class="text-secondary text-xs font-weight-bold"><?=$row[4]?></span>
+                                    <span class="text-secondary text-xs font-weight-bold"><?= $row['timestamp']; ?></span>
                                 </td>
                                 <td class="align-middle">
-                                    <a href="javascript:" class="text-secondary font-weight-bold text-xs ps-4"
-                                       data-toggle="tooltip" data-original-title="Edit user">
-                                        Edit
+                                    <a href="javascript:" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
+                                       data-original-title="Edit user">
+                                        View
                                     </a>
                                 </td>
+                                <?php
+                                endforeach;
+                                }
+                                elseif (is_null($ticketsResolvedUser)){
+
+                                }
+
+                                ?>
                             </tr>
-                            <?php endforeach; ?>
+
+                            <?php if ($_SESSION['userType'] == 'Responder' || $_SESSION['userType'] == 'Administrator') {
+
+                                foreach ($ticketsResolved as $row):
+
+                                    ?>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm"><?= $row[1] ?></h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <p class="text-xs font-weight-bold mb-0"><?= $row[5]; ?></p>
+                                        </td>
+                                        <td class="align-middle text-center text-sm">
+                                            <p class="text-xs  max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[3]; ?></p>
+                                        </td>
+                                        <td class="align-middle text-center">
+                                            <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>
+                                        </td>
+                                        <td class="align-middle">
+                                            <a href="javascript:" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
+                                               data-original-title="Edit user">
+                                                Edit
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php
+                                endforeach;
+                            }
+                            ?>
                             </tbody>
                         </table>
                     </div>
