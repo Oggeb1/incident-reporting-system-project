@@ -44,8 +44,7 @@ if (empty($_SESSION)) {
     session_start();
 }
 
-if ($_SESSION['userType'] == 'Reporter')
-{
+if ($_SESSION['userType'] == 'Reporter') {
     header('Location: dashboard.php', true, 303);
     exit();
 }
@@ -58,13 +57,36 @@ $ticketSummary = $db->execute_query("SELECT ticketID, incident.incidentID, ticke
     JOIN user ON incident.reporterID = user.userID
 Where ticketID LIKE ?", [$_GET['id']])->fetch_assoc();
 
-echo $_GET['id'];
+$incidentFiles = $db->execute_query("SELECT file.incidentID, file.path FROM file
+JOIN incident on file.incidentID = incident.incidentID
+JOIN ticket on file.incidentID = ticket.incidentID
+Where ticketID LIKE ?", [$_GET['id']])->fetch_all();
 
+if(!empty($_GET['file']))
+{
+    $filename = basename($_GET['file']);
+    $filepath = 'C:/Users/axell/PhpstormProjects' . $filename;
+    if(!empty($filename) && file_exists($filepath)){
+
+        //Headers Defined here
+    header("Cache-Control: public");
+    header("Content-Description: File Transfer");
+    header("Content-Disposition: attachment; filename=$filename");
+    header("Content-Type: application/zip");
+    header("Content-Transfer-Encoding: binary");
+
+    readfile($filepath);
+    exit;
+    }
+    else {
+        echo "File does not exist";
+    }
+}
 //Form submission values are sent here
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-        header('Location: tickets.php', true, 303);
-        exit();
+    header('Location: tickets.php', true, 303);
+    exit();
 
 }
 require 'sidebar.php';
@@ -72,33 +94,60 @@ require 'sidebar.php';
 ?>
 <body class="g-sidenav-show bg-gray-100">
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg py-4">
-    <div class="container-fluid py-2">
-        <div class="d-flex justify-content-center">
-            <h6 class="mb-0">Viewing Ticket Number: <?=$ticketSummary['incidentID']?></h6>
+    <div class="container-fluid">
+        <div class="row py-4">
+            <div class="col-12 col-xl-4">
+                <div class="card h-100">
+                    <div class="card-header pb-0 p-3">
+                        <div class="container-fluid py-2">
+                            <div class="d-flex justify-content-center">
+                                <h6 class="mb-0">Viewing Ticket Number: <?= $ticketSummary['incidentID'] ?></h6>
+                            </div>
+                        </div>
+                        <div class="card-body p-3">
+                            <ul class="list-group">
+                            <li class="list-group-item border-0 ps-0 pt-0 text-sm"><strong class="text-dark" >Sent in by:</strong> <?= $ticketSummary['userName'] ?></li>
+                            <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark" >Sent in on:</strong> <?= $ticketSummary['timestamp'] ?></li>
+                            <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark" >Description:</strong> <?= $ticketSummary['responseDescription'] ?></li>
+                            <?php if (isset($ticketSummary['responderID'])) { ?>
+                                <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Assigned to:</strong> <?= $ticketSummary['responderID'] ?></li>
+                            <?php } else { ?>
+                                <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Assigned to: Unassigned</strong></li>
+                            <?php } ?>
+                                <strong class="text-dark text-sm">Associated Files:</strong>
+                                <?php foreach ($incidentFiles as $files):?>
+                                <li class="list-group-item border-0 ps-0 text-sm"><a href="ticket-managment.php?file=C:/Users/axell/PhpstormProjects/uploads<?= $files[1]?>" > <?= $files[1]?></a> </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-xl-7">
+                <div class="card h-100">
+                    <div class="card-header pb-0 p-3">
+                        <div class="container-fluid py-2">
+                            <div class="d-flex justify-content-center">
+                                <h6 class="mb-0">Edit Ticket:</h6>
+                            </div>
+                        </div>
+                        <div class="card-body p-3">
+                            <ul class="list-group">
+                                <li class="list-group-item border-0 ps-0 pt-0 text-sm"><strong class="text-dark" >Sent in by:</strong> <?= $ticketSummary['userName'] ?></li>
+                                <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark" >Sent in on:</strong> <?= $ticketSummary['timestamp'] ?></li>
+                                <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark" >Description:</strong> <?= $ticketSummary['responseDescription'] ?></li>
+                                <?php if (isset($ticketSummary['responderID'])) { ?>
+                                    <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Assigned to:</strong> <?= $ticketSummary['responderID'] ?></li>
+                                <?php } else { ?>
+                                    <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Assigned to: Unassigned</strong></li>
+                                <?php } ?>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="p-3 d-flex justify-content-center">
-            <ul class="list-group">
-                <li class="mb-1">
-                    <p>Sent in by: <?=$ticketSummary['userName']?></p>
-                </li>
-                <li class="mb-3">
-                    <p>Sent in on: <?=$ticketSummary['timestamp']?></p>
-                </li>
-                <li>
-                    <p>Description: <?=$ticketSummary['responseDescription']?></p>
-                </li>
-                <li>
-                    <p>Assigned to: <?= if (isset($ticketSummary['']))['responderID']?></p>
-                </li>
-                <li class="mt-3">
-                    <button type="submit" class="btn mb-0 btn-primary" name="newTicketSubmit">Submit</button>
-                    <button type="reset" class="btn mb-0 btn-primary" onclick="resetForm()">Reset</button>
-                    <a href="tickets.php" class="btn mb-0 btn-primary">Cancel</a>
-                </li>
-            </ul>
-    </div>
-
 </main>
 <!--   Core JS Files   -->
 <script src="../assets/js/core/popper.min.js"></script>
