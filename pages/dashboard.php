@@ -31,7 +31,7 @@
     $tickTimestamp = implode($ticketTimestamp);
     $userinfo = $db->execute_query("SELECT userName, userID FROM user ORDER BY RAND()");
 
-    $users = $db->query("SELECT userID,userName,email,firstName,lastName,userType FROM user where userType = 'Responder'")->fetch_all();
+    $users = $db->query("SELECT userID,userName,email,firstName,lastName,userType FROM user where userType = 'Responder' OR userType = 'Administrator'")->fetch_all();
     $dailyCompletedTickets = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription,ticket.timestamp, incident.reporterID, user.userName, user.userID 
     FROM ticket
     JOIN incident ON ticket.incidentID = incident.incidentID
@@ -191,7 +191,7 @@
                             <div class="row">
                                 <div class="col-8">
                                     <div class="numbers">
-                                        <p class="text-sm mb-0 text-capitalize font-weight-bold">Resolved tickets</p>
+                                        <p class="text-sm mb-0 text-capitalize font-weight-bold">Resolved <br> tickets</p>
                                         <h5 class="font-weight-bolder mb-0"><?= ($closedTickets ["COUNT(ticketStatus)"])?></h5>
                                     </div>
                                 </div>
@@ -212,7 +212,7 @@
                             <div class="row">
                                 <div class="col-8">
                                     <div class="numbers">
-                                        <p class="text-sm mb-0 text-capitalize font-weight-bold">Timer of last pending ticket</p>
+                                        <p class="text-sm mb-0 text-capitalize font-weight-bold">Longest ticket pending time</p>
                                         <h5 class="font-weight-bolder mb-0"><?= $tickTimestamp ?></h5>
                                     </div>
                                 </div>
@@ -296,7 +296,7 @@
                 <div class="card h-100 z-index-2">
                     <div class="card-body p-3">
                         <h6 class="text-sm">
-                            Status of incidents the last 30 days
+                            Incidents by Severity Last 30 Days
                         </h6>
                         <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
                             <div class="chart">
@@ -374,7 +374,7 @@
                                                 </g>
                                             </svg>
                                         </div>
-                                        <a href="user-management.php"  <p class="text-xs mt-1 mb-0 font-weight-bold">Total page visits</p> </a>
+                                        <a href="user-management.php"  <p class="text-xs mt-1 mb-0 font-weight-bold">Total visits</p> </a>
 
                                     </div>
                                     <h4 class="font-weight-bolder"><?= ($countTracker["COUNT(logID)"])?></h4>
@@ -479,7 +479,7 @@
                                         <td>
                                             <div class="d-flex px-2 py-1">
                                                 <div>
-                                                    <img src="../assets/img/profile-picture.svg" class="avatar avatar-sm me-3" alt="xd">
+                                                    <img src="../assets/img/profile.svg" class="avatar avatar-sm me-3" alt="xd">
                                                 </div>
                                                 <div class="d-flex flex-column justify-content-center">
                                                     <h6 class="mb-0 text-sm"><?= $row[1]?></h6>
