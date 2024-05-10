@@ -41,27 +41,34 @@
 
 <body class="g-sidenav-show  bg-gray-100">
 <?php
+// Set pageName to correctly display it as "active" in the sidebar
 $pageName = "User-management";
 
+// Import DB connection
+require 'db-connection.php';
+
+// Start session if not already started
 if (empty($_SESSION)) {
     session_start();
 }
 
-if (isset($_SESSION['newPasswd'])) {
-    $tmpPass = $_SESSION['newPasswd'];
-    echo "<script type='text/javascript'>alert('Please send this password to the new user, REMIND THEM TO CHANGE IT IN THE SETTINGS: $tmpPass');</script>";
-    unset($_SESSION['newPasswd']);
-}
-
+// Only admins should have access to this page
 if ($_SESSION['userType'] !== 'Administrator') {
-    header("Location: dashboard.php");
+    header("Location: dashboard.php"); // Redirect to dashboard
 }
 
-// Import DB connection
-require 'db-connection.php';
+if (isset($_SESSION['newPasswd'])) { // Wonky way to display an alert after page refresh
+    $tmpPass = $_SESSION['newPasswd']; // Can't use super global inline
+    echo "<script type='text/javascript'>alert('Please send this password to the new user, REMIND THEM TO CHANGE IT IN THE SETTINGS: $tmpPass');</script>"; // Alert to show new password for user
+    unset($_SESSION['newPasswd']); // Unset the super-global to combat password leaks
+}
+
+// Get the users and information to display
 $users = $db->query("SELECT userName,email,firstName,lastName,userType FROM user")->fetch_all();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['newSubmit'])) {
+    if (isset($_POST['newSubmit'])) { // Runs every time new user created
+        // Set variables from the filled-in form
         $username = $_POST['newUsername'];
         $firstName = $_POST['newFirstName'];
         $lastName = $_POST['newLastName'];
@@ -73,25 +80,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $usernameList = [];
-        foreach ($users as $user) {
-            $usernameList[] = $user[0];
+        foreach ($users as $user) { // Iterate over each user from DB
+            $usernameList[] = $user[0]; // Save the userName in array
         }
 
-        if (in_array($username, $usernameList)) {
+        if (in_array($username, $usernameList)) { // If the user already exists, don't try to create it
             echo "<script type='text/javascript'>alert('User already exists');</script>";
         } else {
-            $password = bin2hex(openssl_random_pseudo_bytes(16));
-            $_SESSION['newPasswd'] = $password;
-            $password = password_hash($password, PASSWORD_DEFAULT);
+            $password = bin2hex(openssl_random_pseudo_bytes(16)); // Generate a "random" password for user
+            $_SESSION['newPasswd'] = $password; // Store in super-global to show in an alert after page refresh
+            $password = password_hash($password, PASSWORD_DEFAULT); // Hash the "random" generated password
 
+            // Insert the new user into database
             $db->execute_query("INSERT INTO user (userName, firstName, lastName, email, userType, password) VALUES ((?), (?), (?), (?), (?), (?))", [$username, $firstName, $lastName, $email, $role, $password]);
+
+            // Redirect to self using Post/Redirect/Get
             header('Location: user-management.php', true, 303);
             exit();
         }
     }
 
-    if (isset($_POST['editSubmit'])) {
-
+    if (isset($_POST['editSubmit'])) { // Runs every time a user is edited
+        // Set variables from form
         $oldUsername = $_POST['oldUsername'];
         $username = $_POST['username'];
         $firstName = $_POST['firstName'];
@@ -104,31 +114,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (isset($_POST['resetPassword'])) {
-            if ($_POST['resetPassword'] === 'on') {
-                $password = bin2hex(openssl_random_pseudo_bytes(16));
-                $_SESSION['newPasswd'] = $password;
-                $password = password_hash($password, PASSWORD_DEFAULT);
+            if ($_POST['resetPassword'] === 'on') { // If reset-password checkbox is ticked
+                $password = bin2hex(openssl_random_pseudo_bytes(16)); // Generate new "random" password
+                $_SESSION['newPasswd'] = $password; // Save the new password in a super-global to display after page refresh
+                $password = password_hash($password, PASSWORD_DEFAULT); // Hash the new password
             }
         }
 
-        if (isset($password)) {
+        if (isset($password)) { // Update the user accordingly, separate query if password was changed or not
             $db->execute_query("UPDATE user SET userName = (?), firstName = (?), lastName = (?), email = (?), userType = (?), password = (?) WHERE userName = (?)", [$username, $firstName, $lastName, $email, $role, $password, $oldUsername]);
         } else {
             $db->execute_query("UPDATE user SET userName = (?), firstName = (?), lastName = (?), email = (?), userType = (?) WHERE userName = (?)", [$username, $firstName, $lastName, $email, $role, $oldUsername]);
         }
-
+        // Use Post/Redirect/Get to redirect to self
         header('Location: user-management.php', true, 303);
         exit();
     }
 
-    if (isset($_POST['deleteSubmit'])) {
+    if (isset($_POST['deleteSubmit'])) { // Runs every time a user is deleted
+        // Set username to delete from form
         $username = $_POST['oldUsername'];
 
-        if ($username !== $_SESSION['username']) {
-            $db->execute_query("DELETE FROM user WHERE userName = (?)", [$username]);
+        if ($username !== $_SESSION['username']) { // Do not allow to delete the logged-in user
+            $db->execute_query("DELETE FROM user WHERE userName = (?)", [$username]); // Delete user
+            // Use Post/Redirect/Get to redirect to self
             header('Location: user-management.php', true, 303);
             exit();
-        } else {
+        } else { // The username to delete is the same as logged-in, show error
             echo "<script type='text/javascript'>alert('Cannot delete current user');</script>";
         }
     }
@@ -286,14 +298,17 @@ require 'sidebar.php';
     </div>
   </main>
   <script>
-      $('#editUserModal').on('show.bs.modal', function (event) {
+      // Pre-fil user information in the edit modal
+      $('#editUserModal').on('show.bs.modal', function (event) { // When showed
           var button = $(event.relatedTarget) // Button that triggered the modal
           var editIndex = button.data('index') // Extract info from data-* attributes
+          // Set variables from the data-index attribute
           $('#oldUsername').attr('value', editIndex[0])
           $('#userName').val(editIndex[0])
           $('#firstName').val(editIndex[2])
           $('#lastName').val(editIndex[3])
           $('#email').val(editIndex[1])
+          // Pre fil-radio buttons from index-attribute
           if (editIndex[4] === 'Reporter') {
               $('#roleReporter').attr('checked', true)
           } else if (editIndex[4] === 'Responder') {
