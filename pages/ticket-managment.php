@@ -38,6 +38,12 @@
     <!-- Nepcha Analytics (nepcha.com) -->
     <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
     <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+    <script> function resetForm() {
+            document.getElementById("incidentForm").reset();
+    document.getElementById("hiddenInput").style.display = "none"; // Hide the conditional select field
+    document.getElementById("hiddenField").removeAttribute("required"); // Remove the required attribute
+    }
+    </script>
 </head>
 <?php
 if (empty($_SESSION)) {
@@ -52,7 +58,7 @@ if ($_SESSION['userType'] == 'Reporter') {
 $pageName = 'Ticket-management';
 require 'db-connection.php';
 
-$ticketSummary = $db->execute_query("SELECT ticketID, incident.incidentID, ticketStatus, userName, responderID, responseDescription, incident.timestamp FROM ticket
+$ticketSummary = $db->execute_query("SELECT ticketID, incident.incidentID, ticketStatus, incident.incidentSeverity, userName, responderID, responseDescription, incident.timestamp FROM ticket
     JOIN incident ON ticket.incidentID = incident.incidentID
     JOIN user ON incident.reporterID = user.userID
 Where ticketID LIKE ?", [$_GET['id']])->fetch_assoc();
@@ -61,6 +67,13 @@ $incidentFiles = $db->execute_query("SELECT file.incidentID, file.path FROM file
 JOIN incident on file.incidentID = incident.incidentID
 JOIN ticket on file.incidentID = ticket.incidentID
 Where ticketID LIKE ?", [$_GET['id']])->fetch_all();
+
+$responders = $db->query("SELECT userName, userID FROM user
+Where userType LIKE 'Responder' OR userType LIKE 'Administrator'")->fetch_all();
+
+$assignedResponder = $db->execute_query("SELECT userName, userID FROM user
+        JOIN ticket on user.userID = ticket.responderID
+Where user.userType LIKE 'Responder' OR userType LIKE 'Administrator' AND ticketID like ?", [$_GET['id']])->fetch_assoc();
 
 if(!empty($_GET['file']))
 {
@@ -84,6 +97,20 @@ if(!empty($_GET['file']))
 }
 //Form submission values are sent here
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    //Checks if Post has been sent and declares variables from form
+    if (isset($_POST['newResponseSubmit']))
+    {
+        $ticketResponder = $_POST['assignResponder'];
+        $responseText = $_POST['responseText'];
+
+        $db->execute_query("INSERT INTO ticket (incidentID, responderID, ticketStatus, responseDescription, timestamp)
+                            Values ((?), (?),'In Progress', (?), UTC_TIMESTAMP)", [$ticketSummary['incidentID'], $ticketResponder, $responseText]);
+    }
+    if (isset($_POST['newResponseSubmit']) and !is_null($_POST['resolveTicket'])) {
+        $db->execute_query("INSERT INTO ticket (incidentID, responderID, ticketStatus, responseDescription, timestamp)
+                            Values ((?), (?),'In Progress', (?), UTC_TIMESTAMP)", [$ticketSummary['incidentID'], $ticketResponder, $responseText]);
+    }
 
     header('Location: tickets.php', true, 303);
     exit();
@@ -109,8 +136,9 @@ require 'sidebar.php';
                             <li class="list-group-item border-0 ps-0 pt-0 text-sm"><strong class="text-dark" >Sent in by:</strong> <?= $ticketSummary['userName'] ?></li>
                             <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark" >Sent in on:</strong> <?= $ticketSummary['timestamp'] ?></li>
                             <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark" >Description:</strong> <?= $ticketSummary['responseDescription'] ?></li>
+                                <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark" >Severity:</strong> <?= $ticketSummary['incidentSeverity'] ?></li>
                             <?php if (isset($ticketSummary['responderID'])) { ?>
-                                <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Assigned to:</strong> <?= $ticketSummary['responderID'] ?></li>
+                                <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Assigned to:</strong> <?= $assignedResponder['userName'] ?></li>
                             <?php } else { ?>
                                 <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Assigned to: Unassigned</strong></li>
                             <?php } ?>
@@ -132,16 +160,50 @@ require 'sidebar.php';
                             </div>
                         </div>
                         <div class="card-body p-3">
+                            <?php if ($_SESSION['userType'] == 'Administrator'){?>
+                            <form id="editTicket" method="POST" class="w-sm-60">
                             <ul class="list-group">
-                                <li class="list-group-item border-0 ps-0 pt-0 text-sm"><strong class="text-dark" >Sent in by:</strong> <?= $ticketSummary['userName'] ?></li>
-                                <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark" >Sent in on:</strong> <?= $ticketSummary['timestamp'] ?></li>
-                                <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark" >Description:</strong> <?= $ticketSummary['responseDescription'] ?></li>
-                                <?php if (isset($ticketSummary['responderID'])) { ?>
-                                    <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Assigned to:</strong> <?= $ticketSummary['responderID'] ?></li>
-                                <?php } else { ?>
-                                    <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Assigned to: Unassigned</strong></li>
-                                <?php } ?>
+                                <li class="mb-1">
+                                <div class="form-group">
+                                    <label for="assignResponder">Assign Responder to Ticket</label>
+                                    <select class="responder-select" name="assignResponder" required>
+                                        <?php if (is_null($assignedResponder['userName'])){ ?>
+                                        <option value="">Assign Responder</option>
+                                            <?php foreach ($responders as $responderRow): ?>
+                                                <option value="<?=$responderRow[1]?>"><?=$responderRow[0]?></option>
+                                            <?php endforeach; ?>
+                                        <?php } else { ?>
+                                        <option value="<?=$assignedResponder['userID']?>">Current: <?=$assignedResponder['userName']?></option>
+                                            <option value="">Unassign Responder</option>
+                                        <?php foreach ($responders as $responderRow): ?>
+                                            <option value="<?=$responderRow[1]?>"><?=$responderRow[0]?></option>
+                                        <?php endforeach; }?>
+                                    </select>
+                                </div>
+                                </li>
+                                <li class="mb-3">
+                                    <label for="responseText" class="form-label">Update ticket response </label>
+                                    <textarea class="form-control" name="responseText" id="responseTextID" rows="3" required></textarea>
+                                </li>
+                                <li>
+                                    <input type="checkbox" id="resolveTicket" name="resolveTicket" value="resolve">
+                                    <label for="resolveTicket"> Resolve Ticket</label>
+                                </li>
+                                <li>
+                                    <input type="checkbox" id="archiveTicket" name="archiveTicket" value="archive">
+                                    <label for="archiveTicket"> Archive ticket</label>
+                                </li>
+
+                                <li class="mt-3">
+                                    <button type="submit" class="btn mb-0 btn-primary" name="newResponseSubmit">Submit</button>
+                                    <button type="reset" class="btn mb-0 btn-primary" onclick="resetForm()">Reset</button>
+                                    <a href="tickets.php" class="btn mb-0 btn-primary">Cancel</a>
+                                </li>
+                                    <?php
+                                }
+                                ?>
                             </ul>
+                            </form>
                         </div>
                     </div>
                 </div>

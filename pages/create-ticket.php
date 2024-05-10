@@ -69,7 +69,7 @@ if (empty($_SESSION)) {
 $pageName = 'Create-ticket';
 require 'db-connection.php';
 
-//Database queries to allow users to select from the different incident types, asset types and assets in teh database
+//Database queries to allow users to select from the different incident types, asset types and assets in the database
 $incidentTypes = $db->query("Select incidentType.incidentTypeDescription, incidentType.incidentTypeID from incidentType")->fetch_all();
 $assettypes = $db->query("Select assetType.assetTypeDescription, assetTypeID from assetType")->fetch_all();
 $assets = $db->query("Select asset.assetDescription, assetType.assetTypeID

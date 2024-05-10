@@ -35,26 +35,40 @@ $ticketsPendingUser = $db->execute_query("SELECT ticket.ticketID, ticket.inciden
 WHERE ticket.incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus NOT LIKE 'Pending') AND user.userName LIKE ? ORDER BY ticket.timestamp DESC", [$_SESSION['username']]);
 
 //Queries to get In progress tickets
-$ticketsProgress = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription,
-       ticket.timestamp, user.userName FROM ticket
-        JOIN incident ON ticket.incidentID = incident.incidentID
-        JOIN user ON incident.reporterID = user.userID
-WHERE ticket.incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus LIKE 'Resolved') AND ticketStatus LIKE 'In progress' ORDER BY ticket.timestamp DESC")->fetch_all();
+$ticketsProgress = $db->query("SELECT ticketID, incidentID, ticketStatus, responseDescription, timestamp, userName
+FROM (
+         SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, responseDescription, ticket.timestamp, user.userName,
+                ROW_NUMBER() OVER (PARTITION BY ticket.incidentID ORDER BY ticket.timestamp DESC) AS rn
+         FROM ticket
+                  JOIN incident ON ticket.incidentID = incident.incidentID
+                  JOIN user ON incident.reporterID = user.userID
+         WHERE ticketStatus LIKE 'In progress'
+           AND ticket.incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus LIKE 'Resolved')
+     ) AS sub
+WHERE rn = 1
+ORDER BY timestamp DESC")->fetch_all();
 
-$ticketsProgressUser = $db->execute_query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription,
-       ticket.timestamp, user.userName FROM ticket
-        JOIN incident ON ticket.incidentID = incident.incidentID
-        JOIN user ON incident.reporterID = user.userID
-WHERE ticket.incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus LIKE 'Resolved') AND ticketStatus LIKE 'In progress' AND user.userName LIKE ? ORDER BY ticket.timestamp DESC", [$_SESSION['username']]);
+$ticketsProgressUser = $db->execute_query("SELECT ticketID, incidentID, ticketStatus, responseDescription, timestamp, userName
+FROM (
+         SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, responseDescription, ticket.timestamp, user.userName,
+                ROW_NUMBER() OVER (PARTITION BY ticket.incidentID ORDER BY ticket.timestamp DESC) AS rn
+         FROM ticket
+                  JOIN incident ON ticket.incidentID = incident.incidentID
+                  JOIN user ON incident.reporterID = user.userID
+         WHERE ticketStatus LIKE 'In progress' AND user.userName LIKE ?
+           AND ticket.incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus LIKE 'Resolved')
+     ) AS sub
+WHERE rn = 1
+ORDER BY timestamp DESC", [$_SESSION['username']]);
 
 //Queries to get resolved Tickets
-$ticketsResolved = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription, 
+$ticketsResolved = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, responseDescription, 
        ticket.timestamp, user.userName FROM ticket
          JOIN incident ON ticket.incidentID = incident.incidentID
          JOIN user ON incident.reporterID = user.userID
 WHERE ticket.ticketStatus LIKE 'Resolved' ORDER BY ticket.timestamp DESC")->fetch_all();
 
-$ticketsResolvedUser = $db->execute_query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription, 
+$ticketsResolvedUser = $db->execute_query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, responseDescription, 
        ticket.timestamp, incident.reporterID, user.userName FROM ticket
          JOIN incident ON ticket.incidentID = incident.incidentID
          JOIN user ON incident.reporterID = user.userID
@@ -208,7 +222,6 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                             <tr>
                                 <?php if ($_SESSION['userType'] == 'Reporter') {
                                 foreach ($ticketsPendingUser as $row):
-
                                 ?>
                             <tr>
                                 <td>
@@ -285,10 +298,10 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                     Reported By
                                 </th>
                                 <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                    Description
+                                    Last Response
                                 </th>
                                 <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                    Sent In On
+                                    Last Updated
                                 </th>
                                 <th class="text-secondary opacity-7"></th>
                             </tr>
@@ -350,7 +363,7 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                             <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>
                                         </td>
                                         <td class="align-middle">
-                                            <a href="javascript:" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
+                                            <a href="ticket-managment.php?id=<?=$row[0]?>" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
                                                data-original-title="Edit user">
                                                 Edit
                                             </a>
@@ -376,10 +389,10 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                     Reported By
                                 </th>
                                 <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                    Description
+                                    Final Response
                                 </th>
                                 <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                    Sent In On
+                                    Last Updated
                                 </th>
                                 <th class="text-secondary opacity-7"></th>
                             </tr>
@@ -416,10 +429,6 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                 <?php
                                 endforeach;
                                 }
-                                elseif (is_null($ticketsResolvedUser)){
-
-                                }
-
                                 ?>
                             </tr>
 
@@ -446,7 +455,7 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                             <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>
                                         </td>
                                         <td class="align-middle">
-                                            <a href="javascript:" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
+                                            <a href="ticket-managment.php?id=<?=$row[0]?>" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
                                                data-original-title="Edit user">
                                                 Edit
                                             </a>
