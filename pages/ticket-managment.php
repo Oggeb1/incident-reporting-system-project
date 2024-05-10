@@ -165,6 +165,7 @@ require 'sidebar.php';
                     </div>
                 </div>
             </div>
+            <?php if ($_SESSION['userType'] == 'Administrator' || $_SESSION['userType'] == 'Responder'){ ?>
             <div class="col-12 col-xl-7">
                 <div class="card h-100">
                     <div class="card-header pb-0 p-3">
@@ -174,7 +175,6 @@ require 'sidebar.php';
                             </div>
                         </div>
                         <div class="card-body p-3">
-                            <?php if ($_SESSION['userType'] == 'Administrator'){ ?>
                             <form id="editTicket" method="POST" class="w-sm-60">
                                 <ul class="list-group">
                                     <li class="mb-1">
