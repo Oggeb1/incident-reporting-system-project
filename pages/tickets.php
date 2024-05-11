@@ -32,7 +32,7 @@ $ticketsPendingUser = $db->execute_query("SELECT ticket.ticketID, ticket.inciden
        ticket.timestamp, user.userName FROM ticket
                                                 JOIN incident ON ticket.incidentID = incident.incidentID
                                                 JOIN user ON incident.reporterID = user.userID
-WHERE ticket.incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus NOT LIKE 'Pending') AND user.userName LIKE ? ORDER BY ticket.timestamp DESC", [$_SESSION['username']]);
+WHERE ticket.incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus NOT LIKE 'Pending') AND user.userName LIKE ? ORDER BY ticket.timestamp DESC", [$_SESSION['username']])->fetch_all();
 
 //Queries to get In progress tickets
 $ticketsProgress = $db->query("SELECT ticketID, incidentID, ticketStatus, responseDescription, timestamp, userName
@@ -59,20 +59,20 @@ FROM (
            AND ticket.incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus LIKE 'Resolved')
      ) AS sub
 WHERE rn = 1
-ORDER BY timestamp DESC", [$_SESSION['username']]);
+ORDER BY timestamp DESC", [$_SESSION['username']])->fetch_all();;
 
 //Queries to get resolved Tickets
 $ticketsResolved = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, responseDescription, 
-       ticket.timestamp, user.userName FROM ticket
+       ticket.timestamp, user.userName, incident.incidentDescription FROM ticket
          JOIN incident ON ticket.incidentID = incident.incidentID
          JOIN user ON incident.reporterID = user.userID
 WHERE ticket.ticketStatus LIKE 'Resolved' ORDER BY ticket.timestamp DESC")->fetch_all();
 
 $ticketsResolvedUser = $db->execute_query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, responseDescription, 
-       ticket.timestamp, incident.reporterID, user.userName FROM ticket
+       ticket.timestamp, incident.reporterID, user.userName, incident.incidentDescription FROM ticket
          JOIN incident ON ticket.incidentID = incident.incidentID
          JOIN user ON incident.reporterID = user.userID
-WHERE ticket.ticketStatus LIKE 'Resolved' AND user.userName LIKE ? ORDER BY ticket.timestamp DESC", [$_SESSION['username']]);
+WHERE ticket.ticketStatus LIKE 'Resolved' AND user.userName LIKE ? ORDER BY ticket.timestamp DESC", [$_SESSION['username']])->fetch_all();
 
 $responders = $db->query("Select userID, userName From user WHERE userType = 'Responder'")->fetch_all();
 ?>
@@ -226,21 +226,21 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                 <td>
                                     <div class="d-flex px-2 py-1">
                                         <div class="d-flex flex-column justify-content-center">
-                                            <h6 class="mb-0 text-sm"><?= $row['incidentID'] ?></h6>
+                                            <h6 class="mb-0 text-sm"><?= $row[1] ?></h6>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <p class="text-xs font-weight-bold mb-0"><?= $row['userName']; ?></p>
+                                    <p class="text-xs font-weight-bold mb-0"><?= $row[5]; ?></p>
                                 </td>
                                 <td class="align-middle text-center text-sm">
-                                    <p class="text-xs ml-50 max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row['incidentDescription']; ?></p>
+                                    <p class="text-xs ml-50 max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[3]; ?></p>
                                 </td>
                                 <td class="align-middle text-center">
-                                    <span class="text-secondary text-xs font-weight-bold"><?= $row['timestamp']; ?></span>
+                                    <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>
                                 </td>
                                 <td class="align-middle">
-                                    <a href="javascript:" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
+                                    <a href="ticket-managment.php?id=<?=$row[0]?>" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
                                        data-original-title="Edit user">
                                         View
                                     </a>
@@ -306,7 +306,6 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                             </tr>
                             </thead>
                             <tbody>
-                            <tr>
                                 <?php if ($_SESSION['userType'] == 'Reporter') {
                                 foreach ($ticketsProgressUser as $row):
 
@@ -315,21 +314,21 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                 <td>
                                     <div class="d-flex px-2 py-1">
                                         <div class="d-flex flex-column justify-content-center">
-                                            <h6 class="mb-0 text-sm"><?= $row['incidentID'] ?></h6>
+                                            <h6 class="mb-0 text-sm"><?= $row[1] ?></h6>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <p class="text-xs font-weight-bold mb-0"><?= $row['userName']; ?></p>
+                                    <p class="text-xs font-weight-bold mb-0"><?= $row[5]; ?></p>
                                 </td>
                                 <td class="align-middle text-center text-sm">
-                                    <p class="text-xs max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row['incidentDescription']; ?></p>
+                                    <p class="text-xs max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[3]; ?></p>
                                 </td>
                                 <td class="align-middle text-center">
-                                    <span class="text-secondary text-xs font-weight-bold"><?= $row['timestamp']; ?></span>
+                                    <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>
                                 </td>
                                 <td class="align-middle">
-                                    <a href="javascript:" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
+                                    <a href="ticket-managment.php?id=<?=$row[0]?>" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
                                        data-original-title="Edit user">
                                         View
                                     </a>
@@ -388,7 +387,7 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                     Reported By
                                 </th>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                    Final Response
+                                    Description
                                 </th>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                     Last Updated
@@ -397,7 +396,6 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                             </tr>
                             </thead>
                             <tbody>
-                            <tr>
                                 <?php if ($_SESSION['userType'] == 'Reporter') {
                                 foreach ($ticketsResolvedUser as $row):
 
@@ -406,21 +404,21 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                 <td>
                                     <div class="d-flex px-2 py-1">
                                         <div class="d-flex flex-column justify-content-center">
-                                            <h6 class="mb-0 text-sm"><?= $row['incidentID'] ?></h6>
+                                            <h6 class="mb-0 text-sm"><?= $row[1] ?></h6>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <p class="text-xs font-weight-bold mb-0"><?= $row['userName']; ?></p>
+                                    <p class="text-xs font-weight-bold mb-0"><?= $row[6]; ?></p>
                                 </td>
-                                <td class="align-middle text-center text-sm">
-                                    <p class="text-xs ml-50 max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row['incidentDescription']; ?></p>
+                                <td class="text-sm">
+                                    <p class="text-xs ml-50 max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[7]; ?></p>
                                 </td>
-                                <td class="align-middle text-center">
-                                    <span class="text-secondary text-xs font-weight-bold"><?= $row['timestamp']; ?></span>
+                                <td>
+                                    <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>
                                 </td>
-                                <td class="align-middle">
-                                    <a href="javascript:" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
+                                <td>
+                                    <a href="ticket-managment.php?id=<?=$row[0]?>" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
                                        data-original-title="Edit user">
                                         View
                                     </a>
@@ -430,7 +428,6 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                 }
                                 ?>
                             </tr>
-
                             <?php if ($_SESSION['userType'] == 'Responder' || $_SESSION['userType'] == 'Administrator') {
 
                                 foreach ($ticketsResolved as $row):
@@ -447,13 +444,13 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                         <td>
                                             <p class="text-xs font-weight-bold mb-0"><?= $row[5]; ?></p>
                                         </td>
-                                        <td class="align-middle text-center text-sm">
-                                            <p class="text-xs  max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[3]; ?></p>
+                                        <td class="text-sm">
+                                            <p class="text-xs  max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[6]; ?></p>
                                         </td>
-                                        <td class="align-middle text-center">
+                                        <td>
                                             <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>
                                         </td>
-                                        <td class="align-middle">
+                                        <td>
                                             <a href="ticket-managment.php?id=<?=$row[0]?>" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
                                                data-original-title="Edit user">
                                                 Edit
@@ -472,23 +469,6 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
         </div>
     </div>
     </div>
-        <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModal" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLongTitle">Assign Ticket to Responder</h5>
-                    </div>
-                    <form method="POST">
-                        <div class="modal-body">
-                            <label for="email">Email:</label>
-                            <input type="email" id="email" class="form-control" name="email" value=""><br>
-                            <label for="resetPassword">New Password:</label>
-                            <input type="password" id="resetPassword" class="form-control" name="resetPassword"><br>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
     <?php require 'footer.php' ?>
     </div>
 </main>

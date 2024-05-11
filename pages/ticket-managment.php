@@ -49,12 +49,6 @@
 if (empty($_SESSION)) {
     session_start();
 }
-
-if ($_SESSION['userType'] == 'Reporter') {
-    header('Location: dashboard.php', true, 303);
-    exit();
-}
-
 $pageName = 'Ticket-management';
 require 'db-connection.php';
 
