@@ -67,7 +67,7 @@ Where userType LIKE 'Responder' OR userType LIKE 'Administrator'")->fetch_all();
 
 $assignedResponder = $db->execute_query("SELECT userName, userID FROM user
         JOIN ticket on user.userID = ticket.responderID
-Where user.userType LIKE 'Responder' OR userType LIKE 'Administrator' AND ticketID like ?", [$_GET['id']])->fetch_assoc();
+Where (user.userType LIKE 'Responder' OR userType LIKE 'Administrator') AND ticketID like ?", [$_GET['id']])->fetch_assoc();
 
 $ticketLog = $db->execute_query("SELECT ticket.incidentID, ticket.responderID, ticket.ticketStatus, ticket.timestamp, user.username, incident.reporterID, ticket.responseDescription
 FROM ticket
@@ -181,7 +181,7 @@ require 'sidebar.php';
                                         <div class="form-group">
                                             <label for="assignResponder">Assign Responder to Ticket</label>
                                             <select class="responder-select" name="assignResponder" required>
-                                                <?php if (is_null($assignedResponder['userName'])) { ?>
+                                                <?php if (is_null($assignedResponder['userID'])) { ?>
                                                     <option value="">Assign Responder</option>
                                                     <?php foreach ($responders as $responderRow): ?>
                                                         <option value="<?= $responderRow[1] ?>"><?= $responderRow[0] ?></option>
@@ -207,7 +207,7 @@ require 'sidebar.php';
                                     </li>
                                     <li>
                                         <input type="checkbox" id="archiveTicket" name="archiveTicket" value="archive">
-                                        <label for="archiveTicket"> Archive ticket</label>
+                                        <label for="archiveTicket"> Remove Ticket</label>
                                     </li>
 
                                     <li class="mt-3">
