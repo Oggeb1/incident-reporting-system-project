@@ -156,10 +156,9 @@ require 'sidebar.php';
                                 <strong class="text-dark text-sm">Associated Files:</strong>
                                 <?php foreach ($incidentFiles as $files): ?>
                                     <li class="list-group-item border-0 ps-0 text-sm"><?php
-                                        $file = substr($files[1], 13); ?>
+                                        $file = substr($files[1], 14); ?>
                                         <a href='download.php?name=<?=$file?>'><?=substr($files[1], 14);?></a>
                                     </li>
-
                                 <?php endforeach; ?>
                             </ul>
                         </div>

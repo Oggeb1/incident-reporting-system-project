@@ -11,6 +11,5 @@ header('Pragma: public');
 header('Content-Length: ' . filesize($name));
 ob_clean();
 flush();
-readfile("../../uploads/".$name); //showing the path to the server where the file is to be download
+readfile("../../uploads/".$name); //showing the path to the server where the file is to be downloaded
 exit;
-?>
