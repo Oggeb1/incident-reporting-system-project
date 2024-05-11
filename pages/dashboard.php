@@ -473,8 +473,12 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <?php foreach ($users as $row):
-                                    $userID = [1];?>
+                                <?php foreach ($users as $row): ?>
+                                    <?php
+                                    // Assuming $row[0] contains the user ID
+                                    // Replace $dailyCompletedTickets with the variable containing completed tickets for the current user
+                                    // For example: $dailyCompletedTickets = getCompletedTickets($row[0]);
+                                    ?>
                                     <tr>
                                         <td>
                                             <div class="d-flex px-2 py-1">
@@ -482,26 +486,25 @@
                                                     <img src="../assets/img/profile.svg" class="avatar avatar-sm me-3" alt="xd">
                                                 </div>
                                                 <div class="d-flex flex-column justify-content-center">
-                                                    <h6 class="mb-0 text-sm"><?= $row[1]?></h6>
+                                                    <h6 class="mb-0 text-sm"><?= $row[1] ?></h6>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
                                             <?php
-                                            // Checks how many tickets each user has completed.
-                                            if (isset($dailyCompletedTickets)) {
-                                                echo count($dailyCompletedTickets);
+                                            // Display the number of completed tickets for the current user
+                                            if (isset($dailyCompletedTickets[$row[0]])) {
+                                                echo count($dailyCompletedTickets[$row[0]]);
                                             } else {
-                                                // Handle the case when there are no completed tickets for the current user
                                                 echo 'No completed tickets';
                                             }
                                             ?>
-
                                         </td>
                                         <td class="align-middle text-center text-sm">
                                             <?php
-                                            if (isset($dailyCompletedTickets)) {
-                                                if (count($dailyCompletedTickets) < 20) {
+                                            // Check if daily completed tickets exist for the current user and if they meet the goal
+                                            if (isset($dailyCompletedTickets[$row[0]])) {
+                                                if (count($dailyCompletedTickets[$row[0]]) < 20) {
                                                     echo 20;
                                                 } else {
                                                     echo "Daily goal reached!";
@@ -511,23 +514,27 @@
                                         </td>
                                         <td class="align-middle text-center text-sm">
                                             <?php
-                                            if (isset($dailyCompletedTickets)) {
-                                                echo count($dailyCompletedTickets),"/20";
+                                            // Display the number of completed tickets out of the daily goal for the current user
+                                            if (isset($dailyCompletedTickets[$row[0]])) {
+                                                echo count($dailyCompletedTickets[$row[0]]), "/20";
                                             } else {
-                                                // Handle the case when there are no completed tickets for the current user
                                                 echo 'No completed tickets';
                                             }
                                             ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
+
                                 </tbody>
                             </table>
+
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
+
     <?php endif; ?>
     <?php require 'footer.php'; ?>
 </main>
@@ -622,7 +629,7 @@
     new Chart(ctx2, {
         type: "line",
         data: {
-            labels: ["Week 1", "Week 2", "Week 3", "Week 4",],
+            labels: ["Week 4", "Week 3", "Week 2", "Week 1",],
             datasets: [{
                 label: "Received tickets",
                 tension: 0.4,
