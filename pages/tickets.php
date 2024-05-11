@@ -297,7 +297,7 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                     Reported By
                                 </th>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                    Last Response
+                                    Description
                                 </th>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                     Last Updated

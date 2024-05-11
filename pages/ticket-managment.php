@@ -238,8 +238,8 @@ require 'sidebar.php';
             <table class="table align-items-center mb-0">
                 <thead>
                 <tr>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                        Update By
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                        Updated By
                     </th>
                     <th class="text-uppercase text-secondary  text-xxs font-weight-bolder opacity-7 ps-2">
                         Response
@@ -263,10 +263,10 @@ require 'sidebar.php';
                         </div>
                     </td>
                     <td>
-                        <p class="text-xs font-weight-bold mb-0"><?=$row[6]?></p>
+                        <p class="ellipsis text-xs max-width-300 font-weight-bold mb-0 mx-0" data-text="<?=$row[6]?>"><?=$row[6]?></p>
                     </td>
                     <td class="text-sm">
-                        <p class="text-xs max-width-300 overflow-hidden font-weight-bold mb-0"><?=$row[3]?></p>
+                        <p class="text-xs font-weight-bold mb-0"><?=$row[3]?></p>
                     </td>
                     <td>
                         <p class="text-xs font-weight-bold mb-0"><?=$row[2]?></p>
