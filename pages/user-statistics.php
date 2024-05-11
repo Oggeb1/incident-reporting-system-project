@@ -115,7 +115,7 @@ $countPageVisit = $db->execute_query("SELECT pageID, COUNT(*) AS log_count, GROU
                                             </g>
                                         </g>
                                     </svg>
-                                    <span class="ms-1">In progress</span>
+                                    <span class="ms-1">Page Count</span>
                                 </a>
                             </li>
 

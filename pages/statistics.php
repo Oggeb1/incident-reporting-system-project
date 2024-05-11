@@ -61,79 +61,8 @@ if ($_SESSION['userType'] !== 'Administrator') {
 require 'db-connection.php';
 $users = $db->query("SELECT userID, userName,email,firstName,lastName,userType FROM user")->fetch_all();
 $log = $db->query("SELECT logID, userID, pageID, ip, browserID, timestamp FROM log")->fetch_all();
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['newSubmit'])) {
-        $username = $_POST['newUsername'];
-        $firstName = $_POST['newFirstName'];
-        $lastName = $_POST['newLastName'];
-        $email = $_POST['newEmail'];
-        $role = $_POST['role'];
+$countPageVisit = $db->execute_query("SELECT pageID, COUNT(*) AS log_count, GROUP_CONCAT(pageID) AS pageIDs FROM log GROUP BY pageID;")->fetch_all();
 
-        if (isset($password)) {
-            unset($password);
-        }
-
-        $usernameList = [];
-        foreach ($users as $user) {
-            $usernameList[] = $user[0];
-        }
-
-        if (in_array($username, $usernameList)) {
-            echo "<script type='text/javascript'>alert('User already exists');</script>";
-        } else {
-            $password = bin2hex(openssl_random_pseudo_bytes(16));
-            $_SESSION['newPasswd'] = $password;
-            $password = password_hash($password, PASSWORD_DEFAULT);
-
-            $db->execute_query("INSERT INTO user (userName, firstName, lastName, email, userType, password) VALUES ((?), (?), (?), (?), (?), (?))", [$username, $firstName, $lastName, $email, $role, $password]);
-            header('Location: user-management.php', true, 303);
-            exit();
-        }
-    }
-
-    if (isset($_POST['editSubmit'])) {
-
-        $oldUsername = $_POST['oldUsername'];
-        $username = $_POST['username'];
-        $firstName = $_POST['firstName'];
-        $lastName = $_POST['lastName'];
-        $email = $_POST['email'];
-        $role = $_POST['role'];
-
-        if (isset($password)) {
-            unset($password);
-        }
-
-        if (isset($_POST['resetPassword'])) {
-            if ($_POST['resetPassword'] === 'on') {
-                $password = bin2hex(openssl_random_pseudo_bytes(16));
-                $_SESSION['newPasswd'] = $password;
-                $password = password_hash($password, PASSWORD_DEFAULT);
-            }
-        }
-
-        if (isset($password)) {
-            $db->execute_query("UPDATE user SET userName = (?), firstName = (?), lastName = (?), email = (?), userType = (?), password = (?) WHERE userName = (?)", [$username, $firstName, $lastName, $email, $role, $password, $oldUsername]);
-        } else {
-            $db->execute_query("UPDATE user SET userName = (?), firstName = (?), lastName = (?), email = (?), userType = (?) WHERE userName = (?)", [$username, $firstName, $lastName, $email, $role, $oldUsername]);
-        }
-
-        header('Location: user-management.php', true, 303);
-        exit();
-    }
-
-    if (isset($_POST['deleteSubmit'])) {
-        $username = $_POST['oldUsername'];
-
-        if ($username !== $_SESSION['username']) {
-            $db->execute_query("DELETE FROM user WHERE userName = (?)", [$username]);
-            header('Location: user-management.php', true, 303);
-            exit();
-        } else {
-            echo "<script type='text/javascript'>alert('Cannot delete current user');</script>";
-        }
-    }
-}
 
 require 'sidebar.php';
 ?>
@@ -189,38 +118,74 @@ require 'sidebar.php';
                 </div>
             </div>
         </div>
-        <?php require 'footer.php';
-        ?>
-    </div>
-    <div class="modal fade" id="newUserModal" tabindex="-1" role="dialog" aria-labelledby="newUserModal" aria-hidden="true">
+    <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModal" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Create new user</h5>
+                    <h5 href=user-statistics.php?id=<?=$row[0]?>" class="modal-title" id="exampleModalLongTitle">View logs</h5>
                 </div>
                 <form method="POST">
                     <div class="modal-body">
-                        <label for="newUsername">Username:</label>
-                        <input type="text" name="newUsername"  id="newUsername" class="form-control" required><br>
-                        <label for="newFirstName">First name:</label>
-                        <input type="text" id="newFirstName" name="newFirstName" class="form-control" required><br>
-                        <label for="newLastName">Last name:</label>
-                        <input type="text" id="newLastName" name="newLastName" class="form-control" required><br>
-                        <label for="newEmail">Email:</label>
-                        <input type="email" id="newEmail" name="newEmail" class="form-control" required><br>
-                        <label for="newRoleReporter">Reporter:</label>
-                        <input type="radio" id="newRoleReporter" value="Reporter" name="role" required>
-                        <label for="newRoleResponder">Responder:</label>
-                        <input type="radio" id="newRoleResponder" value="Responder" name="role" required>
-                        <label for="newRoleAdministrator">Administrator:</label>
-                        <input type="radio" id="newRoleAdministrator" value="Administrator" name="role" required><br>
+                        <label for="logs">Choose a log:</label>
+                        <select name="logs" id="logs" class="form-control">
+
+                        </select>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal">Close</button>
-                        <button type="submit" class="btn btn-primary" name="newSubmit">Create user</button>
                     </div>
                 </form>
             </div>
+        </div>
+    </div>
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-header pb-0">
+                        <h6 class="d-inline-block">Page Count</h6>
+
+                    </div>
+                    <div class="card-body px-0 pt-0 pb-2">
+                        <div class="table-responsive p-0">
+                            <table class="table align-items-center mb-0">
+                                <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">pageID</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Page Count</th>
+                                    <th class="text-secondary opacity-7"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <?php foreach ($countPageVisit as $row): ?>
+                                    <td>
+                                        <div class="d-flex px-2 py-1">
+                                            <div>
+                                            </div>
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm"><?= $row[0] ?></h6>
+
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0"><?=  $row[1] ?></p>
+
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php require 'footer.php';
+        ?>
+    </div>
+
         </div>
     </div>
     <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModal" aria-hidden="true">
@@ -243,24 +208,7 @@ require 'sidebar.php';
         </div>
     </div>
 </main>
-<script>
-    $('#editUserModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget) // Button that triggered the modal
-        var editIndex = button.data('index') // Extract info from data-* attributes
-        $('#oldUsername').attr('value', editIndex[0])
-        $('#userName').val(editIndex[0])
-        $('#firstName').val(editIndex[2])
-        $('#lastName').val(editIndex[3])
-        $('#email').val(editIndex[1])
-        if (editIndex[4] === 'Reporter') {
-            $('#roleReporter').attr('checked', true)
-        } else if (editIndex[4] === 'Responder') {
-            $('#roleResponder').attr('checked', true)
-        } else {
-            $('#roleAdministrator').attr('checked', true)
-        }
-    })
-</script>
+
 <!--   Core JS Files   -->
 <script src="../assets/js/core/popper.min.js"></script>
 <script src="../assets/js/core/bootstrap.min.js"></script>
