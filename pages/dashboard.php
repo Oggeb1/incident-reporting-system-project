@@ -475,9 +475,7 @@
                                 <tbody>
                                 <?php foreach ($users as $row): ?>
                                     <?php
-                                    // Assuming $row[0] contains the user ID
-                                    // Replace $dailyCompletedTickets with the variable containing completed tickets for the current user
-                                    // For example: $dailyCompletedTickets = getCompletedTickets($row[0]);
+
                                     ?>
                                     <tr>
                                         <td>

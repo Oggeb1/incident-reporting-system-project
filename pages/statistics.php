@@ -144,7 +144,7 @@ require 'sidebar.php';
                 <div class="card mb-4">
                     <div class="card-header pb-0">
                         <h6 class="d-inline-block">Users</h6>
-                        <button type="button" class="btn mb-0 btn-primary icon-move-right d-inline-block float-end" data-bs-toggle="modal" data-bs-target="#newUserModal">New User</button>
+
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">
