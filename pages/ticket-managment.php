@@ -58,7 +58,7 @@ if ($_SESSION['userType'] == 'Reporter') {
 $pageName = 'Ticket-management';
 require 'db-connection.php';
 
-$ticketSummary = $db->execute_query("SELECT ticketID, incident.incidentID, ticketStatus, incident.incidentSeverity, userName, responderID, responseDescription, incident.timestamp FROM ticket
+$ticketSummary = $db->execute_query("SELECT ticketID, incident.incidentID, ticketStatus, incident.incidentSeverity, userName, responderID, responseDescription, incident.incidentDescription ,incident.timestamp FROM ticket
     JOIN incident ON ticket.incidentID = incident.incidentID
     JOIN user ON incident.reporterID = user.userID
 Where ticketID LIKE ?", [$_GET['id']])->fetch_assoc();
@@ -103,15 +103,19 @@ if (!empty($_GET['file'])) {
 //Form submission values are sent here
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    //Checks if Post has been sent and declares variables from form
-    if (isset($_POST['newResponseSubmit'])) {
-        $ticketResponder = $_POST['assignResponder'];
-        $responseText = $_POST['responseText'];
+    $ticketResponder = $_POST['assignResponder'];
+    $responseText = $_POST['responseText'];
 
+    //Checks if Post has been sent and declares variables from form
+    if (isset($_POST['newResponseSubmit']) and !is_null($_POST['archiveTicket'])) {
         $db->execute_query("INSERT INTO ticket (incidentID, responderID, ticketStatus, responseDescription, timestamp)
-                            Values ((?), (?),'In Progress', (?), UTC_TIMESTAMP)", [$ticketSummary['incidentID'], $ticketResponder, $responseText]);
+                            Values ((?), (?),'Resolved', (?), UTC_TIMESTAMP)", [$ticketSummary['incidentID'], $ticketResponder, $responseText]);
     }
     if (isset($_POST['newResponseSubmit']) and !is_null($_POST['resolveTicket'])) {
+        $db->execute_query("INSERT INTO ticket (incidentID, responderID, ticketStatus, responseDescription, timestamp)
+                            Values ((?), (?),'Resolved', (?), UTC_TIMESTAMP)", [$ticketSummary['incidentID'], $ticketResponder, $responseText]);
+    }
+    elseif (isset($_POST['newResponseSubmit'])) {
         $db->execute_query("INSERT INTO ticket (incidentID, responderID, ticketStatus, responseDescription, timestamp)
                             Values ((?), (?),'In Progress', (?), UTC_TIMESTAMP)", [$ticketSummary['incidentID'], $ticketResponder, $responseText]);
     }
@@ -142,7 +146,7 @@ require 'sidebar.php';
                                 <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Sent in
                                         on:</strong> <?= $ticketSummary['timestamp'] ?></li>
                                 <li class="list-group-item border-0 ps-0 text-sm"><strong
-                                            class="text-dark">Description:</strong> <?= $ticketSummary['responseDescription'] ?>
+                                            class="text-dark">Description:</strong> <?= $ticketSummary['incidentDescription'] ?>
                                 </li>
                                 <li class="list-group-item border-0 ps-0 text-sm"><strong
                                             class="text-dark">Severity:</strong> <?= $ticketSummary['incidentSeverity'] ?>

@@ -209,13 +209,12 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                     Reported By
                                 </th>
-                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                     Description
                                 </th>
-                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                     Sent In On
                                 </th>
-                                <th class="text-secondary opacity-7"></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -265,11 +264,11 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                             <td>
                                                 <p class="text-xs font-weight-bold mb-0"><?= $row[5]; ?></p>
                                             </td>
-                                            <td class="align-middle text-center text-sm">
-                                                <p class="text-xs ml-50 max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[3]; ?></p>
+                                            <td class="text-sm">
+                                                <p class="text-xs max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[3]; ?></p>
                                             </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>
+                                            <td>
+                                                <p class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></p>
                                             </td>
                                             <td class="align-middle">
                                                 <a href="ticket-managment.php?id=<?=$row[0]?>" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
@@ -297,10 +296,10 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                     Reported By
                                 </th>
-                                <th class="text-uppercase text-secondary  text-xxs font-weight-bolder opacity-7 ps-2">
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                     Last Response
                                 </th>
-                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                     Last Updated
                                 </th>
                                 <th class="text-secondary opacity-7"></th>
@@ -324,7 +323,7 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                     <p class="text-xs font-weight-bold mb-0"><?= $row['userName']; ?></p>
                                 </td>
                                 <td class="align-middle text-center text-sm">
-                                    <p class="text-xs ml-50 max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row['incidentDescription']; ?></p>
+                                    <p class="text-xs max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row['incidentDescription']; ?></p>
                                 </td>
                                 <td class="align-middle text-center">
                                     <span class="text-secondary text-xs font-weight-bold"><?= $row['timestamp']; ?></span>
@@ -356,13 +355,13 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                         <td>
                                             <p class="text-xs font-weight-bold mb-0"><?= $row[5]; ?></p>
                                         </td>
-                                        <td class="align-middle text-center text-sm">
-                                            <p class="text-xs ml-50 max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[3]; ?></p>
+                                        <td class="text-sm">
+                                            <p class="text-xs max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[3]; ?></p>
                                         </td>
-                                        <td class="align-middle text-center">
+                                        <td>
                                             <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>
                                         </td>
-                                        <td class="align-middle">
+                                        <td>
                                             <a href="ticket-managment.php?id=<?=$row[0]?>" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
                                                data-original-title="Edit user">
                                                 Edit
@@ -388,10 +387,10 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                     Reported By
                                 </th>
-                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                     Final Response
                                 </th>
-                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                     Last Updated
                                 </th>
                                 <th class="text-secondary opacity-7"></th>
