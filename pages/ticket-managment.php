@@ -104,8 +104,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['newResponseSubmit']) and !is_null($_POST['archiveTicket'])) {
         $db->execute_query("INSERT INTO ticket (incidentID, responderID, ticketStatus, responseDescription, timestamp)
                             Values ((?), (?),'Resolved', (?), UTC_TIMESTAMP)", [$ticketSummary['incidentID'], $ticketResponder, $responseText]);
+        $db->execute_query("UPDATE incident
+SET isDeleted = 1
+WHERE incidentID LIKE ?",  [$db->execute_query("SELECT ticket.incidentID from ticket
+where ticket.ticketID LIKE ?", [$_GET['id']])->fetch_row()[0]]);
     }
-    if (isset($_POST['newResponseSubmit']) and !is_null($_POST['resolveTicket'])) {
+    elseif (isset($_POST['newResponseSubmit']) and !is_null($_POST['resolveTicket'])) {
         $db->execute_query("INSERT INTO ticket (incidentID, responderID, ticketStatus, responseDescription, timestamp)
                             Values ((?), (?),'Resolved', (?), UTC_TIMESTAMP)", [$ticketSummary['incidentID'], $ticketResponder, $responseText]);
     }
@@ -187,7 +191,6 @@ require 'sidebar.php';
                                                 <?php } else { ?>
                                                     <option value="<?= $assignedResponder['userID'] ?>">
                                                         Current: <?= $assignedResponder['userName'] ?></option>
-                                                    <option value="">Unassign Responder</option>
                                                     <?php foreach ($responders as $responderRow): ?>
                                                         <option value="<?= $responderRow[1] ?>"><?= $responderRow[0] ?></option>
                                                     <?php endforeach;

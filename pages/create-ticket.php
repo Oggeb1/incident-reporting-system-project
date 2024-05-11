@@ -102,6 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             [$ticketSubmitID, $description]);
 
         // File upload
+        if(isset($_FILES['incidentFile'])){
         for ($i=0; $i < count($_FILES['incidentFile']['name']); $i++) { // Loop for each uploaded file
             // Information about the file and allowed file-types
             $fileExtension = pathinfo($_FILES["incidentFile"]['name'][$i],PATHINFO_EXTENSION);
@@ -110,10 +111,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $allowedFileTypes = ['video/mp4', 'video/mpeg', 'application/pdf', 'audio/mpeg', 'application/msword', 'audio/aac', 'text/plain', 'application/rtf', 'application/vnd.oasis.opendocument.text'];
 
             // Check if file is of the right size and type
-            if ($_FILES["incidentFile"]["size"][$i] < 50000000 and (is_array(getimagesize($_FILES["incidentFile"]['tmp_name'][$i])) or in_array(mime_content_type($_FILES["incidentFile"]['tmp_name'][$i]), $allowedFileTypes))) {
+
+            if ($_FILES["incidentFile"]["size"][$i] < 50000000 or (is_array(getimagesize($_FILES["incidentFile"]['tmp_name'][$i])) or in_array(mime_content_type($_FILES["incidentFile"]['tmp_name'][$i]), $allowedFileTypes))) {
                 if (move_uploaded_file($_FILES['incidentFile']["tmp_name"][$i], $targetFile)) {
                     // if upload successful upload path to DB
                     $db->execute_query("INSERT INTO file (project.file.incidentID, project.file.path) VALUES ((?), (?))",[$ticketSubmitID, $targetFile] );
+                }
                 }
             }
         }

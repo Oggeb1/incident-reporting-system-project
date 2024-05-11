@@ -66,13 +66,13 @@ $ticketsResolved = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket
        ticket.timestamp, user.userName, incident.incidentDescription FROM ticket
          JOIN incident ON ticket.incidentID = incident.incidentID
          JOIN user ON incident.reporterID = user.userID
-WHERE ticket.ticketStatus LIKE 'Resolved' ORDER BY ticket.timestamp DESC")->fetch_all();
+WHERE ticket.ticketStatus LIKE 'Resolved' AND incident.isDeleted NOT LIKE 1 ORDER BY ticket.timestamp DESC")->fetch_all();
 
 $ticketsResolvedUser = $db->execute_query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, responseDescription, 
        ticket.timestamp, incident.reporterID, user.userName, incident.incidentDescription FROM ticket
          JOIN incident ON ticket.incidentID = incident.incidentID
          JOIN user ON incident.reporterID = user.userID
-WHERE ticket.ticketStatus LIKE 'Resolved' AND user.userName LIKE ? ORDER BY ticket.timestamp DESC", [$_SESSION['username']])->fetch_all();
+WHERE ticket.ticketStatus LIKE 'Resolved' AND incident.isDeleted NOT LIKE 1 AND user.userName LIKE ? ORDER BY ticket.timestamp DESC", [$_SESSION['username']])->fetch_all();
 
 $responders = $db->query("Select userID, userName From user WHERE userType = 'Responder'")->fetch_all();
 ?>
@@ -233,13 +233,13 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                 <td>
                                     <p class="text-xs font-weight-bold mb-0"><?= $row[5]; ?></p>
                                 </td>
-                                <td class="align-middle text-center text-sm">
-                                    <p class="text-xs ml-50 max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[3]; ?></p>
+                                <td class="text-sm">
+                                    <p class="text-xs max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[3]; ?></p>
                                 </td>
-                                <td class="align-middle text-center">
+                                <td>
                                     <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>
                                 </td>
-                                <td class="align-middle">
+                                <td>
                                     <a href="ticket-managment.php?id=<?=$row[0]?>" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
                                        data-original-title="Edit user">
                                         View
@@ -321,13 +321,13 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                 <td>
                                     <p class="text-xs font-weight-bold mb-0"><?= $row[5]; ?></p>
                                 </td>
-                                <td class="align-middle text-center text-sm">
+                                <td class="text-sm">
                                     <p class="text-xs max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[3]; ?></p>
                                 </td>
-                                <td class="align-middle text-center">
+                                <td>
                                     <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>
                                 </td>
-                                <td class="align-middle">
+                                <td>
                                     <a href="ticket-managment.php?id=<?=$row[0]?>" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
                                        data-original-title="Edit user">
                                         View
@@ -412,7 +412,7 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                     <p class="text-xs font-weight-bold mb-0"><?= $row[6]; ?></p>
                                 </td>
                                 <td class="text-sm">
-                                    <p class="text-xs ml-50 max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[7]; ?></p>
+                                    <p class="text-xs max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[7]; ?></p>
                                 </td>
                                 <td>
                                     <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>
