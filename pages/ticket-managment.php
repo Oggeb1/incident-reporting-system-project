@@ -76,7 +76,7 @@ FROM ticket
 Where ticket.incidentID LIKE ? ORDER BY timestamp DESC", [$db->execute_query("SELECT ticket.incidentID from ticket
 where ticket.ticketID LIKE ?", [$_GET['id']])->fetch_row()[0]])->fetch_all();
 
-if (!empty($_GET['file'])) {
+/*if (!empty($_GET['file'])) {
     $filename = basename($_GET['file']);
     $filepath = 'C:/Users/axell/PhpstormProjects' . $filename;
     if (!empty($filename) && file_exists($filepath)) {
@@ -89,11 +89,8 @@ if (!empty($_GET['file'])) {
         header("Content-Transfer-Encoding: binary");
 
         readfile($filepath);
-        exit;
-    } else {
-        echo "File does not exist";
-    }
-}
+        exit; */
+
 //Form submission values are sent here
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -158,9 +155,11 @@ require 'sidebar.php';
                                 <?php } ?>
                                 <strong class="text-dark text-sm">Associated Files:</strong>
                                 <?php foreach ($incidentFiles as $files): ?>
-                                    <li class="list-group-item border-0 ps-0 text-sm"><a
-                                                href="ticket-managment.php?file=C:/Users/axell/PhpstormProjects/uploads<?= $files[1] ?>"> <?= $files[1] ?></a>
+                                    <li class="list-group-item border-0 ps-0 text-sm"><?php
+                                        $file = substr($files[1], 13); ?>
+                                        <a href='download.php?name=<?=$file?>'><?=substr($files[1], 14);?></a>
                                     </li>
+
                                 <?php endforeach; ?>
                             </ul>
                         </div>
