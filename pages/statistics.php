@@ -43,6 +43,7 @@
 <?php
 require 'db-connection.php';
 require 'sidebar.php';
+require  'tracking.php';
 $pageName = 'Statistics';
 
 if (empty($_SESSION)) {

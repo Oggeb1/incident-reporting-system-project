@@ -124,7 +124,7 @@ include 'tracking.php';
                             </g>
                         </svg>
                     </div>
-                    <span class="nav-link-text ms-1">Dashboard</span>
+                    <span class="nav-link-text ms-1">Statistics</span>
                 </a>
             </li>
             <li class="nav-item">
