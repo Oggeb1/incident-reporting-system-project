@@ -143,7 +143,7 @@ if (isset($_POST['login'])) {
                     <div class="card card-plain mt-4">
                         <div class="card-header pb-0 text-center bg-transparent">
                             <h3 class="font-weight-bolder text-primary text-gradient">Incident Portal</h3>
-                            <p class="mb-0">Enter your email and password to sign in</p>
+                            <p class="mb-0">Enter your username and password to sign in</p>
                         </div>
                         <div class="card-body">
                             <form method="POST" role="form">
