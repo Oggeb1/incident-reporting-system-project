@@ -13,9 +13,10 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
 <?php
-
+//pageName is declared
 $pageName = 'Tickets';
 
+//Session gets started here
 if (empty($_SESSION)) {
     session_start();
 }
@@ -28,6 +29,7 @@ $ticketsPending = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.
         JOIN user ON incident.reporterID = user.userID
 WHERE ticket.incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus NOT LIKE 'Pending') ORDER BY ticket.timestamp DESC ")->fetch_all();
 
+//Queries to get Pending tickets from user that is not an administrator, check for administrator is done later in code
 $ticketsPendingUser = $db->execute_query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription,
        ticket.timestamp, user.userName FROM ticket
                                                 JOIN incident ON ticket.incidentID = incident.incidentID
@@ -48,6 +50,7 @@ FROM (
 WHERE rn = 1
 ORDER BY timestamp DESC")->fetch_all();
 
+//Queries to get progress tickets from user that is not an administrator, check for administrator is done later in code
 $ticketsProgressUser = $db->execute_query("SELECT ticketID, incidentID, ticketStatus, responseDescription, timestamp, userName
 FROM (
          SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, responseDescription, ticket.timestamp, user.userName,
@@ -68,12 +71,14 @@ $ticketsResolved = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket
          JOIN user ON incident.reporterID = user.userID
 WHERE ticket.ticketStatus LIKE 'Resolved' AND incident.isDeleted NOT LIKE 1 ORDER BY ticket.timestamp DESC")->fetch_all();
 
+//Queries to get Resolved tickets from user that is not an administrator, check for administrator is done later in code
 $ticketsResolvedUser = $db->execute_query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, responseDescription, 
        ticket.timestamp, incident.reporterID, user.userName, incident.incidentDescription FROM ticket
          JOIN incident ON ticket.incidentID = incident.incidentID
          JOIN user ON incident.reporterID = user.userID
 WHERE ticket.ticketStatus LIKE 'Resolved' AND incident.isDeleted NOT LIKE 1 AND user.userName LIKE ? ORDER BY ticket.timestamp DESC", [$_SESSION['username']])->fetch_all();
 
+//Get responders
 $responders = $db->query("Select userID, userName From user WHERE userType = 'Responder'")->fetch_all();
 ?>
 

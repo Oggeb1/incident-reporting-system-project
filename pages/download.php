@@ -1,7 +1,7 @@
 <?php
 // Check if 'name' parameter is set and not empty
 if(isset($_GET['name']) && !empty($_GET['name'])) {
-    // Get the file name from the URL parameter
+    // Get the file name from the URL 'name' parameter
     $name = $_GET['name'];
 
     // Set headers for file download

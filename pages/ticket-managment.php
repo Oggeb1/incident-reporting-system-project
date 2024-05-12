@@ -46,29 +46,36 @@
     </script>
 </head>
 <?php
+//Session is started
 if (empty($_SESSION)) {
     session_start();
 }
+//pageName is set here
 $pageName = 'Ticket-management';
 require 'db-connection.php';
 
+//Query to get summarized incident details
 $ticketSummary = $db->execute_query("SELECT ticketID, incident.incidentID, ticketStatus, incident.incidentSeverity, userName, responderID, responseDescription, incident.incidentDescription ,incident.timestamp FROM ticket
     JOIN incident ON ticket.incidentID = incident.incidentID
     JOIN user ON incident.reporterID = user.userID
 Where ticketID LIKE ?", [$_GET['id']])->fetch_assoc();
 
+//Retrieve files for opened incident
 $incidentFiles = $db->execute_query("SELECT file.incidentID, file.path FROM file
 JOIN incident on file.incidentID = incident.incidentID
 JOIN ticket on file.incidentID = ticket.incidentID
 Where ticketID LIKE ?", [$_GET['id']])->fetch_all();
 
+//Get responders
 $responders = $db->query("SELECT userName, userID FROM user
 Where userType LIKE 'Responder' OR userType LIKE 'Administrator'")->fetch_all();
 
+//Get responders assigned to tickets
 $assignedResponder = $db->execute_query("SELECT userName, userID FROM user
         JOIN ticket on user.userID = ticket.responderID
 Where (user.userType LIKE 'Responder' OR userType LIKE 'Administrator') AND ticketID like ?", [$_GET['id']])->fetch_assoc();
 
+//Get all previous ticket entries for incident
 $ticketLog = $db->execute_query("SELECT ticket.incidentID, ticket.responderID, ticket.ticketStatus, ticket.timestamp, user.username, incident.reporterID, ticket.responseDescription
 FROM ticket
          JOIN incident ON ticket.incidentID = incident.incidentID
@@ -97,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ticketResponder = $_POST['assignResponder'];
     $responseText = $_POST['responseText'];
 
-    //Checks if Post has been sent and declares variables from form
+    //Checks if Post has been sent and declares variables from form and if 'archiveTicket' has been sent to POST
     if (isset($_POST['newResponseSubmit']) and !is_null($_POST['archiveTicket'])) {
         $db->execute_query("INSERT INTO ticket (incidentID, responderID, ticketStatus, responseDescription, timestamp)
                             Values ((?), (?),'Resolved', (?), UTC_TIMESTAMP)", [$ticketSummary['incidentID'], $ticketResponder, $responseText]);
@@ -106,15 +113,22 @@ SET isDeleted = 1
 WHERE incidentID LIKE ?",  [$db->execute_query("SELECT ticket.incidentID from ticket
 where ticket.ticketID LIKE ?", [$_GET['id']])->fetch_row()[0]]);
     }
+    //Checks if Post has been sent and declares variables from form and if 'resolveTicket' has been sent to POST
     elseif (isset($_POST['newResponseSubmit']) and !is_null($_POST['resolveTicket'])) {
         $db->execute_query("INSERT INTO ticket (incidentID, responderID, ticketStatus, responseDescription, timestamp)
                             Values ((?), (?),'Resolved', (?), UTC_TIMESTAMP)", [$ticketSummary['incidentID'], $ticketResponder, $responseText]);
     }
+    //Checks if Post has been sent and declares variables from form
     elseif (isset($_POST['newResponseSubmit'])) {
         $db->execute_query("INSERT INTO ticket (incidentID, responderID, ticketStatus, responseDescription, timestamp)
                             Values ((?), (?),'In Progress', (?), UTC_TIMESTAMP)", [$ticketSummary['incidentID'], $ticketResponder, $responseText]);
     }
+    else
+    {
+        echo "ticket update Failed";
+    }
 
+    //return to tickets when finished
     header('Location: tickets.php', true, 303);
     exit();
 

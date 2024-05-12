@@ -17,14 +17,18 @@
 
 <head>
     <?php
+    //pageName is declared
     $pageName = 'Settings';
     require 'db-connection.php';
 
+    //Session is started here
     if (empty($_SESSION["username"])) {
         session_start();
     }
+    //Query to retrieve user information from $_SESSION
     $dbUserInfo = $db->execute_query("SELECT email, firstname, lastname FROM user WHERE userName = ?", [$_SESSION["username"]])->fetch_assoc();
 
+    //If statement to check if user wants to change credentials
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_POST['infoSubmit'])) {
             $email = $_POST['email'];
@@ -33,6 +37,7 @@
                 $password = password_hash($_POST['resetPassword'], PASSWORD_DEFAULT);
             }
 
+            //Query to change user email and password if submitted by user
             if (isset($password)) {
                 $db->execute_query("UPDATE user SET email = (?), password = (?) WHERE userName = (?)", [$email, $password, $_SESSION["username"]]);
             }else{

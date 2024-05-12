@@ -61,11 +61,14 @@
         }
     </script>
 </head>
+
 <?php
+//Get session to use session variables
 if (empty($_SESSION)) {
     session_start();
 }
 
+//PageName is declared here
 $pageName = 'Create-ticket';
 require 'db-connection.php';
 
@@ -117,6 +120,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // if upload successful upload path to DB
                     $db->execute_query("INSERT INTO file (project.file.incidentID, project.file.path) VALUES ((?), (?))",[$ticketSubmitID, $targetFile] );
                 }
+                else {
+                    echo "file upload Failed";
+                }
                 }
             }
         }
@@ -125,8 +131,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         //Query to insert affected assets into incidentAsset
         if (isset($asset)) {
         $db->execute_query("INSERT INTO incidentAsset (assetID, incidentID) VALUES ((?), (?))",[$asset['assetID'], $ticketSubmitID] );
+        } else {
+            echo "Add ticket failed";
+            exit();
         }
 
+        //if successful, go back to dashboard
         header('Location: tickets.php', true, 303);
         exit();
     }

@@ -26,10 +26,10 @@ if (empty($_SESSION)) {
 if ($_SESSION['userType'] !== 'Administrator') {
     header("Location: dashboard.php");
 }
+$pageName = 'User-statistics';
 require 'db-connection.php';
 require 'sidebar.php';
-require  'tracking.php';
-$pageName = 'User-statistics';
+
 
 echo $_GET['id'];
 
