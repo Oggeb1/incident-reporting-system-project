@@ -55,6 +55,7 @@ if (empty($_SESSION)) {
 // Only admins should have access to this page
 if ($_SESSION['userType'] !== 'Administrator') {
     header("Location: dashboard.php"); // Redirect to dashboard
+    exit;
 }
 
 if (isset($_SESSION['newPasswd'])) { // Wonky way to display an alert after page refresh

@@ -15,6 +15,29 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<?php
+$pageName = 'Statistics';
+require 'db-connection.php';
+require 'sidebar.php';
+
+
+if (empty($_SESSION)) {
+    session_start();
+}
+
+
+if ($_SESSION['userType'] !== 'Administrator') {
+    header("Location: dashboard.php");
+    exit;
+}
+
+
+$users = $db->query("SELECT userID, userName,email,firstName,lastName,userType FROM user")->fetch_all();
+$log = $db->query("SELECT logID, userID, pageID, ip, browserID, timestamp FROM log")->fetch_all();
+$countPageVisit = $db->execute_query("SELECT pageID, COUNT(*) AS log_count, GROUP_CONCAT(pageID) AS pageIDs FROM log GROUP BY pageID;")->fetch_all();
+
+?>
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -40,27 +63,7 @@
 </head>
 
 <body class="g-sidenav-show  bg-gray-100">
-<?php
-$pageName = 'Statistics';
-require 'db-connection.php';
-require 'sidebar.php';
 
-
-if (empty($_SESSION)) {
-    session_start();
-}
-
-
-if ($_SESSION['userType'] !== 'Administrator') {
-    header("Location: dashboard.php");
-}
-
-
-$users = $db->query("SELECT userID, userName,email,firstName,lastName,userType FROM user")->fetch_all();
-$log = $db->query("SELECT logID, userID, pageID, ip, browserID, timestamp FROM log")->fetch_all();
-$countPageVisit = $db->execute_query("SELECT pageID, COUNT(*) AS log_count, GROUP_CONCAT(pageID) AS pageIDs FROM log GROUP BY pageID;")->fetch_all();
-
-?>
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <div class="container-fluid py-4">
         <div class="row">
