@@ -18,13 +18,10 @@
 <?php
 $pageName = 'Statistics';
 require 'db-connection.php';
-require 'sidebar.php';
-
 
 if (empty($_SESSION)) {
     session_start();
 }
-
 
 if ($_SESSION['userType'] !== 'Administrator') {
     header("Location: dashboard.php");
@@ -35,7 +32,7 @@ if ($_SESSION['userType'] !== 'Administrator') {
 $users = $db->query("SELECT userID, userName,email,firstName,lastName,userType FROM user")->fetch_all();
 $log = $db->query("SELECT logID, userID, pageID, ip, browserID, timestamp FROM log")->fetch_all();
 $countPageVisit = $db->execute_query("SELECT pageID, COUNT(*) AS log_count, GROUP_CONCAT(pageID) AS pageIDs FROM log GROUP BY pageID;")->fetch_all();
-
+require 'sidebar.php';
 ?>
 
 <head>
