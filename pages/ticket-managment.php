@@ -206,7 +206,8 @@ require 'sidebar.php';
                                                     <?php foreach ($responders as $responderRow): ?>
                                                         <option value="<?= $responderRow[1] ?>"><?= $responderRow[0] ?></option>
                                                     <?php endforeach;
-                                                } ?>
+                                                }
+                                                ?>
                                             </select>
                                         </div>
                                     </li>
@@ -219,11 +220,13 @@ require 'sidebar.php';
                                         <input type="checkbox" id="resolveTicket" name="resolveTicket" value="resolve">
                                         <label for="resolveTicket"> Resolve Ticket</label>
                                     </li>
+                                    <?php } if ($_SESSION['userType'] == 'Administrator'){ ?>
                                     <li>
                                         <input type="checkbox" id="archiveTicket" name="archiveTicket" value="archive">
                                         <label for="archiveTicket"> Remove Ticket</label>
                                     </li>
 
+                                    ?>
                                     <li class="mt-3">
                                         <button type="submit" class="btn mb-0 btn-primary" name="newResponseSubmit">
                                             Submit
