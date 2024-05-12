@@ -23,7 +23,7 @@ include 'tracking.php';
 // Skip login if remember me has been used before
 if(isset($_COOKIE['token'])) {
     // Delete expired tokens in DB
-    $db->query("DELETE FROM userTokens WHERE expiry < UTC_TIMESTAMP")->fetch_all();
+    $db->query("DELETE FROM userTokens WHERE expiry < UTC_TIMESTAMP");
 
     // Selector is in the first 12 characters in the cookie, rest is a hashed validator
     $selector = substr($_COOKIE['token'], 0, 12);
@@ -33,7 +33,7 @@ if(isset($_COOKIE['token'])) {
     $dbToken = $db->execute_query("SELECT userName, userType, validator, expiry FROM userTokens JOIN user ON userTokens.userID LIKE user.userID WHERE selector = ?", [$selector])->fetch_assoc();
 
     // Check if validator expired and same as in DB
-    if (time() < strtotime($dbToken['expiry']) and password_verify($validator, $dbToken['validator'])) {
+    if (isset($dbToken['expiry']) and time() < strtotime($dbToken['expiry']) and password_verify($validator, $dbToken['validator'])) {
         // Set user variable
         $_SESSION['username'] = $dbToken['userName'];
         $_SESSION['Logged-in'] = true;
