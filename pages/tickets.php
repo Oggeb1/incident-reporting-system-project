@@ -61,14 +61,6 @@ FROM (
 WHERE rn = 1
 ORDER BY timestamp DESC", [$_SESSION['username']])->fetch_all();
 
-$ticketProgressDescription = $db ->execute_query("SELECT incident.incidentDescription FROM incident
-JOIN ticket on incident.incidentID = ticket.incidentID
-where ticket.ticketID like ?", );
-
-$ticketProgressDescription = $db ->execute_query("SELECT incident.incidentDescription FROM incident
-JOIN ticket on incident.incidentID = ticket.incidentID
-where ticket.ticketID like ?", );
-
 //Queries to get resolved Tickets
 $ticketsResolved = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, responseDescription, 
        ticket.timestamp, user.userName, incident.incidentDescription FROM ticket
@@ -305,7 +297,7 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                     Reported By
                                 </th>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                    Description
+                                    Latest Response
                                 </th>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                     Last Updated
