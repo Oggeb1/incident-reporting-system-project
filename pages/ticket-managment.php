@@ -225,8 +225,6 @@ require 'sidebar.php';
                                         <input type="checkbox" id="archiveTicket" name="archiveTicket" value="archive">
                                         <label for="archiveTicket"> Remove Ticket</label>
                                     </li>
-
-                                    ?>
                                     <li class="mt-3">
                                         <button type="submit" class="btn mb-0 btn-primary" name="newResponseSubmit">
                                             Submit
