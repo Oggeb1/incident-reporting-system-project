@@ -107,8 +107,12 @@ include 'tracking.php';
                     <span class="nav-link-text ms-1">Settings</span>
                 </a>
             </li>
+            <?php
+            $isActive = $pageName == 'Statistics' ? 'active': '';
+            if ($_SESSION['userType'] == 'Administrator') {
+                echo <<<END
             <li class="nav-item">
-                <a class="nav-link <?= $pageName == 'Statistics' ? 'active': ''?>" href="statistics.php">
+                <a class="nav-link $isActive" href="statistics.php">
                     <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                         <svg width="12px" height="12px" viewBox="0 0 45 40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                             <title>shop</title>
@@ -124,9 +128,12 @@ include 'tracking.php';
                             </g>
                         </svg>
                     </div>
-                    <span class="nav-link-text ms-1">Dashboard</span>
+                    <span class="nav-link-text ms-1">Statistics</span>
                 </a>
             </li>
+            END;
+            }
+            ?>
             <li class="nav-item">
                 <a class="nav-link" href="../pages/sign-out.php">
                     <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">

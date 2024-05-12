@@ -59,7 +59,15 @@ FROM (
            AND ticket.incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus LIKE 'Resolved')
      ) AS sub
 WHERE rn = 1
-ORDER BY timestamp DESC", [$_SESSION['username']])->fetch_all();;
+ORDER BY timestamp DESC", [$_SESSION['username']])->fetch_all();
+
+$ticketProgressDescription = $db ->execute_query("SELECT incident.incidentDescription FROM incident
+JOIN ticket on incident.incidentID = ticket.incidentID
+where ticket.ticketID like ?", );
+
+$ticketProgressDescription = $db ->execute_query("SELECT incident.incidentDescription FROM incident
+JOIN ticket on incident.incidentID = ticket.incidentID
+where ticket.ticketID like ?", );
 
 //Queries to get resolved Tickets
 $ticketsResolved = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, responseDescription, 

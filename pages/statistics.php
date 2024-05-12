@@ -41,9 +41,10 @@
 
 <body class="g-sidenav-show  bg-gray-100">
 <?php
+$pageName = 'Statistics';
 require 'db-connection.php';
 require 'sidebar.php';
-$pageName = 'Statistics';
+
 
 if (empty($_SESSION)) {
     session_start();
