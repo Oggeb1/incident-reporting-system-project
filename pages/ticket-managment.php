@@ -67,7 +67,7 @@ Where userType LIKE 'Responder' OR userType LIKE 'Administrator'")->fetch_all();
 
 $assignedResponder = $db->execute_query("SELECT userName, userID FROM user
         JOIN ticket on user.userID = ticket.responderID
-Where user.userType LIKE 'Responder' OR userType LIKE 'Administrator' AND ticketID like ?", [$_GET['id']])->fetch_assoc();
+Where (user.userType LIKE 'Responder' OR userType LIKE 'Administrator') AND ticketID like ?", [$_GET['id']])->fetch_assoc();
 
 $ticketLog = $db->execute_query("SELECT ticket.incidentID, ticket.responderID, ticket.ticketStatus, ticket.timestamp, user.username, incident.reporterID, ticket.responseDescription
 FROM ticket
@@ -181,7 +181,7 @@ require 'sidebar.php';
                                         <div class="form-group">
                                             <label for="assignResponder">Assign Responder to Ticket</label>
                                             <select class="responder-select" name="assignResponder" required>
-                                                <?php if (is_null($assignedResponder['userName'])) { ?>
+                                                <?php if (is_null($assignedResponder['userID'])) { ?>
                                                     <option value="">Assign Responder</option>
                                                     <?php foreach ($responders as $responderRow): ?>
                                                         <option value="<?= $responderRow[1] ?>"><?= $responderRow[0] ?></option>
@@ -207,7 +207,7 @@ require 'sidebar.php';
                                     </li>
                                     <li>
                                         <input type="checkbox" id="archiveTicket" name="archiveTicket" value="archive">
-                                        <label for="archiveTicket"> Archive ticket</label>
+                                        <label for="archiveTicket"> Remove Ticket</label>
                                     </li>
 
                                     <li class="mt-3">
@@ -238,8 +238,8 @@ require 'sidebar.php';
             <table class="table align-items-center mb-0">
                 <thead>
                 <tr>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                        Update By
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                        Updated By
                     </th>
                     <th class="text-uppercase text-secondary  text-xxs font-weight-bolder opacity-7 ps-2">
                         Response
@@ -263,10 +263,10 @@ require 'sidebar.php';
                         </div>
                     </td>
                     <td>
-                        <p class="text-xs font-weight-bold mb-0"><?=$row[6]?></p>
+                        <p class="ellipsis text-xs max-width-300 font-weight-bold mb-0 mx-0" data-text="<?=$row[6]?>"><?=$row[6]?></p>
                     </td>
                     <td class="text-sm">
-                        <p class="text-xs max-width-300 overflow-hidden font-weight-bold mb-0"><?=$row[3]?></p>
+                        <p class="text-xs font-weight-bold mb-0"><?=$row[3]?></p>
                     </td>
                     <td>
                         <p class="text-xs font-weight-bold mb-0"><?=$row[2]?></p>
