@@ -192,9 +192,7 @@ $countPageVisit = $db->execute_query("SELECT pageID, COUNT(*) AS log_count, GROU
                                     endforeach;
                                     }
                                     ?>
-                                    </tr>
-
-
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
