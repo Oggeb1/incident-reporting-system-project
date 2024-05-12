@@ -20,7 +20,7 @@ if(isset($_GET['id'])) {
 }
 
 echo $_GET['id'];
-$pageName = 'Tickets';
+$pageName = 'User-statistics';
 
 // Prepare and execute the query using the custom function
 $logSummary = $db->execute_query("SELECT logID, userID, pageID, INET6_NTOA(ip) AS ips, browserID, timestamp FROM log WHERE userID = ?", [$_GET['id']])->fetch_all();
