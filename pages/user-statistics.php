@@ -23,7 +23,7 @@ echo $_GET['id'];
 $pageName = 'Tickets';
 
 // Prepare and execute the query using the custom function
-$logSummary = $db->execute_query("SELECT logID, userID, pageID, ip, browserID, timestamp FROM log WHERE userID = ?", [$_GET['id']])->fetch_all();
+$logSummary = $db->execute_query("SELECT logID, userID, pageID, INET6_NTOA(ip) AS ips, browserID, timestamp FROM log WHERE userID = ?", [$_GET['id']])->fetch_all();
 $countPageVisit = $db->execute_query("SELECT pageID, COUNT(*) AS log_count, GROUP_CONCAT(pageID) AS pageIDs FROM log WHERE userID = ? GROUP BY pageID;" , [$_GET['id']])->fetch_all();
 
 ?>

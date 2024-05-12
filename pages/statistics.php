@@ -41,30 +41,24 @@
 
 <body class="g-sidenav-show  bg-gray-100">
 <?php
-$pageName = "User-management";
+require 'db-connection.php';
+require 'sidebar.php';
+$pageName = 'Statistics';
 
 if (empty($_SESSION)) {
     session_start();
 }
 
-if (isset($_SESSION['newPasswd'])) {
-    $tmpPass = $_SESSION['newPasswd'];
-    echo "<script type='text/javascript'>alert('Please send this password to the new user, REMIND THEM TO CHANGE IT IN THE SETTINGS: $tmpPass');</script>";
-    unset($_SESSION['newPasswd']);
-}
 
 if ($_SESSION['userType'] !== 'Administrator') {
     header("Location: dashboard.php");
 }
 
-// Import DB connection
-require 'db-connection.php';
+
 $users = $db->query("SELECT userID, userName,email,firstName,lastName,userType FROM user")->fetch_all();
 $log = $db->query("SELECT logID, userID, pageID, ip, browserID, timestamp FROM log")->fetch_all();
 $countPageVisit = $db->execute_query("SELECT pageID, COUNT(*) AS log_count, GROUP_CONCAT(pageID) AS pageIDs FROM log GROUP BY pageID;")->fetch_all();
 
-
-require 'sidebar.php';
 ?>
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <div class="container-fluid py-4">
@@ -142,7 +136,7 @@ require 'sidebar.php';
             <div class="col-12">
                 <div class="card mb-4">
                     <div class="card-header pb-0">
-                        <h6 class="d-inline-block">Page Count</h6>
+                        <h6 class="d-inline-block"></h6>
 
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
