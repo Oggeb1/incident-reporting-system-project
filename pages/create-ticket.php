@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             [$ticketSubmitID, $description]);
 
         // File upload
-        if(isset($_FILES['incidentFile'])){
+        if(isset($_FILES['incidentFile']['name']) and $_FILES['incidentFile']['name'][0] != "") {
         for ($i=0; $i < count($_FILES['incidentFile']['name']); $i++) { // Loop for each uploaded file
             // Information about the file and allowed file-types
             $fileExtension = pathinfo($_FILES["incidentFile"]['name'][$i],PATHINFO_EXTENSION);
@@ -131,9 +131,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         //Query to insert affected assets into incidentAsset
         if (isset($asset)) {
         $db->execute_query("INSERT INTO incidentAsset (assetID, incidentID) VALUES ((?), (?))",[$asset['assetID'], $ticketSubmitID] );
-        } else {
-            echo "Add ticket failed";
-            exit();
         }
 
         //if successful, go back to dashboard
