@@ -13,14 +13,26 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
 <?php
-require 'db-connection.php';
-
 if(isset($_GET['id'])) {
     $userID = $_GET['id'];
 }
 
-echo $_GET['id'];
+// Start session if not already started
+if (empty($_SESSION)) {
+    session_start();
+}
+
+// Only admins should have access to this page
+if ($_SESSION['userType'] !== 'Administrator') {
+    header("Location: dashboard.php");
+}
+require 'db-connection.php';
+require 'sidebar.php';
+require  'tracking.php';
 $pageName = 'User-statistics';
+
+echo $_GET['id'];
+
 
 // Prepare and execute the query using the custom function
 $logSummary = $db->execute_query("SELECT logID, userID, pageID, INET6_NTOA(ip) AS ips, browserID, timestamp FROM log WHERE userID = ?", [$_GET['id']])->fetch_all();
