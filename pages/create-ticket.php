@@ -90,6 +90,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $reporter = $db->execute_query("Select userID FROM user WHERE userName = ?", [$_SESSION['username']])->fetch_assoc();
         $asset = $db->execute_query("Select assetID FROM asset WHERE assetDescription = ?", [$_POST['asset-select']])->fetch_assoc();
 
+        $reporter['userID'] = htmlspecialchars($reporter['userID']);
+        $type = htmlspecialchars($type);
+        $severity = htmlspecialchars($severity);
+        $description = htmlspecialchars($description);
+
         //Queries to insert new ticket into incident
         $db->execute_query("INSERT INTO incident 
                 (reporterID, incidentTypeID, incidentSeverity, incidentDescription, timestamp) 
@@ -127,10 +132,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
+        $ticketSubmitID = htmlspecialchars($ticketSubmitID);
 
         //Query to insert affected assets into incidentAsset
         if (isset($asset)) {
-        $db->execute_query("INSERT INTO incidentAsset (assetID, incidentID) VALUES ((?), (?))",[$asset['assetID'], $ticketSubmitID] );
+            $asset['assetID'] = htmlspecialchars($asset['assetID']);
+            $db->execute_query("INSERT INTO incidentAsset (assetID, incidentID) VALUES ((?), (?))",[$asset['assetID'], $ticketSubmitID] );
         }
 
         //if successful, go back to dashboard

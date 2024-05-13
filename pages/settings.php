@@ -37,8 +37,12 @@
                 $password = password_hash($_POST['resetPassword'], PASSWORD_DEFAULT);
             }
 
+            $email = htmlspecialchars($email);
+            $_SESSION["username"] = htmlspecialchars($_SESSION["username"]);
+
             //Query to change user email and password if submitted by user
             if (isset($password)) {
+                $password = htmlspecialchars($password);
                 $db->execute_query("UPDATE user SET email = (?), password = (?) WHERE userName = (?)", [$email, $password, $_SESSION["username"]]);
             }else{
                 $db->execute_query("UPDATE user SET email = (?) WHERE userName = (?)", [$email, $_SESSION["username"]]);

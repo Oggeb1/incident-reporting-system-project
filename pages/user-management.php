@@ -92,6 +92,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['newPasswd'] = $password; // Store in super-global to show in an alert after page refresh
             $password = password_hash($password, PASSWORD_DEFAULT); // Hash the "random" generated password
 
+            $username = htmlspecialchars($username);
+            $firstName = htmlspecialchars($firstName);
+            $lastName = htmlspecialchars($lastName);
+            $email = htmlspecialchars($email);
+            $role = htmlspecialchars($role);
+            $password = htmlspecialchars($password);
+
             // Insert the new user into database
             $db->execute_query("INSERT INTO user (userName, firstName, lastName, email, userType, password) VALUES ((?), (?), (?), (?), (?), (?))", [$username, $firstName, $lastName, $email, $role, $password]);
 
@@ -122,7 +129,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
+        $username = htmlspecialchars($username);
+        $firstName = htmlspecialchars($firstName);
+        $lastName = htmlspecialchars($lastName);
+        $email = htmlspecialchars($email);
+        $role = htmlspecialchars($role);
+        $oldUsername = htmlspecialchars($oldUsername);
+
         if (isset($password)) { // Update the user accordingly, separate query if password was changed or not
+            $password = htmlspecialchars($password);
             $db->execute_query("UPDATE user SET userName = (?), firstName = (?), lastName = (?), email = (?), userType = (?), password = (?) WHERE userName = (?)", [$username, $firstName, $lastName, $email, $role, $password, $oldUsername]);
         } else {
             $db->execute_query("UPDATE user SET userName = (?), firstName = (?), lastName = (?), email = (?), userType = (?) WHERE userName = (?)", [$username, $firstName, $lastName, $email, $role, $oldUsername]);

@@ -104,6 +104,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ticketResponder = $_POST['assignResponder'];
     $responseText = $_POST['responseText'];
 
+    $ticketSummary['incidentID'] = htmlspecialchars($ticketSummary['incidentID']);
+    $ticketResponder = htmlspecialchars($ticketResponder);
+    $responseText = htmlspecialchars($responseText);
+
     //Checks if Post has been sent and declares variables from form and if 'archiveTicket' has been sent to POST
     if (isset($_POST['newResponseSubmit']) and !is_null($_POST['archiveTicket'])) {
         $db->execute_query("INSERT INTO ticket (incidentID, responderID, ticketStatus, responseDescription, timestamp)
@@ -111,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $db->execute_query("UPDATE incident
 SET isDeleted = 1
 WHERE incidentID LIKE ?",  [$db->execute_query("SELECT ticket.incidentID from ticket
-where ticket.ticketID LIKE ?", [$_GET['id']])->fetch_row()[0]]);
+where ticket.ticketID LIKE ?", [htmlspecialchars($_GET['id'])])->fetch_row()[0]]);
     }
     //Checks if Post has been sent and declares variables from form and if 'resolveTicket' has been sent to POST
     elseif (isset($_POST['newResponseSubmit']) and !is_null($_POST['resolveTicket'])) {

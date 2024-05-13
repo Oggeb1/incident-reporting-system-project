@@ -88,6 +88,11 @@ if (isset($_POST['login'])) {
                     $expiryEpoch = time() + 60 * 60 * 24 * 30;
                     $expiry = date('Y-m-d H:i:s', $expiryEpoch);
 
+                    $dbUserID = htmlspecialchars($dbUserID);
+                    $selector = htmlspecialchars($selector);
+                    $hashedValidator = htmlspecialchars($hashedValidator);
+                    $expiry = htmlspecialchars($expiry);
+
                     // Add the selector and hashed validator to DB
                     $db->execute_query("INSERT INTO userTokens(userID, selector, validator, expiry) VALUES ((?), (?), (?), (?))", [$dbUserID, $selector, $hashedValidator, $expiry]);
                     $token = $selector . $validator; // Concatenate selector and validator to be able to store it as one cookie
