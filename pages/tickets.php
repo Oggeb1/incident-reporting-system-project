@@ -106,6 +106,7 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
     <!-- Nepcha Analytics (nepcha.com) -->
     <!-- Nepcha is an easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
     <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+
 </head>
 
 <body class="g-sidenav-show  bg-gray-100">
@@ -205,7 +206,7 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
             <div class="tab-content">
                 <div id="pendingTab" class="card-body px-0 pt-0 pb-2 tab-pane fade in pendingTab active show">
                     <div class="table-responsive p-0">
-                        <table class="table align-items-center mb-0">
+                        <table class="table align-items-center mb-0 sortable">
                             <thead>
                             <tr>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
@@ -218,7 +219,7 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                     Description
                                 </th>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                    Sent In On
+                                    Sent In On (UTC)
                                 </th>
                             </tr>
                             </thead>
@@ -239,10 +240,10 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                     <p class="text-xs font-weight-bold mb-0"><?= $row[5]; ?></p>
                                 </td>
                                 <td class="text-sm">
-                                    <p class="text-xs max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[3]; ?></p>
+                                    <p class="text-xs max-width-400 overflow-hidden font-weight-bold mb-0"><?= $row[3]; ?></p>
                                 </td>
                                 <td>
-                                    <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>
+                                    <p class="ellipsis text-secondary text-xs font-weight-bold mb-0" data-text="<?= $row[4]; ?>"><?= $row[4]; ?></p>
                                 </td>
                                 <td>
                                     <a href="ticket-managment.php?id=<?=$row[0]?>" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
@@ -270,10 +271,10 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                                 <p class="text-xs font-weight-bold mb-0"><?= $row[5]; ?></p>
                                             </td>
                                             <td class="text-sm">
-                                                <p class="text-xs max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[3]; ?></p>
+                                                <p class="ellipsis text-xs max-width-400 overflow-hidden font-weight-bold mb-0" data-text="<?= $row[3]; ?>"><?= $row[3]; ?></p>
                                             </td>
                                             <td>
-                                                <p class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></p>
+                                                <p class="text-secondary text-xs font-weight-bold mb-0"><?= $row[4]; ?></p>
                                             </td>
                                             <td class="align-middle">
                                                 <a href="ticket-managment.php?id=<?=$row[0]?>" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
@@ -292,7 +293,7 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                 </div>
                 <div id="progress" class="card-body px-0 pt-0 pb-2 tab-pane fade in progressTab">
                     <div class="table-responsive p-0">
-                        <table class="table align-items-center mb-0">
+                        <table class="table align-items-center mb-0 sortable">
                             <thead>
                             <tr>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
@@ -305,7 +306,7 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                     Latest Response
                                 </th>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                    Last Updated
+                                    Last Updated (UTC)
                                 </th>
                                 <th class="text-secondary opacity-7"></th>
                             </tr>
@@ -327,10 +328,10 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                     <p class="text-xs font-weight-bold mb-0"><?= $row[5]; ?></p>
                                 </td>
                                 <td class="text-sm">
-                                    <p class="text-xs max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[3]; ?></p>
+                                    <p class="ellipsis text-xs max-width-400 overflow-hidden font-weight-bold mb-0" data-text="<?= $row[3]; ?>"><?= $row[3]; ?></p>
                                 </td>
                                 <td>
-                                    <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>
+                                    <p class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></p>
                                 </td>
                                 <td>
                                     <a href="ticket-managment.php?id=<?=$row[0]?>" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
@@ -360,10 +361,10 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                             <p class="text-xs font-weight-bold mb-0"><?= $row[5]; ?></p>
                                         </td>
                                         <td class="text-sm">
-                                            <p class="text-xs max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[3]; ?></p>
+                                            <p class="ellipsis text-xs max-width-400 overflow-hidden font-weight-bold mb-0" data-text="<?= $row[3]; ?>"><?= $row[3]; ?></p>
                                         </td>
                                         <td>
-                                            <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>
+                                            <p class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></p>
                                         </td>
                                         <td>
                                             <a href="ticket-managment.php?id=<?=$row[0]?>" class="text-secondary font-weight-bold text-xs ps-4" data-toggle="tooltip"
@@ -382,7 +383,7 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                 </div>
                 <div id="resolvedTab" class="card-body px-0 pt-0 pb-2 tab-pane fade in resolvedTab">
                     <div class="table-responsive p-0">
-                        <table class="table align-items-center mb-0">
+                        <table class="table align-items-center mb-0 sortable">
                             <thead>
                             <tr>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
@@ -395,7 +396,7 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                     Description
                                 </th>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                    Last Updated
+                                    Last Updated (UTC)
                                 </th>
                                 <th class="text-secondary opacity-7"></th>
                             </tr>
@@ -417,7 +418,7 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                     <p class="text-xs font-weight-bold mb-0"><?= $row[6]; ?></p>
                                 </td>
                                 <td class="text-sm">
-                                    <p class="text-xs max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[7]; ?></p>
+                                    <p class="ellipsis text-xs max-width-400 overflow-hidden font-weight-bold mb-0" data-text="<?= $row[7]; ?>"><?= $row[7]; ?></p>
                                 </td>
                                 <td>
                                     <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>
@@ -450,7 +451,7 @@ $responders = $db->query("Select userID, userName From user WHERE userType = 'Re
                                             <p class="text-xs font-weight-bold mb-0"><?= $row[5]; ?></p>
                                         </td>
                                         <td class="text-sm">
-                                            <p class="text-xs  max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[6]; ?></p>
+                                            <p class="ellipsis text-xs max-width-400 overflow-hidden font-weight-bold mb-0" data-text="<?= $row[6]; ?>"><?= $row[6]; ?></p>
                                         </td>
                                         <td>
                                             <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>

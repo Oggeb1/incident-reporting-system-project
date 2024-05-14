@@ -55,7 +55,7 @@ $pageName = 'Ticket-management';
 require 'db-connection.php';
 
 //Query to get summarized incident details
-$ticketSummary = $db->execute_query("SELECT ticketID, incident.incidentID, ticketStatus, incident.incidentSeverity, userName, responderID, responseDescription, incident.incidentDescription ,incident.timestamp FROM ticket
+$ticketSummary = $db->execute_query("SELECT ticketID, incident.incidentID, ticketStatus, incident.incidentSeverity, userName, responderID, responseDescription, incident.incidentDescription ,incident.timestamp, incident.incidentTime FROM ticket
     JOIN incident ON ticket.incidentID = incident.incidentID
     JOIN user ON incident.reporterID = user.userID
 Where ticketID LIKE ?", [$_GET['id']])->fetch_assoc();
@@ -157,7 +157,9 @@ require 'sidebar.php';
                                 <li class="list-group-item border-0 ps-0 pt-0 text-sm"><strong class="text-dark">Sent in
                                         by:</strong> <?= $ticketSummary['userName'] ?></li>
                                 <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Sent in
-                                        on:</strong> <?= $ticketSummary['timestamp'] ?></li>
+                                        on (UTC):</strong> <?= $ticketSummary['timestamp'] ?></li>
+                                <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Time of
+                                        incident:</strong> <?= $ticketSummary['incidentTime'] ?></li>
                                 <li class="list-group-item border-0 ps-0 text-sm"><strong
                                             class="text-dark">Description:</strong> <?= $ticketSummary['incidentDescription'] ?>
                                 </li>
@@ -254,7 +256,7 @@ require 'sidebar.php';
             <h6 class="d-inline-block mb-2">Ticket Response Log</h6>
     <div id="responseLog" class="card-body px-0 pt-0 pb-2 tab-pane">
         <div class="table-responsive p-0">
-            <table class="table align-items-center mb-0">
+            <table class="table align-items-center mb-0 sortable">
                 <thead>
                 <tr>
                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
@@ -264,7 +266,7 @@ require 'sidebar.php';
                         Response
                     </th>
                     <th class="text-uppercase text-secondary  text-xxs font-weight-bolder opacity-7 ps-2">
-                        Submitted on
+                        Submitted on (UTC)
                     </th>
                     <th class="text-uppercase text-secondary  text-xxs font-weight-bolder opacity-7 ps-2">
                         Status
@@ -282,7 +284,7 @@ require 'sidebar.php';
                         </div>
                     </td>
                     <td>
-                        <p class="ellipsis text-xs max-width-300 font-weight-bold mb-0 mx-0" data-text="<?=$row[6]?>"><?=$row[6]?></p>
+                        <p class="ellipsis text-xs max-width-400 font-weight-bold mb-0 mx-0" data-text="<?=$row[6]?>"><?=$row[6]?></p>
                     </td>
                     <td class="text-sm">
                         <p class="text-xs font-weight-bold mb-0"><?=$row[3]?></p>

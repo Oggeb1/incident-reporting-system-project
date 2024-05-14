@@ -78,6 +78,8 @@ $assettypes = $db->query("Select assetType.assetTypeDescription, assetTypeID fro
 $assets = $db->query("Select asset.assetDescription, assetType.assetTypeID
                                 FROM assetType
                                 JOIN asset on assetType.assetTypeID = asset.assetTypeID")->fetch_all();
+$severities = $db->query( "SELECT unique incidentSeverity from incident
+order by incidentSeverity")->fetch_all();
 
 //Form submission values are sent here
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -87,9 +89,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $type = $_POST['incidentType'];
         $severity = $_POST['severity'];
         $description = $_POST['incidentDescription'];
+        $timestamp = $_POST['incidentTime'];
         $reporter = $db->execute_query("Select userID FROM user WHERE userName = ?", [$_SESSION['username']])->fetch_assoc();
         $asset = $db->execute_query("Select assetID FROM asset WHERE assetDescription = ?", [$_POST['asset-select']])->fetch_assoc();
-
         $reporter['userID'] = htmlspecialchars($reporter['userID']);
         $type = htmlspecialchars($type);
         $severity = htmlspecialchars($severity);
@@ -97,17 +99,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         //Queries to insert new ticket into incident
         $db->execute_query("INSERT INTO incident 
-                (reporterID, incidentTypeID, incidentSeverity, incidentDescription, timestamp) 
-                values ((?), (?), (?), (?), UTC_TIMESTAMP)",
-            [$reporter['userID'], $type, $severity, $description]);
+                (reporterID, incidentTypeID, incidentSeverity, incidentDescription, timestamp, incidentTime) 
+                values ((?), (?), (?), (?), utc_timestamp, (?))",
+            [$reporter['userID'], $type, $severity, $description, $timestamp]);
 
         //gets last inserted Primary Key from Database, this command is client sided and can't be interfered by other users
         $ticketSubmitID = $db->execute_query("SELECT incidentID FROM incident WHERE reporterID = ? AND incident.timestamp = (SELECT MAX(incident.timestamp) FROM incident WHERE reporterID = ?)", [$reporter['userID'], $reporter['userID']] )->fetch_row()[0];
         //Inserts the new ticket into incident with appropriate values
         $db->execute_query("INSERT INTO ticket 
-    (incidentID, ticketStatus, responseDescription, timestamp) 
-            values ((?), 'Pending', (?), UTC_TIMESTAMP)",
-            [$ticketSubmitID, $description]);
+        (incidentID, ticketStatus, responseDescription, timestamp) 
+            values ((?), 'Pending', (?), utc_timestamp)",
+            [$ticketSubmitID, $description,]);
 
         // File upload
         if(isset($_FILES['incidentFile']['name']) and $_FILES['incidentFile']['name'][0] != "") {
@@ -171,25 +173,19 @@ require 'sidebar.php';
                         <div class="invalid-feedback">Example invalid custom select feedback</div>
                     </div>
                 </li>
+                <li class="mb-2">
+                    <label for="incident-timestamp">Date & Time of Incident</label>
+                    <input type="datetime-local" id="incident-timestamp" name="incidentTime" required>
+                </li>
                 <li>
                     <label>Incident Severity</label>
                     <div class="col-auto">
+                        <?php foreach ($severities as $row): ?>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="severity" id="filter-low" value="Low" checked>
-                            <label class="form-check-label" for="severity">Low</label>
+                            <input class="form-check-input" type="radio" name="severity" id="filter-severity" value="<?=$row[0]?>" required>
+                            <label class="form-check-label" for="severity"><?=$row[0]?></label>
                         </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="severity" id="filter-medium" value="Medium">
-                            <label class="form-check-label" for="severity">Medium</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="severity" id="filter-high" value="High">
-                            <label class="form-check-label" for="severity">High</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="severity" id="filter-critical" value="Critical">
-                            <label class="form-check-label" for="severity">Critical</label>
-                        </div>
+                        <?php endforeach; ?>
                     </div>
                 </li>
                 <li class="mb-3">

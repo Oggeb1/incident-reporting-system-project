@@ -18,6 +18,8 @@ include 'tracking.php';
 <head>
     <meta charset="UTF-8">
     <title>Sidebar</title>
+    <!-- Sorttable.js allows tables to be sortable by adding the class "sortable" to table element -->
+    <script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
 </head>
 <body>
 <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3">
