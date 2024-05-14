@@ -126,8 +126,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         }
-
-
         //Query to insert affected assets into incidentAsset
         if (isset($asset)) {
         $db->execute_query("INSERT INTO incidentAsset (assetID, incidentID) VALUES ((?), (?))",[$asset['assetID'], $ticketSubmitID] );
@@ -137,7 +135,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: tickets.php', true, 303);
         exit();
     }
-
 }
 require 'sidebar.php';
 
