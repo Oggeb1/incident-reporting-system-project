@@ -147,6 +147,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: tickets.php', true, 303);
         exit();
     }
+    else {
+        echo "Ticket upload Failed";
+    }
 
 }
 require 'sidebar.php';
