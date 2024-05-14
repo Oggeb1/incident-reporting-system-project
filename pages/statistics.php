@@ -30,8 +30,10 @@ if ($_SESSION['userType'] !== 'Administrator') {
 
 
 $users = $db->query("SELECT userID, userName,email,firstName,lastName,userType FROM user")->fetch_all();
-$log = $db->query("SELECT logID, userID, pageID, ip, browserID, timestamp FROM log")->fetch_all();
-$countPageVisit = $db->execute_query("SELECT pageID, COUNT(*) AS log_count, GROUP_CONCAT(pageID) AS pageIDs FROM log GROUP BY pageID;")->fetch_all();
+$log = $db->execute_query("SELECT logID, userID, pageID, INET6_NTOA(log.ip) AS ips, browserID, timestamp FROM log")->fetch_all();
+$countPageVisit = $db->execute_query("SELECT log.pageID, COUNT(*) AS log_count, GROUP_CONCAT(log.pageID), page.pageID, page.pageDescription AS pageIDs FROM log 
+                                                                      JOIN page ON log.pageID = page.pageID
+                                                                      GROUP BY log.pageID;")->fetch_all();
 require 'sidebar.php';
 ?>
 
@@ -77,9 +79,9 @@ require 'sidebar.php';
                                 <tr>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">User</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Real Name</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Last Seen (UTC)</th>
-                                    <th class="text-secondary opacity-7"></th>
+
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">View Logs</th>
+
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -91,8 +93,8 @@ require 'sidebar.php';
                                                 <img src="../assets/img/profile.svg" class="avatar avatar-sm me-3" alt="user1">
                                             </div>
                                             <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="mb-0 text-sm"><?= $row[0] ?></h6>
-                                                <p class="text-xs text-secondary mb-0"><?= $row[1] ?></p>
+                                                <h6 class="mb-0 text-sm"><?= $row[1] ?></h6>
+                                                <p class="text-xs text-secondary mb-0"><?= $row[2] ?></p>
                                             </div>
                                         </div>
                                     </td>
@@ -101,7 +103,6 @@ require 'sidebar.php';
                                         <p class="text-xs text-secondary mb-0"><?= $row[4] ?></p>
                                     </td>
                                     <td class="align-middle text-center text-sm">
-                                    <td class="align-middle">
                                         <a href=user-statistics.php?id=<?=$row[0]?>">View Logs</a>
                                     </td>
                                 </tr>
@@ -158,7 +159,7 @@ require 'sidebar.php';
                                             <div>
                                             </div>
                                             <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="mb-0 text-sm"><?= $row[0] ?></h6>
+                                                <h6 class="mb-0 text-sm"><?= $row[4] ?></h6>
 
                                             </div>
                                         </div>

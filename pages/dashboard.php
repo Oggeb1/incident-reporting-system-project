@@ -108,6 +108,8 @@
    $countUser = $db->query("SELECT COUNT(userID) FROM user")->fetch_assoc();
 
    $countIP = $db->query("SELECT COUNT(DISTINCT ip) FROM log")->fetch_assoc();
+
+
     ?>
 
     <meta charset="utf-8" />
@@ -135,6 +137,7 @@
 <body class="g-sidenav-show  bg-gray-100">
 
 <?php $pageName = 'Dashboard'; require 'sidebar.php';?>
+
 
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg "
     <!-- Navbar -->
@@ -475,7 +478,10 @@
                                 <tbody>
                                 <?php foreach ($users as $row): ?>
                                     <?php
-
+                                    // Filter completed tickets for the current user
+                                    $userCompletedTickets = array_filter($dailyCompletedTickets, function($ticket) use ($row) {
+                                        return $ticket[5] == $row[1];
+                                    });
                                     ?>
                                     <tr>
                                         <td>
@@ -491,8 +497,8 @@
                                         <td>
                                             <?php
                                             // Display the number of completed tickets for the current user
-                                            if (isset($dailyCompletedTickets[$row[0]])) {
-                                                echo count($dailyCompletedTickets[$row[0]]);
+                                            if (!empty($userCompletedTickets)) {
+                                                echo count($userCompletedTickets);
                                             } else {
                                                 echo 'No completed tickets';
                                             }
@@ -501,8 +507,8 @@
                                         <td class="align-middle text-center text-sm">
                                             <?php
                                             // Check if daily completed tickets exist for the current user and if they meet the goal
-                                            if (isset($dailyCompletedTickets[$row[0]])) {
-                                                if (count($dailyCompletedTickets[$row[0]]) < 20) {
+                                            if (!empty($userCompletedTickets)) {
+                                                if (count($userCompletedTickets) < 20) {
                                                     echo 20;
                                                 } else {
                                                     echo "Daily goal reached!";
@@ -513,8 +519,8 @@
                                         <td class="align-middle text-center text-sm">
                                             <?php
                                             // Display the number of completed tickets out of the daily goal for the current user
-                                            if (isset($dailyCompletedTickets[$row[0]])) {
-                                                echo count($dailyCompletedTickets[$row[0]]), "/20";
+                                            if (!empty($userCompletedTickets)) {
+                                                echo count($userCompletedTickets), "/20";
                                             } else {
                                                 echo 'No completed tickets';
                                             }
@@ -522,7 +528,8 @@
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
-
+                                <?php endif; ?>
+                                </tr>
                                 </tbody>
                             </table>
 
@@ -532,8 +539,6 @@
                 </div>
             </div>
         </div>
-
-    <?php endif; ?>
     <?php require 'footer.php'; ?>
 </main>
 <!--   Core JS Files   -->
