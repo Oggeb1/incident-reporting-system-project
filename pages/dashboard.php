@@ -23,10 +23,18 @@
     require "db-connection.php";
 
 
-    $curTickets = $db->execute_query("SELECT COUNT(ticketstatus) FROM ticket WHERE ticketStatus = 'Pending'")->fetch_assoc();
+    $curTickets = $db->execute_query("SELECT count(ticketID) FROM ticket
+WHERE incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus NOT LIKE 'Pending')")->fetch_assoc();
 
-    $progressTickets = $db->execute_query("SELECT COUNT(ticketStatus) FROM ticket WHERE ticketStatus LIKE 'In progress'")->fetch_assoc();
-    $closedTickets = $db->execute_query("SELECT COUNT(ticketStatus) FROM ticket WHERE ticketStatus LIKE 'Resolved'")->fetch_assoc();
+    $progressTickets = $db->execute_query("SELECT count(ticketID) FROM (
+         SELECT ticket.ticketID
+         FROM ticket
+         WHERE ticketStatus LIKE 'In progress'
+           AND ticket.incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus LIKE 'Resolved')
+     ) AS sub")->fetch_assoc();
+    $closedTickets = $db->execute_query("SELECT count(ticket.ticketID) FROM ticket
+JOIN incident ON ticket.incidentID = incident.incidentID
+WHERE ticket.ticketStatus LIKE 'Resolved' AND incident.isDeleted NOT LIKE 1")->fetch_assoc();
     $ticketTimestamp = $db->execute_query("SELECT TIMEDIFF(NOW(), MAX(timestamp )) AS time_difference FROM ticket WHERE ticketStatus = 'Pending';")->fetch_assoc();
     $tickTimestamp = implode($ticketTimestamp);
     $userinfo = $db->execute_query("SELECT userName, userID FROM user ORDER BY RAND()");
@@ -153,7 +161,7 @@
                                 <div class="col-8">
                                     <div class="numbers">
                                         <p class="text-sm mb-0 text-capitalize font-weight-bold">Current pending tickets</p>
-                                        <h5 class="font-weight-bolder mb-0"> <?= $curTickets ["COUNT(ticketstatus)"]?></h5>
+                                        <h5 class="font-weight-bolder mb-0"> <?= $curTickets['count(ticketID)'] ?></h5>
                                     </div>
                                 </div>
                                 <div class="col-4 text-end">
@@ -174,7 +182,7 @@
                                 <div class="col-8">
                                     <div class="numbers">
                                         <p class="text-sm mb-0 text-capitalize font-weight-bold">Current ongoing tickets</p>
-                                        <h5 class="font-weight-bolder mb-0"><?= ($progressTickets ["COUNT(ticketStatus)"])?></h5>
+                                        <h5 class="font-weight-bolder mb-0"><?= ($progressTickets ["count(ticketID)"])?></h5>
                                     </div>
                                 </div>
                                 <div class="col-4 text-end">
@@ -194,8 +202,8 @@
                             <div class="row">
                                 <div class="col-8">
                                     <div class="numbers">
-                                        <p class="text-sm mb-0 text-capitalize font-weight-bold">Resolved <br> tickets</p>
-                                        <h5 class="font-weight-bolder mb-0"><?= ($closedTickets ["COUNT(ticketStatus)"])?></h5>
+                                        <p class="text-sm mb-0 text-capitalize font-weight-bold">Resolved <br>tickets</p>
+                                        <h5 class="font-weight-bolder mb-0"><?= ($closedTickets ["count(ticket.ticketID)"])?></h5>
                                     </div>
                                 </div>
                                 <div class="col-4 text-end">
