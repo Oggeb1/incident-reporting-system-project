@@ -31,12 +31,16 @@ require 'db-connection.php';
 require 'sidebar.php';
 
 
-echo $_GET['id'];
-
 
 // Prepare and execute the query using the custom function
-$logSummary = $db->execute_query("SELECT logID, userID, pageID, INET6_NTOA(ip) AS ips, browserID, timestamp FROM log WHERE userID = ?", [$_GET['id']])->fetch_all();
-$countPageVisit = $db->execute_query("SELECT pageID, COUNT(*) AS log_count, GROUP_CONCAT(pageID) AS pageIDs FROM log WHERE userID = ? GROUP BY pageID;" , [$_GET['id']])->fetch_all();
+$logSummary = $db->execute_query("SELECT log.logID, log.userID, log.pageID, browser.browserDescription, page.pageID, page.pageDescription, INET6_NTOA(log.ip) AS ips, log.browserID, log.timestamp, user.userID, user.userName
+FROM log
+         JOIN browser ON log.browserID = browser.browserID
+         JOIN page ON log.pageID = page.pageID
+         JOIN user on log.userID = user.userID
+WHERE log.userID = ?;", [$_GET['id']])->fetch_all();
+
+$countPageVisit = $db->execute_query("SELECT log.pageID, COUNT(*) AS log_count, page.pageID, page.pageDescription, GROUP_CONCAT(log.pageID) AS pageIDs FROM log JOIN page ON log.pageID = page.pageID WHERE userID = ? GROUP BY log.pageID" , [$_GET['id']])->fetch_all();
 
 ?>
 
@@ -74,7 +78,7 @@ $countPageVisit = $db->execute_query("SELECT pageID, COUNT(*) AS log_count, GROU
             <div class="col-12">
                 <div class="card mb-4">
                     <div class="card-header pb-0">
-                        <h6 class="d-inline-block mb-2">All logs</h6>
+                        <h6 class="d-inline-block mb-2"> All User Logs</h6>
                     </div>
                     <div class="nav-wrapper position-relative end-0">
                         <ul class="nav nav-pills nav-fill p-1 bg-transparent" role="tablist">
@@ -142,17 +146,17 @@ $countPageVisit = $db->execute_query("SELECT pageID, COUNT(*) AS log_count, GROU
                                             LogId
                                         </th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                            UserID
+                                            Username
                                         </th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                           PageID
+                                           Pagename
                                         </th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                             ip
                                         </th>
 
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                            browserID
+                                            browsername
                                         </th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                             Timestamp
@@ -173,19 +177,19 @@ $countPageVisit = $db->execute_query("SELECT pageID, COUNT(*) AS log_count, GROU
                                             </div>
                                         </td>
                                         <td>
-                                            <p class="text-xs font-weight-bold mb-0"><?= $row[1]; ?></p>
+                                            <p class="text-xs font-weight-bold mb-0"><?= $row[10]; ?></p>
                                         </td>
                                         <td class="text-sm">
-                                            <p class="text-xs max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[2]; ?></p>
+                                            <p class="text-xs max-width-300 overflow-hidden font-weight-bold mb-0"><?= $row[5]; ?></p>
+                                        </td>
+                                        <td>
+                                            <span class="text-secondary text-xs font-weight-bold"><?= $row[6]; ?></span>
                                         </td>
                                         <td>
                                             <span class="text-secondary text-xs font-weight-bold"><?= $row[3]; ?></span>
                                         </td>
                                         <td>
-                                            <span class="text-secondary text-xs font-weight-bold"><?= $row[4]; ?></span>
-                                        </td>
-                                        <td>
-                                            <span class="text-secondary text-xs font-weight-bold"><?= $row[5]; ?></span>
+                                            <span class="text-secondary text-xs font-weight-bold"><?= $row[8]; ?></span>
                                         </td>
                                     </tr>
                                     <?php
@@ -202,7 +206,7 @@ $countPageVisit = $db->execute_query("SELECT pageID, COUNT(*) AS log_count, GROU
                                     <thead>
                                     <tr>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                            PageID
+                                            Pagename
                                         </th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                             Pagecount
@@ -216,7 +220,7 @@ $countPageVisit = $db->execute_query("SELECT pageID, COUNT(*) AS log_count, GROU
                                                 <td>
                                                     <div class="d-flex px-2 py-1">
                                                         <div class="d-flex flex-column justify-content-center">
-                                                            <h6 class="mb-0 text-sm"><?= $row[0]; ?></h6>
+                                                            <h6 class="mb-0 text-sm"><?= $row[3]; ?></h6>
                                                         </div>
                                                     </div>
                                                 </td>
