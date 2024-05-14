@@ -96,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $type = htmlspecialchars($type);
         $severity = htmlspecialchars($severity);
         $description = htmlspecialchars($description);
+        $timestamp = htmlspecialchars($timestamp);
 
         //Queries to insert new ticket into incident
         $db->execute_query("INSERT INTO incident 
