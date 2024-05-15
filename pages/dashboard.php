@@ -39,7 +39,7 @@ WHERE incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus NOT LI
     $closedTickets = $db->execute_query("SELECT count(ticket.ticketID) FROM ticket
 JOIN incident ON ticket.incidentID = incident.incidentID
 WHERE ticket.ticketStatus LIKE 'Resolved' AND incident.isDeleted NOT LIKE 1")->fetch_assoc();
-    $ticketTimestamp = $db->execute_query("SELECT TIMEDIFF(NOW(), MAX(timestamp )) AS time_difference FROM ticket WHERE ticketStatus = 'Pending';")->fetch_assoc();
+    $ticketTimestamp = $db->execute_query("SELECT TIMEDIFF(UTC_TIMESTAMP(), MAX(timestamp )) AS time_difference FROM ticket WHERE ticketStatus = 'Pending';")->fetch_assoc();
     $tickTimestamp = implode($ticketTimestamp);
     $userinfo = $db->execute_query("SELECT userName, userID FROM user ORDER BY RAND()");
 

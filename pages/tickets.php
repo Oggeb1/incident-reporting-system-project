@@ -78,6 +78,7 @@ WHERE rn = 1
 ORDER BY timestamp DESC")->fetch_all();
 
 //Queries to get progress tickets from user that is not an administrator, check for administrator is done later in code
+//The inner query creates a row of all incidents with the same IncidentID and orders them by timestamp in descending order
 $ticketsProgressUser = $db->execute_query("SELECT ticketID, incidentID, ticketStatus, responseDescription, timestamp, userName
 FROM (
          SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, responseDescription, ticket.timestamp, user.userName,
