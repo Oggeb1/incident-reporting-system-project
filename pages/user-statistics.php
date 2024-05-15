@@ -32,14 +32,14 @@ require 'sidebar.php';
 
 
 
-// Prepare and execute the query using the custom function
+// fetches logs for the user clicked on 'statistics.php' via the global $_GET variable. fetches all logs and joins on browser, page and user in order ti display the correct browser name, page name and username instead of the ID number.
 $logSummary = $db->execute_query("SELECT log.logID, log.userID, log.pageID, browser.browserDescription, page.pageID, page.pageDescription, INET6_NTOA(log.ip) AS ips, log.browserID, log.timestamp, user.userID, user.userName
 FROM log
          JOIN browser ON log.browserID = browser.browserID
          JOIN page ON log.pageID = page.pageID
          JOIN user on log.userID = user.userID
 WHERE log.userID = ?;", [$_GET['id']])->fetch_all();
-
+// fetches the pages visits for the user clicked on 'statistics.php' via the global $_GET variable. Fetches all page visits and counts them. Later on join page in order ti display the correct pagename instead of ID
 $countPageVisit = $db->execute_query("SELECT log.pageID, COUNT(*) AS log_count, page.pageID, page.pageDescription, GROUP_CONCAT(log.pageID) AS pageIDs FROM log JOIN page ON log.pageID = page.pageID WHERE userID = ? GROUP BY log.pageID" , [$_GET['id']])->fetch_all();
 
 ?>

@@ -22,9 +22,11 @@
 
     require "db-connection.php";
 
-
+// Counts the current amount of tickets that are actively 'Pending' (not old tickets that have changed status)
     $curTickets = $db->execute_query("SELECT count(ticketID) FROM ticket
 WHERE incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus NOT LIKE 'Pending')")->fetch_assoc();
+
+    // Counts the current amount of tickets that are actively 'In Progress (not old tickets that have changed status)
 
     $progressTickets = $db->execute_query("SELECT count(ticketID) FROM (
          SELECT ticket.ticketID
@@ -32,6 +34,8 @@ WHERE incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus NOT LI
          WHERE ticketStatus LIKE 'In progress'
            AND ticket.incidentID NOT IN (SELECT incidentID FROM ticket WHERE ticketStatus LIKE 'Resolved')
      ) AS sub")->fetch_assoc();
+
+    // Counts the current amount of tickets that are actively 'Resolved' (not old tickets that have changed status)
     $closedTickets = $db->execute_query("SELECT count(ticket.ticketID) FROM ticket
 JOIN incident ON ticket.incidentID = incident.incidentID
 WHERE ticket.ticketStatus LIKE 'Resolved' AND incident.isDeleted NOT LIKE 1")->fetch_assoc();
@@ -39,7 +43,10 @@ WHERE ticket.ticketStatus LIKE 'Resolved' AND incident.isDeleted NOT LIKE 1")->f
     $tickTimestamp = implode($ticketTimestamp);
     $userinfo = $db->execute_query("SELECT userName, userID FROM user ORDER BY RAND()");
 
+ //fetches all user that have the usertype 'Administrator' or 'Responder'
     $users = $db->query("SELECT userID,userName,email,firstName,lastName,userType FROM user where userType = 'Responder' OR userType = 'Administrator'")->fetch_all();
+
+ //Count the daily amount of Tickets that has been changed to status 'Resolved'
     $dailyCompletedTickets = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription,ticket.timestamp, incident.reporterID, user.userName, user.userID 
     FROM ticket
     JOIN incident ON ticket.incidentID = incident.incidentID
@@ -53,10 +60,8 @@ WHERE ticket.ticketStatus LIKE 'Resolved' AND incident.isDeleted NOT LIKE 1")->f
     (ticket.ticketStatus = 'Resolved' AND ticket.timestamp >= NOW() - INTERVAL 1 DAY)
         OR (ticket.ticketStatus = 'Pending' AND ticket.timestamp >= NOW() - INTERVAL 1 DAY));")->fetch_all();
 
-    $countTickets = $db->query("SELECT ticketID, timestamp  FROM ticket WHERE timestamp BETWEEN NOW() - INTERVAL 7 DAY AND NOW();
-    ")->fetch_all();
 
-
+   //The four queries below counts the amount of 'Low','Medium','High','Critical' incidents that have been recieved in the last 30 days
     $countSeverity = $db->query("SELECT incidentSeverity, timestamp
     FROM incident
     WHERE timestamp BETWEEN NOW() - INTERVAL 30 DAY AND NOW() AND incidentSeverity = 'Low';")->fetch_all();
@@ -73,48 +78,53 @@ WHERE ticket.ticketStatus LIKE 'Resolved' AND incident.isDeleted NOT LIKE 1")->f
     FROM incident
     WHERE timestamp BETWEEN NOW() - INTERVAL 30 DAY AND NOW() AND incidentSeverity = 'Critical';")->fetch_all();
 
+    //Counts the amount of tickets that have been received between now and 7 days ago
+    $countTickets = $db->query("SELECT ticketID, timestamp  FROM ticket WHERE timestamp BETWEEN NOW() - INTERVAL 7 DAY AND NOW();
+    ")->fetch_all();
+//Counts the amount of tickets that have been received between 7 days ago and 14 days ago
     $countTickets2 = $db->query ("SELECT ticketID, timestamp
     FROM ticket
-    WHERE timestamp BETWEEN NOW() - INTERVAL 14 DAY AND NOW() - INTERVAL 7 DAY
+    WHERE timestamp BETWEEN NOW() - INTERVAL 14 DAY AND NOW() - INTERVAL 8 DAY
     ")->fetch_all();
-
+    //Counts the amount of tickets that have been received between 15 days ago and 23 days ag
     $countTickets3 = $db->query("SELECT ticketID, timestamp
     FROM ticket
     WHERE timestamp BETWEEN NOW() - INTERVAL 22 DAY AND NOW() - INTERVAL 15 DAY
     ")->fetch_all();
-
+    //Counts the amount of tickets that have been received between 23 days ago and 30 days ago
     $countTickets4 = $db->query("SELECT ticketID, timestamp
     FROM ticket
     WHERE timestamp BETWEEN NOW() - INTERVAL 30 DAY AND NOW() - INTERVAL 23 DAY;
     ")->fetch_all();
 
-
+  //fetches all 'Resolved' tickets between the current date and 7 days ago
     $resolvedTickets = $db->query("SELECT ticketID, timestamp, ticketStatus
     FROM ticket
     WHERE timestamp BETWEEN NOW() - INTERVAL 7 DAY AND NOW() AND ticketStatus = 'Resolved';
     ")->fetch_all();
-
+    //fetches all 'Resolved' tickets between the 8 days ago and 14 days ago
     $resolvedTickets2 = $db->query("SELECT ticketID, timestamp, ticketStatus
     FROM ticket
     WHERE timestamp BETWEEN NOW() - INTERVAL 14 DAY AND NOW() - INTERVAL 8 DAY AND ticketStatus = 'Resolved';
     ")->fetch_all();
-
+    //fetches all 'Resolved' tickets between the 15 days ago and 22 days ago
     $resolvedTickets3 = $db->query("SELECT ticketID, timestamp, ticketStatus
     FROM ticket
     WHERE timestamp BETWEEN NOW() - INTERVAL 22 DAY AND NOW() - INTERVAL 15 DAY AND ticketStatus = 'Resolved';
     ")->fetch_all();
-
+    //fetches all 'Resolved' tickets between the 23 days ago and 30 days ago
     $resolvedTickets4 = $db->query("SELECT ticketID, timestamp, ticketStatus
     FROM ticket
     WHERE timestamp BETWEEN NOW() - INTERVAL 30 DAY AND NOW() - INTERVAL 23 DAY AND ticketStatus = 'Resolved';
     ")->fetch_all();
 
+    //Counts the total amount of tickets
    $allTickets = $db->query("SELECT COUNT(ticketID) FROM ticket")->fetch_assoc();
-
+    //Counts the total amount of logID's
    $countTracker = $db->query("SELECT COUNT(logID) FROM log")->fetch_assoc();
-
+    //Counts the total amount of users
    $countUser = $db->query("SELECT COUNT(userID) FROM user")->fetch_assoc();
-
+   //Counts the total amount of distinct IP connections
    $countIP = $db->query("SELECT COUNT(DISTINCT ip) FROM log")->fetch_assoc();
 
 
@@ -150,6 +160,7 @@ WHERE ticket.ticketStatus LIKE 'Resolved' AND incident.isDeleted NOT LIKE 1")->f
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg "
     <!-- Navbar -->
     <?php
+    // ONly visible for administrator or responder
     if ($_SESSION["userType"] === 'Administrator' || ($_SESSION["userType"] === 'Responder')) {
         ?>,
           <div class="container-fluid py-4">
@@ -486,7 +497,7 @@ WHERE ticket.ticketStatus LIKE 'Resolved' AND incident.isDeleted NOT LIKE 1")->f
                                 <tbody>
                                 <?php foreach ($users as $row): ?>
                                     <?php
-                                    // Filter completed tickets for the current user
+                                    // Filter completed tickets for the right user. (It displays the right amount of tickets on the correct row in the table on the website.
                                     $userCompletedTickets = array_filter($dailyCompletedTickets, function($ticket) use ($row) {
                                         return $ticket[5] == $row[1];
                                     });

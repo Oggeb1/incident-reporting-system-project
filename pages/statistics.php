@@ -28,9 +28,12 @@ if ($_SESSION['userType'] !== 'Administrator') {
     exit;
 }
 
-
+//fetches information about all users
 $users = $db->query("SELECT userID, userName,email,firstName,lastName,userType FROM user")->fetch_all();
+//fetches logs
 $log = $db->execute_query("SELECT logID, userID, pageID, INET6_NTOA(log.ip) AS ips, browserID, timestamp FROM log")->fetch_all();
+
+//fetches page count and logs for all users. Joins page on log in order ti display the correct pagename instead of the pageID
 $countPageVisit = $db->execute_query("SELECT log.pageID, COUNT(*) AS log_count, GROUP_CONCAT(log.pageID), page.pageID, page.pageDescription AS pageIDs FROM log 
                                                                       JOIN page ON log.pageID = page.pageID
                                                                       GROUP BY log.pageID;")->fetch_all();
