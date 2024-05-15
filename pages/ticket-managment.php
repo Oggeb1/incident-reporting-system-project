@@ -54,91 +54,98 @@ if (empty($_SESSION)) {
 $pageName = 'Ticket-management';
 require 'db-connection.php';
 
+$incidentUser = $db->execute_query("Select incident.incidentID, user.userName from incident
+join user on reporterID = user.userID
+join ticket on incident.incidentID = ticket.incidentID
+where ticketid like ?", [$_GET['id']])->fetch_assoc();
+
 //Query to get summarized incident details
 $ticketSummary = $db->execute_query("SELECT ticketID, incident.incidentID, ticketStatus, incident.incidentSeverity, userName, responderID, responseDescription, incident.incidentDescription ,incident.timestamp, incident.incidentTime FROM ticket
     JOIN incident ON ticket.incidentID = incident.incidentID
     JOIN user ON incident.reporterID = user.userID
 Where ticketID LIKE ?", [$_GET['id']])->fetch_assoc();
 
+//Makes sure user is allowed to see the ticket
+if (!($_SESSION['userType'] === 'Administrator' || $_SESSION['userType'] === 'Responder') && $_SESSION['username'] != $incidentUser['userName']) {
+    header('Location: tickets.php');
+    exit();
+}
+
 //Retrieve files for opened incident
-$incidentFiles = $db->execute_query("SELECT file.incidentID, file.path FROM file
+    $incidentFiles = $db->execute_query("SELECT file.incidentID, file.path FROM file
 JOIN incident on file.incidentID = incident.incidentID
 JOIN ticket on file.incidentID = ticket.incidentID
 Where ticketID LIKE ?", [$_GET['id']])->fetch_all();
 
 //Get responders
-$responders = $db->query("SELECT userName, userID FROM user
+    $responders = $db->query("SELECT userName, userID FROM user
 Where userType LIKE 'Responder' OR userType LIKE 'Administrator'")->fetch_all();
 
 //Get responders assigned to tickets
-$assignedResponder = $db->execute_query("SELECT userName, userID FROM user
+    $assignedResponder = $db->execute_query("SELECT userName, userID FROM user
         JOIN ticket on user.userID = ticket.responderID
 Where (user.userType LIKE 'Responder' OR userType LIKE 'Administrator') AND ticketID like ?", [$_GET['id']])->fetch_assoc();
 
 //Get all previous ticket entries for incident
-$ticketLog = $db->execute_query("SELECT ticket.incidentID, ticket.responderID, ticket.ticketStatus, ticket.timestamp, user.username, incident.reporterID, ticket.responseDescription
+    $ticketLog = $db->execute_query("SELECT ticket.incidentID, ticket.responderID, ticket.ticketStatus, ticket.timestamp, user.username, incident.reporterID, ticket.responseDescription
 FROM ticket
          JOIN incident ON ticket.incidentID = incident.incidentID
        JOIN user ON ticket.responderID = user.userID
 Where ticket.incidentID LIKE ? ORDER BY timestamp DESC", [$db->execute_query("SELECT ticket.incidentID from ticket
 where ticket.ticketID LIKE ?", [$_GET['id']])->fetch_row()[0]])->fetch_all();
 
-/*if (!empty($_GET['file'])) {
-    $filename = basename($_GET['file']);
-    $filepath = 'C:/Users/axell/PhpstormProjects' . $filename;
-    if (!empty($filename) && file_exists($filepath)) {
+    /*if (!empty($_GET['file'])) {
+        $filename = basename($_GET['file']);
+        $filepath = 'C:/Users/axell/PhpstormProjects' . $filename;
+        if (!empty($filename) && file_exists($filepath)) {
 
-        //Headers Defined here
-        header("Cache-Control: public");
-        header("Content-Description: File Transfer");
-        header("Content-Disposition: attachment; filename=$filename");
-        header("Content-Type: application/zip");
-        header("Content-Transfer-Encoding: binary");
+            //Headers Defined here
+            header("Cache-Control: public");
+            header("Content-Description: File Transfer");
+            header("Content-Disposition: attachment; filename=$filename");
+            header("Content-Type: application/zip");
+            header("Content-Transfer-Encoding: binary");
 
-        readfile($filepath);
-        exit; */
+            readfile($filepath);
+            exit; */
 
 //Form submission values are sent here
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $ticketResponder = $_POST['assignResponder'];
-    $responseText = $_POST['responseText'];
+        $ticketResponder = $_POST['assignResponder'];
+        $responseText = $_POST['responseText'];
 
-    $ticketSummary['incidentID'] = htmlspecialchars($ticketSummary['incidentID']);
-    $ticketResponder = htmlspecialchars($ticketResponder);
-    $responseText = htmlspecialchars($responseText);
+        $ticketSummary['incidentID'] = htmlspecialchars($ticketSummary['incidentID']);
+        $ticketResponder = htmlspecialchars($ticketResponder);
+        $responseText = htmlspecialchars($responseText);
 
-    //Checks if Post has been sent and declares variables from form and if 'archiveTicket' has been sent to POST
-    if (isset($_POST['newResponseSubmit']) and !is_null($_POST['archiveTicket'])) {
-        $db->execute_query("INSERT INTO ticket (incidentID, responderID, ticketStatus, responseDescription, timestamp)
+        //Checks if Post has been sent and declares variables from form and if 'archiveTicket' has been sent to POST
+        if (isset($_POST['newResponseSubmit']) and !is_null($_POST['archiveTicket'])) {
+            $db->execute_query("INSERT INTO ticket (incidentID, responderID, ticketStatus, responseDescription, timestamp)
                             Values ((?), (?),'Resolved', (?), UTC_TIMESTAMP)", [$ticketSummary['incidentID'], $ticketResponder, $responseText]);
-        $db->execute_query("UPDATE incident
+            $db->execute_query("UPDATE incident
 SET isDeleted = 1
-WHERE incidentID LIKE ?",  [$db->execute_query("SELECT ticket.incidentID from ticket
+WHERE incidentID LIKE ?", [$db->execute_query("SELECT ticket.incidentID from ticket
 where ticket.ticketID LIKE ?", [htmlspecialchars($_GET['id'])])->fetch_row()[0]]);
-    }
-    //Checks if Post has been sent and declares variables from form and if 'resolveTicket' has been sent to POST
-    elseif (isset($_POST['newResponseSubmit']) and !is_null($_POST['resolveTicket'])) {
-        $db->execute_query("INSERT INTO ticket (incidentID, responderID, ticketStatus, responseDescription, timestamp)
+        } //Checks if Post has been sent and declares variables from form and if 'resolveTicket' has been sent to POST
+        elseif (isset($_POST['newResponseSubmit']) and !is_null($_POST['resolveTicket'])) {
+            $db->execute_query("INSERT INTO ticket (incidentID, responderID, ticketStatus, responseDescription, timestamp)
                             Values ((?), (?),'Resolved', (?), UTC_TIMESTAMP)", [$ticketSummary['incidentID'], $ticketResponder, $responseText]);
-    }
-    //Checks if Post has been sent and declares variables from form
-    elseif (isset($_POST['newResponseSubmit'])) {
-        $db->execute_query("INSERT INTO ticket (incidentID, responderID, ticketStatus, responseDescription, timestamp)
+        } //Checks if Post has been sent and declares variables from form
+        elseif (isset($_POST['newResponseSubmit'])) {
+            $db->execute_query("INSERT INTO ticket (incidentID, responderID, ticketStatus, responseDescription, timestamp)
                             Values ((?), (?),'In Progress', (?), UTC_TIMESTAMP)", [$ticketSummary['incidentID'], $ticketResponder, $responseText]);
+        } else {
+            echo "ticket update Failed";
+        }
+
+        //return to tickets when finished
+        header('Location: tickets.php', true, 303);
+        exit();
+
+
     }
-    else
-    {
-        echo "ticket update Failed";
-    }
-
-    //return to tickets when finished
-    header('Location: tickets.php', true, 303);
-    exit();
-
-}
-require 'sidebar.php';
-
+    require 'sidebar.php';
 ?>
 <body class="g-sidenav-show bg-gray-100">
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg py-4">
@@ -177,7 +184,7 @@ require 'sidebar.php';
                                 <?php foreach ($incidentFiles as $files): ?>
                                     <li class="list-group-item border-0 ps-0 text-sm"><?php
                                         $file = substr($files[1], 14); ?>
-                                        <a href='download.php?name=<?=$file?>'><?=substr($files[1], 14);?></a>
+                                        <a href='download.php?name=<?= $file ?>'><?= substr($files[1], 14); ?></a>
                                     </li>
                                 <?php endforeach; ?>
                             </ul>
@@ -226,20 +233,23 @@ require 'sidebar.php';
                                         <input type="checkbox" id="resolveTicket" name="resolveTicket" value="resolve">
                                         <label for="resolveTicket"> Resolve Ticket</label>
                                     </li>
-                                    <?php } if ($_SESSION['userType'] == 'Administrator'){ ?>
-                                    <li>
-                                        <input type="checkbox" id="archiveTicket" name="archiveTicket" value="archive">
-                                        <label for="archiveTicket"> Remove Ticket</label>
-                                    </li>
-                                    <li class="mt-3">
-                                        <button type="submit" class="btn mb-0 btn-primary" name="newResponseSubmit">
-                                            Submit
-                                        </button>
-                                        <button type="reset" class="btn mb-0 btn-primary" onclick="resetForm()">Reset
-                                        </button>
-                                        <a href="tickets.php" class="btn mb-0 btn-primary">Cancel</a>
-                                    </li>
-                                    <?php
+                                    <?php }
+                                    if ($_SESSION['userType'] == 'Administrator') { ?>
+                                        <li>
+                                            <input type="checkbox" id="archiveTicket" name="archiveTicket"
+                                                   value="archive">
+                                            <label for="archiveTicket"> Remove Ticket</label>
+                                        </li>
+                                        <li class="mt-3">
+                                            <button type="submit" class="btn mb-0 btn-primary" name="newResponseSubmit">
+                                                Submit
+                                            </button>
+                                            <button type="reset" class="btn mb-0 btn-primary" onclick="resetForm()">
+                                                Reset
+                                            </button>
+                                            <a href="tickets.php" class="btn mb-0 btn-primary">Cancel</a>
+                                        </li>
+                                        <?php
                                     }
                                     ?>
                                 </ul>
@@ -248,57 +258,58 @@ require 'sidebar.php';
                     </div>
                 </div>
 
-                </div>
             </div>
         </div>
+    </div>
     <div class="card mb-4">
         <div class="card-header pb-0">
             <h6 class="d-inline-block mb-2">Ticket Response Log</h6>
-    <div id="responseLog" class="card-body px-0 pt-0 pb-2 tab-pane">
-        <div class="table-responsive p-0">
-            <table class="table align-items-center mb-0 sortable">
-                <thead>
-                <tr>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                        Updated By
-                    </th>
-                    <th class="text-uppercase text-secondary  text-xxs font-weight-bolder opacity-7 ps-2">
-                        Response
-                    </th>
-                    <th class="text-uppercase text-secondary  text-xxs font-weight-bolder opacity-7 ps-2">
-                        Submitted on (UTC)
-                    </th>
-                    <th class="text-uppercase text-secondary  text-xxs font-weight-bolder opacity-7 ps-2">
-                        Status
-                    </th>
-                </tr>
-                </thead>
-                <?php foreach ($ticketLog as $row): ?>
-                <tbody>
-                <tr>
-                    <td>
-                        <div class="d-flex px-2 py-1">
-                            <div class="d-flex flex-column justify-content-center">
-                                <h6 class="mb-0 text-sm"><?=$row[4]?></h6>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <p class="ellipsis text-xs max-width-400 font-weight-bold mb-0 mx-0" data-text="<?=$row[6]?>"><?=$row[6]?></p>
-                    </td>
-                    <td class="text-sm">
-                        <p class="text-xs font-weight-bold mb-0"><?=$row[3]?></p>
-                    </td>
-                    <td>
-                        <p class="text-xs font-weight-bold mb-0"><?=$row[2]?></p>
-                    </td>
-                </tr>
-                </tbody>
-                <?php endforeach; ?>
-            </table>
+            <div id="responseLog" class="card-body px-0 pt-0 pb-2 tab-pane">
+                <div class="table-responsive p-0">
+                    <table class="table align-items-center mb-0 sortable">
+                        <thead>
+                        <tr>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                Updated By
+                            </th>
+                            <th class="text-uppercase text-secondary  text-xxs font-weight-bolder opacity-7 ps-2">
+                                Response
+                            </th>
+                            <th class="text-uppercase text-secondary  text-xxs font-weight-bolder opacity-7 ps-2">
+                                Submitted on (UTC)
+                            </th>
+                            <th class="text-uppercase text-secondary  text-xxs font-weight-bolder opacity-7 ps-2">
+                                Status
+                            </th>
+                        </tr>
+                        </thead>
+                        <?php foreach ($ticketLog as $row): ?>
+                            <tbody>
+                            <tr>
+                                <td>
+                                    <div class="d-flex px-2 py-1">
+                                        <div class="d-flex flex-column justify-content-center">
+                                            <h6 class="mb-0 text-sm"><?= $row[4] ?></h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <p class="ellipsis text-xs max-width-400 font-weight-bold mb-0 mx-0"
+                                       data-text="<?= $row[6] ?>"><?= $row[6] ?></p>
+                                </td>
+                                <td class="text-sm">
+                                    <p class="text-xs font-weight-bold mb-0"><?= $row[3] ?></p>
+                                </td>
+                                <td>
+                                    <p class="text-xs font-weight-bold mb-0"><?= $row[2] ?></p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        <?php endforeach; ?>
+                    </table>
+                </div>
+            </div>
         </div>
-    </div>
-    </div>
 </main>
 <!--   Core JS Files   -->
 <script src="../assets/js/core/popper.min.js"></script>
