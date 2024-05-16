@@ -12,7 +12,6 @@
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -47,11 +46,12 @@ WHERE ticket.ticketStatus LIKE 'Resolved' AND incident.isDeleted NOT LIKE 1")->f
     $users = $db->query("SELECT userID,userName,email,firstName,lastName,userType FROM user where userType = 'Responder' OR userType = 'Administrator'")->fetch_all();
 
  //Count the daily amount of Tickets that has been changed to status 'Resolved'
-    $dailyCompletedTickets = $db->query("SELECT ticket.ticketID, ticket.incidentID, ticket.ticketStatus, incidentDescription,ticket.timestamp, incident.reporterID, user.userName, user.userID 
-    FROM ticket
-    JOIN incident ON ticket.incidentID = incident.incidentID
-    JOIN user ON incident.reporterID = user.userID
-    WHERE ticket.ticketStatus LIKE 'Resolved' AND DATE(ticket.timestamp) LIKE UTC_DATE")->fetch_all();
+    $dailyCompletedTickets = $db->query("SELECT user.userName, COUNT(*) as userCount
+FROM user
+         JOIN ticket ON user.userID = ticket.responderID
+WHERE ticket.ticketStatus LIKE 'Resolved'
+  AND DATE(ticket.timestamp) = UTC_DATE
+GROUP BY user.userName;")->fetch_all();
 
     $countUsers = $db->query("SELECT user.userID, user.userName
     FROM user JOIN incident  ON user.userID = incident.reporterID JOIN ticket ON incident.incidentID = ticket.incidentID
@@ -79,7 +79,7 @@ WHERE ticket.ticketStatus LIKE 'Resolved' AND incident.isDeleted NOT LIKE 1")->f
     WHERE timestamp BETWEEN NOW() - INTERVAL 30 DAY AND NOW() AND incidentSeverity = 'Critical';")->fetch_all();
 
     //Counts the amount of tickets that have been received between now and 7 days ago
-    $countTickets = $db->query("SELECT ticketID, timestamp  FROM ticket WHERE timestamp BETWEEN NOW() - INTERVAL 7 DAY AND NOW();
+        $countTickets = $db->query("SELECT ticketID, timestamp  FROM ticket WHERE timestamp BETWEEN NOW() - INTERVAL 7 DAY AND NOW();
     ")->fetch_all();
 //Counts the amount of tickets that have been received between 7 days ago and 14 days ago
     $countTickets2 = $db->query ("SELECT ticketID, timestamp
@@ -98,7 +98,7 @@ WHERE ticket.ticketStatus LIKE 'Resolved' AND incident.isDeleted NOT LIKE 1")->f
     ")->fetch_all();
 
   //fetches all 'Resolved' tickets between the current date and 7 days ago
-    $resolvedTickets = $db->query("SELECT ticketID, timestamp, ticketStatus
+    $resolvedTickets = $db->query("SELECT ticketID, timestamp, COUNT(ticketStatus)
     FROM ticket
     WHERE timestamp BETWEEN NOW() - INTERVAL 7 DAY AND NOW() AND ticketStatus = 'Resolved';
     ")->fetch_all();
@@ -495,13 +495,9 @@ WHERE ticket.ticketStatus LIKE 'Resolved' AND incident.isDeleted NOT LIKE 1")->f
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <?php foreach ($users as $row): ?>
-                                    <?php
-                                    // Filter completed tickets for the right user. (It displays the right amount of tickets on the correct row in the table on the website.
-                                    $userCompletedTickets = array_filter($dailyCompletedTickets, function($ticket) use ($row) {
-                                        return $ticket[5] == $row[1];
-                                    });
-                                    ?>
+
+                                <?php foreach ($dailyCompletedTickets as $row): ?>
+
                                     <tr>
                                         <td>
                                             <div class="d-flex px-2 py-1">
@@ -509,15 +505,15 @@ WHERE ticket.ticketStatus LIKE 'Resolved' AND incident.isDeleted NOT LIKE 1")->f
                                                     <img src="../assets/img/profile.svg" class="avatar avatar-sm me-3" alt="xd">
                                                 </div>
                                                 <div class="d-flex flex-column justify-content-center">
-                                                    <h6 class="mb-0 text-sm"><?= $row[1] ?></h6>
+                                                    <h6 class="mb-0 text-sm"><?= $row[0] ?></h6>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>
+                                        <td class=" text-sm">
                                             <?php
                                             // Display the number of completed tickets for the current user
-                                            if (!empty($userCompletedTickets)) {
-                                                echo count($userCompletedTickets);
+                                            if (ISSET($dailyCompletedTickets)) {
+                                                echo ($row[1]);
                                             } else {
                                                 echo 'No completed tickets';
                                             }
@@ -525,21 +521,19 @@ WHERE ticket.ticketStatus LIKE 'Resolved' AND incident.isDeleted NOT LIKE 1")->f
                                         </td>
                                         <td class="align-middle text-center text-sm">
                                             <?php
-                                            // Check if daily completed tickets exist for the current user and if they meet the goal
-                                            if (!empty($userCompletedTickets)) {
-                                                if (count($userCompletedTickets) < 20) {
-                                                    echo 20;
-                                                } else {
-                                                    echo "Daily goal reached!";
-                                                }
+                                            // Display the number of completed tickets for the current user
+                                            if (!empty($dailyCompletedTickets)) {
+                                                echo 20 ;
+                                            } else {
+                                                echo 'Daily goal reached!';
                                             }
                                             ?>
                                         </td>
                                         <td class="align-middle text-center text-sm">
                                             <?php
                                             // Display the number of completed tickets out of the daily goal for the current user
-                                            if (!empty($userCompletedTickets)) {
-                                                echo count($userCompletedTickets), "/20";
+                                            if (!empty($dailyCompletedTickets)) {
+                                                echo ($row[1]), "/20";
                                             } else {
                                                 echo 'No completed tickets';
                                             }
@@ -674,7 +668,7 @@ WHERE ticket.ticketStatus LIKE 'Resolved' AND incident.isDeleted NOT LIKE 1")->f
                     borderWidth: 3,
                     backgroundColor: gradientStroke2,
                     fill: true,
-                    data: [<?= COUNT($resolvedTickets)?>, <?= COUNT($resolvedTickets2)?>, <?= COUNT($resolvedTickets3)?>, <?= COUNT($resolvedTickets4)?>, ],
+                    data: [<?= COUNT($resolvedTickets4)?>, <?= COUNT($resolvedTickets3)?>, <?= COUNT($resolvedTickets2)?>, <?= COUNT($resolvedTickets)?>, ],
                     maxBarThickness: 6
                 },
             ],
