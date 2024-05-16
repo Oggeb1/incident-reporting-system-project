@@ -233,6 +233,16 @@ where ticket.ticketID LIKE ?", [htmlspecialchars($_GET['id'])])->fetch_row()[0]]
                                         <input type="checkbox" id="resolveTicket" name="resolveTicket" value="resolve">
                                         <label for="resolveTicket"> Resolve Ticket</label>
                                     </li>
+                                    <?php } if ($_SESSION['userType'] == 'Responder') { ?>
+                                    <li class="mt-3">
+                                        <button type="submit" class="btn mb-0 btn-primary" name="newResponseSubmit">
+                                            Submit
+                                        </button>
+                                        <button type="reset" class="btn mb-0 btn-primary" onclick="resetForm()">
+                                            Reset
+                                        </button>
+                                        <a href="tickets.php" class="btn mb-0 btn-primary">Cancel</a>
+                                    </li>
                                     <?php }
                                     if ($_SESSION['userType'] == 'Administrator') { ?>
                                         <li>
